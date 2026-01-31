@@ -1,0 +1,33 @@
+@layer theme, base, antd, antd-pro, components, utilities;
+@import 'tailwindcss';
+@import 'tailwindcss/utilities.css' layer(utilities) important;
+
+@theme {
+  --color-primary: #1677ff;
+}
+@layer {
+  img {
+    @apply inline-block;
+  }
+}
+
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  font-size: 14px;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  scrollbar-color: rgb(217, 213, 213);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #f5f5f5;
+  }
+}
