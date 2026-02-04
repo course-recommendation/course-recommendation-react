@@ -38,3 +38,11 @@ export type UpdateUserCourseRequest = {
   courseIds: string[];
   courseDomain: CourseDomain;
 };
+
+export type GetCoursesRequest = {
+  domain: CourseDomain;
+};
+
+export type GetCourseDetailsRequest = {
+  domain: CourseDomain;
+};

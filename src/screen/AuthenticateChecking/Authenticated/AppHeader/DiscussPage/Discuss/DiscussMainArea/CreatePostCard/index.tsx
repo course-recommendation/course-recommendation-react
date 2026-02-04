@@ -6,10 +6,10 @@ import { useState } from "react";
 import useGet from "@/common/hooks/network/useGet";
 import useRequest from "@/common/hooks/network/useRequest";
 import {
+  Course,
   CourseAlgorithm,
   CourseDataset,
-  CourseDetail,
-  CourseDomain,
+  GetCoursesRequest,
 } from "@/common/types/Course.types";
 import { CreatePostRequest } from "@/common/types/Discuss.types";
 import { useMeContext } from "@/screen/AuthenticateChecking/Authenticated/context/MeContext";
@@ -35,14 +35,17 @@ export default function CreatePostCard({ afterPost, algorithm, dataset }: Props)
 
   const { request: createPost } = useRequest<void, CreatePostRequest>();
 
-  const { data: allCourseDetailsResponse, isPending: allCourseDetailsPending } = useGet<
-    CourseDetail[]
-  >(`/courses`, {
-    params: {
-      algorithm,
-      dataset,
-    } as CourseDomain,
-  });
+  const { data: allCourseDetailsResponse, isPending: allCourseDetailsPending } = useGet<Course[]>(
+    `/courses`,
+    {
+      params: {
+        domain: {
+          algorithm,
+          dataset,
+        },
+      } as GetCoursesRequest,
+    },
+  );
 
   return (
     <Card className="shadow" styles={{ body: { padding: 15 } }}>
@@ -111,8 +114,8 @@ export default function CreatePostCard({ afterPost, algorithm, dataset }: Props)
                 placeholder={"Chọn môn học mà bài viết này thảo luận"}
                 options={allCourseDetails.map((course) => {
                   return {
-                    label: course.course.name,
-                    value: course.course.id,
+                    label: course.name,
+                    value: course.id,
                   };
                 })}
                 showSearch

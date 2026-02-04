@@ -4,7 +4,7 @@ import {
   CourseAlgorithm,
   CourseDataset,
   CourseDetail,
-  CourseDomain,
+  GetCourseDetailsRequest,
   GetCoursesOfUserRequest,
   UpdateUserCourseRequest as UpdateUserCoursesRequest,
   UserCourseStatus,
@@ -19,11 +19,13 @@ type Props = {
 export default function MyCourses({ algorithm, dataset }: Props) {
   const { data: allCourseDetailsResponse, isPending: allCourseDetailsPending } = useGet<
     CourseDetail[]
-  >("/courses", {
+  >("/courses/detail", {
     params: {
-      algorithm,
-      dataset,
-    } as CourseDomain,
+      domain: {
+        algorithm,
+        dataset,
+      },
+    } as GetCourseDetailsRequest,
   });
 
   const { request: updateUserCourses } = useRequest<void, UpdateUserCoursesRequest>();

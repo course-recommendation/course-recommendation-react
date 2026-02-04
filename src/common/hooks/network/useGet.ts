@@ -15,6 +15,8 @@ export default function useGet<T, D = unknown>(url: string, config?: AxiosReques
   const [state, setState] = useState<UseGetState<T>>({ isPending: true, isRefetching: false });
 
   useDeepCompareEffect(() => {
+    setState({ isPending: true, isRefetching: false });
+
     (async () => {
       try {
         const response = (

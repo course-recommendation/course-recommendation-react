@@ -1,9 +1,10 @@
-import useGet from "@/common/hooks/network/useGet";
+import { Measure } from "@/common/constants/Measure";
 import { CourseAlgorithm, CourseDataset } from "@/common/types/Course.types";
-import { FindPostDetailsRequest, PostDetail } from "@/common/types/Discuss.types";
-import { Skeleton } from "antd";
-import CreatePostCard from "./CreatePostCard";
-import PostCard from "./PostCard";
+import { FilterOutlined } from "@ant-design/icons";
+import { Button, Drawer } from "antd";
+import { useState } from "react";
+import DiscussFilter from "./components/DiscussFilter";
+import DiscussMainArea from "./DiscussMainArea";
 
 type Props = {
   algorithm: CourseAlgorithm;
@@ -11,49 +12,80 @@ type Props = {
 };
 
 export default function Discuss({ algorithm, dataset }: Props) {
-  const {
-    data: postDetailsResponse,
-    isPending: postDetailsPending,
-    refetch: refetchPosts,
-  } = useGet<PostDetail[]>(`/posts`, {
-    params: {
-      sort: ["createdAt,desc"],
-      courseDomain: {
-        algorithm,
-        dataset,
-      },
-    } as FindPostDetailsRequest,
-  });
+  const [filteredCourseIds, setFilteredCourseIds] = useState<string[]>([]);
+  const [finalFilteredCourseIds, setFinalFilteredCourseIds] = useState<string[]>([]);
+  const [openFilterDrawer, setOpenFilterDrawer] = useState(false);
+
+  const resolveNumberOfFiltersText = () => {
+    const filterCount = finalFilteredCourseIds.length;
+    if (filterCount === 0) {
+      return "";
+    }
+    return ` (${filterCount})`;
+  };
 
   return (
-    <div className="py-6 md:py-10 px-4 md:px-0">
-      <div className="w-full md:w-3/4 lg:w-1/2 mx-auto">
-        <CreatePostCard
-          afterPost={async () => {
-            await refetchPosts();
-          }}
+    <div className="flex overflow-y-hidden" style={{ height: Measure.SCREEN_HEIGHT_STYLE }}>
+      <div className="w-[28%] overflow-auto hidden md:block">
+        <DiscussFilter
           algorithm={algorithm}
           dataset={dataset}
+          selectedCourseIds={filteredCourseIds}
+          onSelectedCourseIdsChange={(courseIds) => {
+            setFilteredCourseIds(courseIds);
+            setFinalFilteredCourseIds(courseIds);
+          }}
         />
-        <div className="my-6 md:my-10"></div>
-        <div>
-          {(() => {
-            if (postDetailsPending) {
-              return <Skeleton active />;
-            }
-
-            const postDetails = postDetailsResponse!.data;
-
-            return (
-              <div className="flex flex-col gap-4 md:gap-5">
-                {postDetails.map((postDetail) => {
-                  return <PostCard key={postDetail.post.id} postDetail={postDetail} />;
-                })}
-              </div>
-            );
-          })()}
-        </div>
       </div>
+      <div className="flex-1 overflow-auto px-5 md:px-20 pt-10">
+        <DiscussMainArea
+          algorithm={algorithm}
+          dataset={dataset}
+          courseIds={finalFilteredCourseIds}
+          filterSection={
+            <Button
+              className="md:hidden md:-mb-6"
+              icon={<FilterOutlined />}
+              onClick={() => {
+                setOpenFilterDrawer(true);
+              }}
+            >
+              {`Bộ lọc${resolveNumberOfFiltersText()}`}
+            </Button>
+          }
+        />
+      </div>
+
+      <Drawer
+        open={openFilterDrawer}
+        onClose={() => {
+          setOpenFilterDrawer(false);
+          setFilteredCourseIds(finalFilteredCourseIds);
+        }}
+        placement="bottom"
+        size={"large"}
+        className="md:hidden"
+        extra={
+          <Button
+            type="primary"
+            onClick={() => {
+              setFinalFilteredCourseIds(filteredCourseIds);
+              setOpenFilterDrawer(false);
+            }}
+          >
+            Áp dụng
+          </Button>
+        }
+      >
+        <DiscussFilter
+          algorithm={algorithm}
+          dataset={dataset}
+          selectedCourseIds={filteredCourseIds}
+          onSelectedCourseIdsChange={(courseIds) => {
+            setFilteredCourseIds(courseIds);
+          }}
+        />
+      </Drawer>
     </div>
   );
 }
