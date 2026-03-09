@@ -41,7 +41,7 @@ export default function DiscussFilter({
 
   const checkedCourses =
     allCoursesResponse?.data.filter((course) => {
-      return selectedCourseIds.includes(course.id);
+      return selectedCourseIds.includes(course.courseId);
     }) ?? [];
 
   return (
@@ -74,7 +74,7 @@ export default function DiscussFilter({
                     closeIcon
                     key={course.id}
                     onClose={() => {
-                      onSelectedCourseIdsChange(selectedCourseIds.filter((x) => x !== course.id));
+                      onSelectedCourseIdsChange(selectedCourseIds.filter((x) => x !== course.courseId));
                     }}
                     className="text-base border-gray-400 p-2 rounded-xl"
                   >
@@ -110,7 +110,7 @@ export default function DiscussFilter({
                           options={filteredCourses.map((course) => {
                             return {
                               label: course.name,
-                              value: course.id,
+                              value: course.courseId,
                             };
                           })}
                           value={selectedCourseIds}

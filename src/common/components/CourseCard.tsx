@@ -18,7 +18,7 @@ export default function CourseCard({ courseDetail, footer, cardProps }: Props) {
       <div className="relative w-full h-32 md:h-48 overflow-hidden">
         <img
           src={`https://picsum.photos/seed/${courseDetail.course.id}/1600/900`}
-          alt={courseDetail.course.id}
+          alt={courseDetail.course.courseId}
           className="w-full h-full object-cover"
         />
       </div>

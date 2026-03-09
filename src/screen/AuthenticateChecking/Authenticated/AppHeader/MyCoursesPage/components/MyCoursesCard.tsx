@@ -46,7 +46,7 @@ export default function MyCoursesCard({
             className="w-full sm:w-auto"
             onClick={() => {
               form.setFieldsValue({
-                courseIds: courseDetailsResponse?.data.map((x) => x.course.id) ?? [],
+                courseIds: courseDetailsResponse?.data.map((x) => x.course.courseId) ?? [],
               });
               setOpenModal(true);
             }}
@@ -111,7 +111,7 @@ export default function MyCoursesCard({
                   mode="multiple"
                   options={courses.map((courseDetail) => ({
                     label: courseDetail.course.name,
-                    value: courseDetail.course.id,
+                    value: courseDetail.course.courseId,
                   }))}
                   showSearch
                   fieldProps={{

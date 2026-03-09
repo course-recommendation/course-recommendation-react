@@ -134,10 +134,10 @@ export default function FSRecommendation({ dataset }: Props) {
         <Button
           className="w-full"
           type={addedToPlanningCourses ? "default" : "primary"}
-          loading={addingOrRemovingCourseId === courseDetail.course.id}
+          loading={addingOrRemovingCourseId === courseDetail.course.courseId}
           icon={addedToPlanningCourses ? <DeleteOutlined /> : <PlusOutlined />}
           onClick={async () => {
-            setAddingOrRemovingCourseId(courseDetail.course.id);
+            setAddingOrRemovingCourseId(courseDetail.course.courseId);
             if (addedToPlanningCourses) {
               await updateUserCourse({
                 method: "delete",
@@ -148,7 +148,7 @@ export default function FSRecommendation({ dataset }: Props) {
                 method: "post",
                 url: "/me/courses",
                 data: {
-                  courseId: courseDetail.course.id,
+                  courseId: courseDetail.course.courseId,
                   status: UserCourseStatus.PLANNING,
                 },
               });
@@ -344,7 +344,7 @@ export default function FSRecommendation({ dataset }: Props) {
                       footer={
                         <div className="flex gap-2">
                           {getAddOrRemoveButton(recommendationResult.topCourseDetail)}
-                          {getViewDiscussionsButton(recommendationResult.topCourseDetail.course.id)}
+                          {getViewDiscussionsButton(recommendationResult.topCourseDetail.course.courseId)}
                         </div>
                       }
                     />
@@ -396,7 +396,7 @@ export default function FSRecommendation({ dataset }: Props) {
                                                 data: {
                                                   dataset,
                                                   recommendationId: recommendationResult.id,
-                                                  itemId: courseDetail.course.id,
+                                                  itemId: courseDetail.course.courseId,
                                                   category: categoryDetail.category,
                                                 },
                                               })
@@ -408,7 +408,7 @@ export default function FSRecommendation({ dataset }: Props) {
                                           Tốt hơn
                                         </Button>
                                       </Tooltip>
-                                      {getViewDiscussionsButton(courseDetail.course.id)}
+                                      {getViewDiscussionsButton(courseDetail.course.courseId)}
                                     </div>
                                   }
                                 />
