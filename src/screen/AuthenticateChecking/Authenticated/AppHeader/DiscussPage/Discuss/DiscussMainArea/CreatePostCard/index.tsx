@@ -5,12 +5,7 @@ import { useState } from "react";
 
 import useGet from "@/common/hooks/network/useGet";
 import useRequest from "@/common/hooks/network/useRequest";
-import {
-  Course,
-  CourseAlgorithm,
-  CourseDataset,
-  GetCoursesRequest,
-} from "@/common/types/Course.types";
+import { Algorithm, Course, Dataset, GetCoursesRequest } from "@/common/types/Course.types";
 import { CreatePostRequest } from "@/common/types/Discuss.types";
 import { useMeContext } from "@/screen/AuthenticateChecking/Authenticated/context/MeContext";
 
@@ -21,8 +16,8 @@ type CreatePostFormType = {
 
 type Props = {
   afterPost?: () => void;
-  algorithm: CourseAlgorithm;
-  dataset: CourseDataset;
+  algorithm: Algorithm;
+  dataset: Dataset;
 };
 
 export default function CreatePostCard({ afterPost, algorithm, dataset }: Props) {

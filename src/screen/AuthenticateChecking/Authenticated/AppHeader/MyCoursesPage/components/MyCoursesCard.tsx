@@ -7,7 +7,7 @@ import CourseCard from "../../../../../../common/components/CourseCard";
 import { RestResponse } from "../../../../../../common/types/Network";
 
 export type UpdateMyCoursesFormType = {
-  courseIds: string[];
+  courseIds: number[];
 };
 
 type Props = {
@@ -16,7 +16,7 @@ type Props = {
   allCourseDetailsPending: boolean;
   courseDetailsResponse?: RestResponse<CourseDetail[]>;
   courseDetailsPending: boolean;
-  onOk: (courseIds: string[]) => Promise<void>;
+  onOk: (courseIds: number[]) => Promise<void>;
   refetching: boolean;
 };
 
@@ -46,7 +46,7 @@ export default function MyCoursesCard({
             className="w-full sm:w-auto"
             onClick={() => {
               form.setFieldsValue({
-                courseIds: courseDetailsResponse?.data.map((x) => x.course.courseId) ?? [],
+                courseIds: courseDetailsResponse?.data.map((x) => x.course.id) ?? [],
               });
               setOpenModal(true);
             }}
@@ -111,7 +111,7 @@ export default function MyCoursesCard({
                   mode="multiple"
                   options={courses.map((courseDetail) => ({
                     label: courseDetail.course.name,
-                    value: courseDetail.course.courseId,
+                    value: courseDetail.course.id,
                   }))}
                   showSearch
                   fieldProps={{

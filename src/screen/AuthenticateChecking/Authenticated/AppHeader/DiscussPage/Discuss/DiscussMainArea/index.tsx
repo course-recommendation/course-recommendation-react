@@ -1,5 +1,5 @@
 import useGet from "@/common/hooks/network/useGet";
-import { CourseAlgorithm, CourseDataset } from "@/common/types/Course.types";
+import { Algorithm, Dataset } from "@/common/types/Course.types";
 import { FindPostDetailsRequest, PostDetail } from "@/common/types/Discuss.types";
 import { Empty, Skeleton } from "antd";
 import { ReactNode } from "react";
@@ -7,8 +7,8 @@ import CreatePostCard from "./CreatePostCard";
 import PostCard from "./PostCard";
 
 type Props = {
-  algorithm: CourseAlgorithm;
-  dataset: CourseDataset;
+  algorithm: Algorithm;
+  dataset: Dataset;
   courseIds: string[];
   filterSection?: ReactNode;
 };
@@ -21,7 +21,7 @@ export default function DiscussMainArea({ algorithm, dataset, courseIds, filterS
   } = useGet<PostDetail[]>(`/posts`, {
     params: {
       sort: ["createdAt,desc"],
-      courseDomain: {
+      domain: {
         algorithm,
         dataset,
       },

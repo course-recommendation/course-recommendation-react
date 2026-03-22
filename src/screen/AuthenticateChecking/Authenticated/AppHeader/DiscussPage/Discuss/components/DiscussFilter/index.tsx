@@ -1,16 +1,11 @@
 import useGet from "@/common/hooks/network/useGet";
-import {
-  Course,
-  CourseAlgorithm,
-  CourseDataset,
-  GetCoursesRequest,
-} from "@/common/types/Course.types";
+import { Algorithm, Course, Dataset, GetCoursesRequest } from "@/common/types/Course.types";
 import { Card, Checkbox, Collapse, Input, Skeleton, Tag, Typography } from "antd";
 import { useMemo, useState } from "react";
 
 type Props = {
-  algorithm: CourseAlgorithm;
-  dataset: CourseDataset;
+  algorithm: Algorithm;
+  dataset: Dataset;
   selectedCourseIds: string[];
   onSelectedCourseIdsChange: (courseIds: string[]) => void;
 };
@@ -41,7 +36,7 @@ export default function DiscussFilter({
 
   const checkedCourses =
     allCoursesResponse?.data.filter((course) => {
-      return selectedCourseIds.includes(course.courseId);
+      return selectedCourseIds.includes(course.code);
     }) ?? [];
 
   return (
@@ -74,7 +69,7 @@ export default function DiscussFilter({
                     closeIcon
                     key={course.id}
                     onClose={() => {
-                      onSelectedCourseIdsChange(selectedCourseIds.filter((x) => x !== course.courseId));
+                      onSelectedCourseIdsChange(selectedCourseIds.filter((x) => x !== course.code));
                     }}
                     className="text-base border-gray-400 p-2 rounded-xl"
                   >
@@ -110,7 +105,7 @@ export default function DiscussFilter({
                           options={filteredCourses.map((course) => {
                             return {
                               label: course.name,
-                              value: course.courseId,
+                              value: course.code,
                             };
                           })}
                           value={selectedCourseIds}

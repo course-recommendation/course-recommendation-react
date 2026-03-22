@@ -1,4 +1,4 @@
-import { Course, CourseDomain } from "./Course.types";
+import { Course, Domain } from "./Course.types";
 import { ListRequest } from "./ListRequest.types";
 import { User } from "./User.types";
 
@@ -37,7 +37,7 @@ export type CreatePostCommentRequest = {
 };
 
 export type FindPostDetailsRequest = {
-  courseDomain: CourseDomain;
+  domain: Domain;
   sort: string[];
   courseIdsRequest: ListRequest<string>;
 };

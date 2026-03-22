@@ -1,4 +1,4 @@
-import { useCourseDomainContext } from "@/common/context/CourseDomainContext";
+import { useCourseDomainContext } from "@/common/context/DomainContext";
 import MyCourses from "./MyCourses";
 
 export default function MyCoursesPage() {

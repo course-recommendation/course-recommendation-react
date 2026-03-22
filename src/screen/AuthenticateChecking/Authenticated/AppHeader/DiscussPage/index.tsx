@@ -1,4 +1,4 @@
-import { useCourseDomainContext } from "@/common/context/CourseDomainContext";
+import { useCourseDomainContext } from "@/common/context/DomainContext";
 import Discuss from "./Discuss";
 
 export default function DiscussPage() {

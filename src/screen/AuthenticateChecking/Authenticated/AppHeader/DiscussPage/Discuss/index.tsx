@@ -1,28 +1,54 @@
 import { Measure } from "@/common/constants/Measure";
-import { CourseAlgorithm, CourseDataset } from "@/common/types/Course.types";
+import { Algorithm, Dataset } from "@/common/types/Course.types";
 import { FilterOutlined } from "@ant-design/icons";
 import { Button, Drawer } from "antd";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router";
 import DiscussFilter from "./components/DiscussFilter";
 import DiscussMainArea from "./DiscussMainArea";
 
 type Props = {
-  algorithm: CourseAlgorithm;
-  dataset: CourseDataset;
+  algorithm: Algorithm;
+  dataset: Dataset;
 };
 
 export default function Discuss({ algorithm, dataset }: Props) {
-  const [filteredCourseIds, setFilteredCourseIds] = useState<string[]>([]);
-  const [finalFilteredCourseIds, setFinalFilteredCourseIds] = useState<string[]>([]);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const [filteredCourseCodes, setFilteredCourseCodes] = useState<string[]>([]);
+  const [finalFilteredCourseCodes, setFinalFilteredCourseCodes] = useState<string[]>([]);
   const [openFilterDrawer, setOpenFilterDrawer] = useState(false);
 
   const resolveNumberOfFiltersText = () => {
-    const filterCount = finalFilteredCourseIds.length;
+    const filterCount = finalFilteredCourseCodes.length;
     if (filterCount === 0) {
       return "";
     }
     return ` (${filterCount})`;
   };
+
+  useEffect(() => {
+    const courseCodesParam = searchParams.get("courseCodes");
+    if (courseCodesParam) {
+      const codes = courseCodesParam.split(",");
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setFilteredCourseCodes(codes);
+      setFinalFilteredCourseCodes(codes);
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (finalFilteredCourseCodes.length > 0) {
+      setSearchParams(
+        {
+          courseCodes: finalFilteredCourseCodes.join(","),
+        },
+        { replace: true },
+      );
+    } else {
+      setSearchParams({}, { replace: true });
+    }
+  }, [finalFilteredCourseCodes, setSearchParams]);
 
   return (
     <div className="flex overflow-y-hidden" style={{ height: Measure.SCREEN_HEIGHT_STYLE }}>
@@ -30,10 +56,10 @@ export default function Discuss({ algorithm, dataset }: Props) {
         <DiscussFilter
           algorithm={algorithm}
           dataset={dataset}
-          selectedCourseIds={filteredCourseIds}
+          selectedCourseIds={filteredCourseCodes}
           onSelectedCourseIdsChange={(courseIds) => {
-            setFilteredCourseIds(courseIds);
-            setFinalFilteredCourseIds(courseIds);
+            setFilteredCourseCodes(courseIds);
+            setFinalFilteredCourseCodes(courseIds);
           }}
         />
       </div>
@@ -41,7 +67,7 @@ export default function Discuss({ algorithm, dataset }: Props) {
         <DiscussMainArea
           algorithm={algorithm}
           dataset={dataset}
-          courseIds={finalFilteredCourseIds}
+          courseIds={finalFilteredCourseCodes}
           filterSection={
             <Button
               className="md:hidden md:-mb-6"
@@ -60,7 +86,7 @@ export default function Discuss({ algorithm, dataset }: Props) {
         open={openFilterDrawer}
         onClose={() => {
           setOpenFilterDrawer(false);
-          setFilteredCourseIds(finalFilteredCourseIds);
+          setFilteredCourseCodes(finalFilteredCourseCodes);
         }}
         placement="bottom"
         size={"large"}
@@ -69,7 +95,7 @@ export default function Discuss({ algorithm, dataset }: Props) {
           <Button
             type="primary"
             onClick={() => {
-              setFinalFilteredCourseIds(filteredCourseIds);
+              setFinalFilteredCourseCodes(filteredCourseCodes);
               setOpenFilterDrawer(false);
             }}
           >
@@ -80,9 +106,9 @@ export default function Discuss({ algorithm, dataset }: Props) {
         <DiscussFilter
           algorithm={algorithm}
           dataset={dataset}
-          selectedCourseIds={filteredCourseIds}
+          selectedCourseIds={filteredCourseCodes}
           onSelectedCourseIdsChange={(courseIds) => {
-            setFilteredCourseIds(courseIds);
+            setFilteredCourseCodes(courseIds);
           }}
         />
       </Drawer>

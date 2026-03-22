@@ -15,6 +15,8 @@ export default function useGet<T, D = unknown>(url: string, config?: AxiosReques
   const [state, setState] = useState<UseGetState<T>>({ isPending: true, isRefetching: false });
 
   useDeepCompareEffect(() => {
+    let ignore = false;
+
     setState({ isPending: true, isRefetching: false });
 
     (async () => {
@@ -26,17 +28,25 @@ export default function useGet<T, D = unknown>(url: string, config?: AxiosReques
           })
         ).data;
 
-        setState({ isPending: false, data: response, isRefetching: false });
+        if (!ignore) {
+          setState({ isPending: false, data: response, isRefetching: false });
+        }
 
         return response;
       } catch (e) {
         if (e instanceof RestError) {
-          setState({ isPending: false, error: e, isRefetching: false });
+          if (!ignore) {
+            setState({ isPending: false, error: e, isRefetching: false });
+          }
         }
 
         throw e;
       }
     })();
+
+    return () => {
+      ignore = true;
+    };
   }, [config, url]);
 
   const refetch = useCallback(async () => {

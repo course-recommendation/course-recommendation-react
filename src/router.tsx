@@ -4,6 +4,7 @@ import Root from "./Root";
 import AuthenticateChecking from "./screen/AuthenticateChecking";
 import Authenticated from "./screen/AuthenticateChecking/Authenticated";
 import AppHeader from "./screen/AuthenticateChecking/Authenticated/AppHeader";
+import CourseDetailPage from "./screen/AuthenticateChecking/Authenticated/AppHeader/CourseDetailPage";
 import DiscussPage from "./screen/AuthenticateChecking/Authenticated/AppHeader/DiscussPage";
 import MyCoursesPage from "./screen/AuthenticateChecking/Authenticated/AppHeader/MyCoursesPage";
 import RecommendationPage from "./screen/AuthenticateChecking/Authenticated/AppHeader/RecommendationPage";
@@ -50,6 +51,10 @@ export const router = createBrowserRouter([
                   {
                     path: "/my-courses",
                     element: <MyCoursesPage />,
+                  },
+                  {
+                    path: "/courses/:courseCode",
+                    element: <CourseDetailPage />,
                   },
                 ],
               },

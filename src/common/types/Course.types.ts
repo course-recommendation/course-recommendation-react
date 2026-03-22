@@ -1,6 +1,6 @@
 export type Course = {
   id: number;
-  courseId: string;
+  code: string;
   name: string;
 };
 
@@ -9,12 +9,12 @@ export enum UserCourseStatus {
   PLANNING = "PLANNING",
 }
 
-export enum CourseAlgorithm {
+export enum Algorithm {
   FS = "FS",
   TRI_RANK = "TRI_RANK",
 }
 
-export enum CourseDataset {
+export enum Dataset {
   FIT = "FIT",
   CELLPHONE = "CELLPHONE",
 }
@@ -22,28 +22,38 @@ export enum CourseDataset {
 export type CourseDetail = {
   course: Course;
   userCourseStatuses: UserCourseStatus[];
+  userAttributeValueToRatingScore: Record<string, number>;
 };
 
-export type CourseDomain = {
-  algorithm: CourseAlgorithm;
-  dataset: CourseDataset;
+export type Domain = {
+  algorithm: Algorithm;
+  dataset: Dataset;
 };
 
 export type GetCoursesOfUserRequest = {
-  courseDomain: CourseDomain;
+  domain: Domain;
   userCourseStatus: UserCourseStatus;
 };
 
 export type UpdateUserCourseRequest = {
   userCourseStatus: UserCourseStatus;
-  courseIds: string[];
-  courseDomain: CourseDomain;
+  courseIds: number[];
+  domain: Domain;
 };
 
 export type GetCoursesRequest = {
-  domain: CourseDomain;
+  domain: Domain;
 };
 
 export type GetCourseDetailsRequest = {
-  domain: CourseDomain;
+  domain: Domain;
+};
+
+export type GetCourseDetailRequest = {
+  domain: Domain;
+};
+
+export type RateCourseRequest = {
+  attributeValue: string;
+  score: number;
 };

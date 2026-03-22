@@ -2,8 +2,8 @@ import CourseCard from "@/common/components/CourseCard";
 import { Measure } from "@/common/constants/Measure";
 import useGet from "@/common/hooks/network/useGet";
 import useRequest from "@/common/hooks/network/useRequest";
-import { useBreakpoint } from "@/common/hooks/tailwind";
-import { CourseDataset, CourseDetail, UserCourseStatus } from "@/common/types/Course.types";
+import { useBreakpoint } from "@/common/hooks/useBreakpoint";
+import { Algorithm, CourseDetail, Dataset, UserCourseStatus } from "@/common/types/Course.types";
 import {
   FSRecommendationRequest,
   FSRecommendationResult,
@@ -34,46 +34,41 @@ import {
 import useApp from "antd/es/app/useApp";
 import { useForm } from "antd/es/form/Form";
 import { useEffect, useState } from "react";
+import { useAttributeValueToLabel } from "./hooks/useAttributeValueToLabel";
 
 type RecommendationSettingFormType = {
   attributeToTargetSentimentScore: Record<string, number>;
 };
 
 type Props = {
-  dataset: CourseDataset;
+  dataset: Dataset;
 };
 
 export default function FSRecommendation({ dataset }: Props) {
   const { message } = useApp();
+  const attributeValueToLabel = useAttributeValueToLabel();
 
   const isDesktop = useBreakpoint("md");
-
-  const { data: attributeValueToLabelResponse, isPending: attributeValueToLabelPending } = useGet<
-    Record<string, string>
-  >(`/fs/attribute-value-to-label`, {
-    params: {
-      dataset,
-    },
-  });
 
   const [form] = useForm<RecommendationSettingFormType>();
   const [settingsDrawerOpen, setSettingsDrawerOpen] = useState(false);
 
   const { data: attributesResponse, isPending: attributesPending } = useGet<string[]>(
-    `/fs/attributes`,
+    `/attributes`,
     {
       params: {
         dataset,
+        algorithm: Algorithm.FS,
       },
     },
   );
 
-  const {
-    data: attributeToTargetSentimentScoreResponse,
-    isPending: attributeToTargetSentimentScorePending,
-  } = useGet<Record<string, number> | undefined>(`/fs/user-preference`, {
+  const { data: attributeToScoreResponse, isPending: attributeToScorePending } = useGet<
+    Record<string, number> | undefined
+  >(`/user-preference`, {
     params: {
       dataset,
+      algorithm: Algorithm.FS,
     },
   });
 
@@ -98,7 +93,7 @@ export default function FSRecommendation({ dataset }: Props) {
 
   const { request: updateUserCourse } = useRequest<
     void,
-    { courseId: string; status: UserCourseStatus }
+    { courseId: number; status: UserCourseStatus }
   >();
   const [addingOrRemovingCourseId, setAddingOrRemovingCourseId] = useState<string | undefined>(
     undefined,
@@ -134,10 +129,12 @@ export default function FSRecommendation({ dataset }: Props) {
         <Button
           className="w-full"
           type={addedToPlanningCourses ? "default" : "primary"}
-          loading={addingOrRemovingCourseId === courseDetail.course.courseId}
+          loading={addingOrRemovingCourseId === courseDetail.course.code}
           icon={addedToPlanningCourses ? <DeleteOutlined /> : <PlusOutlined />}
-          onClick={async () => {
-            setAddingOrRemovingCourseId(courseDetail.course.courseId);
+          onClick={async (e) => {
+            e.preventDefault();
+
+            setAddingOrRemovingCourseId(courseDetail.course.code);
             if (addedToPlanningCourses) {
               await updateUserCourse({
                 method: "delete",
@@ -148,7 +145,7 @@ export default function FSRecommendation({ dataset }: Props) {
                 method: "post",
                 url: "/me/courses",
                 data: {
-                  courseId: courseDetail.course.courseId,
+                  courseId: courseDetail.course.id,
                   status: UserCourseStatus.PLANNING,
                 },
               });
@@ -207,17 +204,12 @@ export default function FSRecommendation({ dataset }: Props) {
     <div className="h-full flex flex-col overflow-hidden">
       <div className="flex-1 overflow-y-auto min-h-0">
         {(() => {
-          if (
-            attributesPending ||
-            attributeToTargetSentimentScorePending ||
-            attributeValueToLabelPending
-          ) {
+          if (attributesPending || attributeToScorePending) {
             return <Skeleton active />;
           }
 
           const attributes = attributesResponse!.data;
-          const attributeToTargetSentimentScore = attributeToTargetSentimentScoreResponse!.data;
-          const attributeValueToLabel = attributeValueToLabelResponse!.data;
+          const attributeToTargetSentimentScore = attributeToScoreResponse!.data;
 
           return (
             <ProForm<RecommendationSettingFormType>
@@ -237,7 +229,7 @@ export default function FSRecommendation({ dataset }: Props) {
                 <ProFormItem
                   key={attribute}
                   name={["attributeToTargetSentimentScore", attribute]}
-                  label={attributeValueToLabel[attribute] || attribute}
+                  label={attributeValueToLabel(attribute)}
                   className="pl-2"
                 >
                   <Slider
@@ -311,7 +303,7 @@ export default function FSRecommendation({ dataset }: Props) {
 
         <div className="w-full border border-gray-200 rounded-2xl bg-white p-4 md:p-5 flex-1 overflow-hidden">
           {(() => {
-            if (latestFSRecommendationResultPending || attributeValueToLabelPending) {
+            if (latestFSRecommendationResultPending) {
               return <Skeleton />;
             }
             if (!recommendationResult) {
@@ -323,8 +315,6 @@ export default function FSRecommendation({ dataset }: Props) {
                 </div>
               );
             }
-
-            const attributeValueToLabel = attributeValueToLabelResponse!.data;
 
             return (
               <div className="h-full overflow-y-auto">
@@ -344,7 +334,9 @@ export default function FSRecommendation({ dataset }: Props) {
                       footer={
                         <div className="flex gap-2">
                           {getAddOrRemoveButton(recommendationResult.topCourseDetail)}
-                          {getViewDiscussionsButton(recommendationResult.topCourseDetail.course.courseId)}
+                          {getViewDiscussionsButton(
+                            recommendationResult.topCourseDetail.course.code,
+                          )}
                         </div>
                       }
                     />
@@ -366,7 +358,7 @@ export default function FSRecommendation({ dataset }: Props) {
                               <span key={idx}>
                                 {idx > 0 && ", "}
                                 <span className="text-primary">
-                                  {attributeValueToLabel[tradeoffPair.attribute] ||
+                                  {attributeValueToLabel(tradeoffPair.attribute) ||
                                     tradeoffPair.attribute}
                                 </span>
                                 {` ${isDirectionUp(tradeoffPair.direction) ? "tốt hơn" : "tệ hơn"}`}
@@ -388,7 +380,9 @@ export default function FSRecommendation({ dataset }: Props) {
                                         <Button
                                           className="w-full"
                                           icon={<ArrowUpOutlined />}
-                                          onClick={async () => {
+                                          onClick={async (e) => {
+                                            e.preventDefault();
+
                                             const resullt = (
                                               await getRefinedFSRecommendation({
                                                 url: "/fs/recommendation/refined",
@@ -396,7 +390,7 @@ export default function FSRecommendation({ dataset }: Props) {
                                                 data: {
                                                   dataset,
                                                   recommendationId: recommendationResult.id,
-                                                  itemId: courseDetail.course.courseId,
+                                                  itemId: courseDetail.course.code,
                                                   category: categoryDetail.category,
                                                 },
                                               })
@@ -408,7 +402,7 @@ export default function FSRecommendation({ dataset }: Props) {
                                           Tốt hơn
                                         </Button>
                                       </Tooltip>
-                                      {getViewDiscussionsButton(courseDetail.course.courseId)}
+                                      {getViewDiscussionsButton(courseDetail.course.code)}
                                     </div>
                                   }
                                 />

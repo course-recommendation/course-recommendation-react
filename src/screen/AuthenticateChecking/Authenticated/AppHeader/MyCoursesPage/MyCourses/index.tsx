@@ -1,9 +1,9 @@
 import useGet from "@/common/hooks/network/useGet";
 import useRequest from "@/common/hooks/network/useRequest";
 import {
-  CourseAlgorithm,
-  CourseDataset,
+  Algorithm,
   CourseDetail,
+  Dataset,
   GetCourseDetailsRequest,
   GetCoursesOfUserRequest,
   UpdateUserCourseRequest as UpdateUserCoursesRequest,
@@ -12,8 +12,8 @@ import {
 import MyCoursesCard from "@/screen/AuthenticateChecking/Authenticated/AppHeader/MyCoursesPage/components/MyCoursesCard";
 
 type Props = {
-  algorithm: CourseAlgorithm;
-  dataset: CourseDataset;
+  algorithm: Algorithm;
+  dataset: Dataset;
 };
 
 export default function MyCourses({ algorithm, dataset }: Props) {
@@ -37,7 +37,7 @@ export default function MyCourses({ algorithm, dataset }: Props) {
     isRefetching: refetchingCompletedCourses,
   } = useGet<CourseDetail[]>("/me/courses", {
     params: {
-      courseDomain: {
+      domain: {
         algorithm,
         dataset,
       },
@@ -52,7 +52,7 @@ export default function MyCourses({ algorithm, dataset }: Props) {
     isRefetching: refetchingPlanningCourses,
   } = useGet<CourseDetail[]>("/me/courses", {
     params: {
-      courseDomain: {
+      domain: {
         algorithm,
         dataset,
       },
@@ -71,7 +71,7 @@ export default function MyCourses({ algorithm, dataset }: Props) {
             data: {
               courseIds,
               userCourseStatus: UserCourseStatus.PLANNING,
-              courseDomain: {
+              domain: {
                 algorithm,
                 dataset,
               },
@@ -97,7 +97,7 @@ export default function MyCourses({ algorithm, dataset }: Props) {
             data: {
               courseIds,
               userCourseStatus: UserCourseStatus.COMPLETED,
-              courseDomain: {
+              domain: {
                 algorithm,
                 dataset,
               },

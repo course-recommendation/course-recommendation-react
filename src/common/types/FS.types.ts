@@ -1,4 +1,4 @@
-import { CourseDataset, CourseDetail } from "./Course.types";
+import { CourseDetail, Dataset } from "./Course.types";
 
 export type FSTradeoffPair = {
   attribute: string;
@@ -19,7 +19,7 @@ export function isDirectionUp(tradeoffDirection: TradeoffDirection) {
 }
 
 export type FSRecommendationRequest = {
-  dataset: CourseDataset;
+  dataset: Dataset;
   attributeToPreferenceConfigure: Record<
     string,
     Pick<FSPreferenceConfigure, "targetSentimentScore">
@@ -27,7 +27,7 @@ export type FSRecommendationRequest = {
 };
 
 export type FSRefinedRecommendationRequest = {
-  dataset: CourseDataset;
+  dataset: Dataset;
   recommendationId: number;
   itemId: string;
   category: FSTradeoffPair[];

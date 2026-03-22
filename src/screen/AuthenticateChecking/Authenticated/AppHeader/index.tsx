@@ -1,6 +1,6 @@
 import { LocalStorageKey } from "@/common/constants/LocalStorageKey";
-import { useCourseDomainContext } from "@/common/context/CourseDomainContext";
-import { CourseAlgorithm, CourseDataset } from "@/common/types/Course.types";
+import { useCourseDomainContext } from "@/common/context/DomainContext";
+import { Algorithm, Dataset } from "@/common/types/Course.types";
 import { MenuOutlined } from "@ant-design/icons";
 import {
   Avatar,
@@ -68,11 +68,11 @@ export default function AppHeader() {
       options={[
         {
           label: "Feature Sentiment",
-          value: CourseAlgorithm.FS,
+          value: Algorithm.FS,
         },
         {
           label: "TriRank",
-          value: CourseAlgorithm.TRI_RANK,
+          value: Algorithm.TRI_RANK,
         },
       ]}
       onSelect={(value) => {
@@ -87,8 +87,8 @@ export default function AppHeader() {
     <Select
       className="w-full md:w-auto"
       options={[
-        { label: "HCMUS", value: CourseDataset.FIT },
-        { label: "Cellphone", value: CourseDataset.CELLPHONE },
+        { label: "HCMUS", value: Dataset.FIT },
+        { label: "Cellphone", value: Dataset.CELLPHONE },
       ]}
       onSelect={(value) => {
         localStorage.setItem(LocalStorageKey.DATASET, value);
