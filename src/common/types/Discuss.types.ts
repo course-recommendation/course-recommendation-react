@@ -1,6 +1,6 @@
-import { Course, Domain } from "./Course.types";
-import { ListRequest } from "./ListRequest.types";
-import { User } from "./User.types";
+import { Course, Domain } from './Course.types';
+import { ListRequest } from './ListRequest.types';
+import { User } from './User.types';
 
 export type CreatePostRequest = {
   courseId: string;

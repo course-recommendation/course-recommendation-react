@@ -1,5 +1,5 @@
-import { Algorithm, Dataset } from "../types/Course.types";
-import useGet from "./network/useGet";
+import { Algorithm, Dataset } from '../types/Course.types';
+import useGet from './network/useGet';
 
 export function useAttributeValues({
   algorithm,

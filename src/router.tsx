@@ -1,59 +1,59 @@
-import { createBrowserRouter } from "react-router";
-import RouteErrorBoundary from "./common/RouteErrorBoundary";
-import Root from "./Root";
-import AuthenticateChecking from "./screen/AuthenticateChecking";
-import Authenticated from "./screen/AuthenticateChecking/Authenticated";
-import AppHeader from "./screen/AuthenticateChecking/Authenticated/AppHeader";
-import CourseDetailPage from "./screen/AuthenticateChecking/Authenticated/AppHeader/CourseDetailPage";
-import DiscussPage from "./screen/AuthenticateChecking/Authenticated/AppHeader/DiscussPage";
-import MyCoursesPage from "./screen/AuthenticateChecking/Authenticated/AppHeader/MyCoursesPage";
-import RecommendationPage from "./screen/AuthenticateChecking/Authenticated/AppHeader/RecommendationPage";
-import PublicPage from "./screen/PublicPage";
-import Login from "./screen/PublicPage/Login";
+import { createBrowserRouter } from 'react-router';
+import RouteErrorBoundary from './common/RouteErrorBoundary';
+import Root from './Root';
+import AuthenticateChecking from './screen/AuthenticateChecking';
+import Authenticated from './screen/AuthenticateChecking/Authenticated';
+import AppHeader from './screen/AuthenticateChecking/Authenticated/AppHeader';
+import CourseDetailPage from './screen/AuthenticateChecking/Authenticated/AppHeader/CourseDetailPage';
+import DiscussPage from './screen/AuthenticateChecking/Authenticated/AppHeader/DiscussPage';
+import MyCoursesPage from './screen/AuthenticateChecking/Authenticated/AppHeader/MyCoursesPage';
+import RecommendationPage from './screen/AuthenticateChecking/Authenticated/AppHeader/RecommendationPage';
+import PublicPage from './screen/PublicPage';
+import Login from './screen/PublicPage/Login';
 
 export const router = createBrowserRouter([
   {
-    path: "public-path",
+    path: 'public-path',
     element: <PublicPage />,
     children: [
       {
-        path: "login",
+        path: 'login',
         element: <Login />,
       },
     ],
   },
 
   {
-    path: "",
+    path: '',
     element: <Root />,
     ErrorBoundary: RouteErrorBoundary,
     children: [
       {
-        path: "",
+        path: '',
         element: <AuthenticateChecking />,
         children: [
           {
-            path: "",
+            path: '',
             element: <Authenticated />,
             children: [
               {
-                path: "",
+                path: '',
                 element: <AppHeader />,
                 children: [
                   {
-                    path: "",
+                    path: '',
                     element: <RecommendationPage />,
                   },
                   {
-                    path: "/discuss",
+                    path: '/discuss',
                     element: <DiscussPage />,
                   },
                   {
-                    path: "/my-courses",
+                    path: '/my-courses',
                     element: <MyCoursesPage />,
                   },
                   {
-                    path: "/courses/:courseCode",
+                    path: '/courses/:courseCode',
                     element: <CourseDetailPage />,
                   },
                 ],

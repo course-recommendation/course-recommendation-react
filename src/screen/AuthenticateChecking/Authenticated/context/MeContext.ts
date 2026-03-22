@@ -1,5 +1,5 @@
-import { User } from "@/common/types/User.types";
-import { createContext, useContext } from "react";
+import { User } from '@/common/types/User.types';
+import { createContext, useContext } from 'react';
 
 export type MeContextType = {
   me: User;

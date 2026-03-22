@@ -1,6 +1,6 @@
-import { LocalStorageKey } from "@/common/constants/LocalStorageKey";
-import { useEffect } from "react";
-import { Outlet, useNavigate } from "react-router";
+import { LocalStorageKey } from '@/common/constants/LocalStorageKey';
+import { useEffect } from 'react';
+import { Outlet, useNavigate } from 'react-router';
 
 export default function AuthenticateChecking() {
   const navigate = useNavigate();
@@ -9,7 +9,7 @@ export default function AuthenticateChecking() {
 
   useEffect(() => {
     if (user === null) {
-      navigate("/public-path/login");
+      navigate('/public-path/login');
     }
   }, [navigate, user]);
 

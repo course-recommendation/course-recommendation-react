@@ -1,4 +1,5 @@
-import { CourseDetail, Dataset } from "./Course.types";
+import { CourseDetail, Dataset } from './Course.types';
+import { FilterCoursesOption } from './Recommendation.types';
 
 export type FSTradeoffPair = {
   attribute: string;
@@ -6,10 +7,10 @@ export type FSTradeoffPair = {
 };
 
 export enum TradeoffDirection {
-  O_UP = "O_UP",
-  O_DOWN = "O_DOWN",
-  V_UP = "V_UP",
-  V_DOWN = "V_DOWN",
+  O_UP = 'O_UP',
+  O_DOWN = 'O_DOWN',
+  V_UP = 'V_UP',
+  V_DOWN = 'V_DOWN',
 }
 
 export function isDirectionUp(tradeoffDirection: TradeoffDirection) {
@@ -22,8 +23,10 @@ export type FSRecommendationRequest = {
   dataset: Dataset;
   attributeToPreferenceConfigure: Record<
     string,
-    Pick<FSPreferenceConfigure, "targetSentimentScore">
+    Pick<FSPreferenceConfigure, 'targetSentimentScore'>
   >;
+  filterCoursesOptions: FilterCoursesOption[];
+  customFilteredCourseCodes: string[];
 };
 
 export type FSRefinedRecommendationRequest = {
@@ -49,4 +52,6 @@ export type FSRecommendationResult = {
   topCourseDetail: CourseDetail;
   categoryDetails: FSCategoryDetail[];
   itemIdToTradeoffVector: Record<string, FSTradeoffPair[]>;
+  filterCoursesOptions: FilterCoursesOption[];
+  customFilteredCourseCodes: string[];
 };

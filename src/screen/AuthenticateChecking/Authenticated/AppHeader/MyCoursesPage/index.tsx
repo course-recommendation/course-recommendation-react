@@ -1,5 +1,5 @@
-import { useCourseDomainContext } from "@/common/context/DomainContext";
-import MyCourses from "./MyCourses";
+import { useCourseDomainContext } from '@/common/context/DomainContext';
+import MyCourses from './MyCourses';
 
 export default function MyCoursesPage() {
   const { algorithm, dataset } = useCourseDomainContext();

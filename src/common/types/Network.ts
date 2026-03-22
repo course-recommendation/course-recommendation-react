@@ -1,4 +1,4 @@
-import type { GlobalErrorCode } from "./GlobalErrorCode";
+import type { GlobalErrorCode } from './GlobalErrorCode';
 
 export interface RestResponse<T> {
   data: T;

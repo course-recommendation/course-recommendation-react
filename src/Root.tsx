@@ -1,8 +1,8 @@
-import { Outlet } from "react-router";
-import { LocalStorageKey } from "./common/constants/LocalStorageKey";
-import { CourseDomainContext, DomainContextType } from "./common/context/DomainContext";
-import { Algorithm, Dataset } from "./common/types/Course.types";
-import "./index.css";
+import { Outlet } from 'react-router';
+import { LocalStorageKey } from './common/constants/LocalStorageKey';
+import { CourseDomainContext, DomainContextType } from './common/context/DomainContext';
+import { Algorithm, Dataset } from './common/types/Course.types';
+import './index.css';
 
 const defaultCourseDomain: DomainContextType = {
   algorithm: Algorithm.FS,

@@ -5,18 +5,18 @@ export type Course = {
 };
 
 export enum UserCourseStatus {
-  COMPLETED = "COMPLETED",
-  PLANNING = "PLANNING",
+  COMPLETED = 'COMPLETED',
+  PLANNING = 'PLANNING',
 }
 
 export enum Algorithm {
-  FS = "FS",
-  TRI_RANK = "TRI_RANK",
+  FS = 'FS',
+  TRI_RANK = 'TRI_RANK',
 }
 
 export enum Dataset {
-  FIT = "FIT",
-  CELLPHONE = "CELLPHONE",
+  FIT = 'FIT',
+  CELLPHONE = 'CELLPHONE',
 }
 
 export type CourseDetail = {

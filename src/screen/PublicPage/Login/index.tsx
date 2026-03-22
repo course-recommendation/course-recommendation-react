@@ -1,8 +1,8 @@
-import { LocalStorageKey } from "@/common/constants/LocalStorageKey";
-import useRequest from "@/common/hooks/network/useRequest";
-import { ProForm, ProFormText } from "@ant-design/pro-components";
-import { Button, Card, Typography } from "antd";
-import { useForm } from "antd/es/form/Form";
+import { LocalStorageKey } from '@/common/constants/LocalStorageKey';
+import useRequest from '@/common/hooks/network/useRequest';
+import { ProForm, ProFormText } from '@ant-design/pro-components';
+import { Button, Card, Typography } from 'antd';
+import { useForm } from 'antd/es/form/Form';
 
 type LoginFormType = {
   email: string;
@@ -26,8 +26,8 @@ export default function Login() {
 
     const loginResponse = (
       await login({
-        url: "/auth/login",
-        method: "POST",
+        url: '/auth/login',
+        method: 'POST',
         data: {
           email: formValues.email,
           password: formValues.password,
@@ -37,23 +37,23 @@ export default function Login() {
 
     localStorage.setItem(LocalStorageKey.ACCESS_TOKEN, loginResponse.accessToken);
 
-    window.location.href = "/";
+    window.location.href = '/';
   };
 
   return (
-    <div className="w-screen h-screen flex justify-center items-center px-10 md:px-0">
-      <Card className="w-full md:w-[400px] shadow-xl">
-        <div className="flex justify-center mb-4">
-          <Typography.Title level={3} className="mb-0! text-center">
+    <div className='w-screen h-screen flex justify-center items-center px-10 md:px-0'>
+      <Card className='w-full md:w-[400px] shadow-xl'>
+        <div className='flex justify-center mb-4'>
+          <Typography.Title level={3} className='mb-0! text-center'>
             App Name
           </Typography.Title>
         </div>
 
         <ProForm<LoginFormType> form={form} submitter={false}>
-          <ProFormText name="email" label="Email" rules={[{ required: true }]} />
+          <ProFormText name='email' label='Email' rules={[{ required: true }]} />
           <ProFormText.Password
-            name="password"
-            label="Mật khẩu"
+            name='password'
+            label='Mật khẩu'
             rules={[{ required: true }]}
             fieldProps={{
               onPressEnter: handleLogin,
@@ -61,7 +61,7 @@ export default function Login() {
           />
         </ProForm>
 
-        <Button className="w-full mt-2" type="primary" loading={loginPending} onClick={handleLogin}>
+        <Button className='w-full mt-2' type='primary' loading={loginPending} onClick={handleLogin}>
           Đăng nhập
         </Button>
       </Card>

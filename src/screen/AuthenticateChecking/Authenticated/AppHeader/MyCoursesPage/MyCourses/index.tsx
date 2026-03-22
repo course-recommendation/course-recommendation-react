@@ -1,5 +1,5 @@
-import useGet from "@/common/hooks/network/useGet";
-import useRequest from "@/common/hooks/network/useRequest";
+import useGet from '@/common/hooks/network/useGet';
+import useRequest from '@/common/hooks/network/useRequest';
 import {
   Algorithm,
   CourseDetail,
@@ -8,8 +8,8 @@ import {
   GetCoursesOfUserRequest,
   UpdateUserCourseRequest as UpdateUserCoursesRequest,
   UserCourseStatus,
-} from "@/common/types/Course.types";
-import MyCoursesCard from "@/screen/AuthenticateChecking/Authenticated/AppHeader/MyCoursesPage/components/MyCoursesCard";
+} from '@/common/types/Course.types';
+import MyCoursesCard from '@/screen/AuthenticateChecking/Authenticated/AppHeader/MyCoursesPage/components/MyCoursesCard';
 
 type Props = {
   algorithm: Algorithm;
@@ -19,7 +19,7 @@ type Props = {
 export default function MyCourses({ algorithm, dataset }: Props) {
   const { data: allCourseDetailsResponse, isPending: allCourseDetailsPending } = useGet<
     CourseDetail[]
-  >("/courses/detail", {
+  >('/courses/detail', {
     params: {
       domain: {
         algorithm,
@@ -35,7 +35,7 @@ export default function MyCourses({ algorithm, dataset }: Props) {
     isPending: completedCourseDetailsPending,
     refetch: refetchCompletedCourses,
     isRefetching: refetchingCompletedCourses,
-  } = useGet<CourseDetail[]>("/me/courses", {
+  } = useGet<CourseDetail[]>('/me/courses', {
     params: {
       domain: {
         algorithm,
@@ -50,7 +50,7 @@ export default function MyCourses({ algorithm, dataset }: Props) {
     isPending: planningCourseDetailsPending,
     refetch: refetchPlanningCourses,
     isRefetching: refetchingPlanningCourses,
-  } = useGet<CourseDetail[]>("/me/courses", {
+  } = useGet<CourseDetail[]>('/me/courses', {
     params: {
       domain: {
         algorithm,
@@ -61,13 +61,13 @@ export default function MyCourses({ algorithm, dataset }: Props) {
   });
 
   return (
-    <div className="p-8">
+    <div className='p-8'>
       <MyCoursesCard
-        title={"Các môn dự kiến học"}
+        title={'Các môn dự kiến học'}
         onOk={async (courseIds) => {
           await updateUserCourses({
-            url: "/me/courses",
-            method: "PUT",
+            url: '/me/courses',
+            method: 'PUT',
             data: {
               courseIds,
               userCourseStatus: UserCourseStatus.PLANNING,
@@ -86,14 +86,14 @@ export default function MyCourses({ algorithm, dataset }: Props) {
         refetching={refetchingPlanningCourses}
       />
 
-      <div className="my-8"></div>
+      <div className='my-8'></div>
 
       <MyCoursesCard
-        title={"Các môn đã hoàn thành"}
+        title={'Các môn đã hoàn thành'}
         onOk={async (courseIds) => {
           await updateUserCourses({
-            url: "/me/courses",
-            method: "PUT",
+            url: '/me/courses',
+            method: 'PUT',
             data: {
               courseIds,
               userCourseStatus: UserCourseStatus.COMPLETED,

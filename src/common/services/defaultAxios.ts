@@ -1,14 +1,14 @@
-import axios, { AxiosResponse } from "axios";
-import QueryString from "qs";
-import { LocalStorageKey } from "../constants/LocalStorageKey";
-import { GlobalErrorCode } from "../types/GlobalErrorCode";
-import { RestError } from "../types/Network";
+import axios, { AxiosResponse } from 'axios';
+import QueryString from 'qs';
+import { LocalStorageKey } from '../constants/LocalStorageKey';
+import { GlobalErrorCode } from '../types/GlobalErrorCode';
+import { RestError } from '../types/Network';
 
 const defaultAxios = axios.create({
   baseURL: import.meta.env.VITE_BACKEND_URL,
   validateStatus: () => true,
   paramsSerializer: (params) =>
-    QueryString.stringify(params, { arrayFormat: "repeat", allowDots: true }),
+    QueryString.stringify(params, { arrayFormat: 'repeat', allowDots: true }),
 });
 
 defaultAxios.interceptors.request.use(

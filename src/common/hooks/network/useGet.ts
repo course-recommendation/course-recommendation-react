@@ -1,8 +1,8 @@
-import defaultAxios from "@/common/services/defaultAxios";
-import { RestError, RestResponse } from "@/common/types/Network";
-import { useDeepCompareEffect } from "ahooks";
-import { AxiosRequestConfig, AxiosResponse } from "axios";
-import { useCallback, useState } from "react";
+import defaultAxios from '@/common/services/defaultAxios';
+import { RestError, RestResponse } from '@/common/types/Network';
+import { useDeepCompareEffect } from 'ahooks';
+import { AxiosRequestConfig, AxiosResponse } from 'axios';
+import { useCallback, useState } from 'react';
 
 type UseGetState<T> = {
   isPending: boolean;

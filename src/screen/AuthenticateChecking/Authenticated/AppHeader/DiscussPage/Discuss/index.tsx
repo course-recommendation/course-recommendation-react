@@ -1,11 +1,11 @@
-import { Measure } from "@/common/constants/Measure";
-import { Algorithm, Dataset } from "@/common/types/Course.types";
-import { FilterOutlined } from "@ant-design/icons";
-import { Button, Drawer } from "antd";
-import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router";
-import DiscussFilter from "./components/DiscussFilter";
-import DiscussMainArea from "./DiscussMainArea";
+import { Measure } from '@/common/constants/Measure';
+import { Algorithm, Dataset } from '@/common/types/Course.types';
+import { FilterOutlined } from '@ant-design/icons';
+import { Button, Drawer } from 'antd';
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router';
+import DiscussFilter from './components/DiscussFilter';
+import DiscussMainArea from './DiscussMainArea';
 
 type Props = {
   algorithm: Algorithm;
@@ -22,15 +22,15 @@ export default function Discuss({ algorithm, dataset }: Props) {
   const resolveNumberOfFiltersText = () => {
     const filterCount = finalFilteredCourseCodes.length;
     if (filterCount === 0) {
-      return "";
+      return '';
     }
     return ` (${filterCount})`;
   };
 
   useEffect(() => {
-    const courseCodesParam = searchParams.get("courseCodes");
+    const courseCodesParam = searchParams.get('courseCodes');
     if (courseCodesParam) {
-      const codes = courseCodesParam.split(",");
+      const codes = courseCodesParam.split(',');
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setFilteredCourseCodes(codes);
       setFinalFilteredCourseCodes(codes);
@@ -41,7 +41,7 @@ export default function Discuss({ algorithm, dataset }: Props) {
     if (finalFilteredCourseCodes.length > 0) {
       setSearchParams(
         {
-          courseCodes: finalFilteredCourseCodes.join(","),
+          courseCodes: finalFilteredCourseCodes.join(','),
         },
         { replace: true },
       );
@@ -51,8 +51,8 @@ export default function Discuss({ algorithm, dataset }: Props) {
   }, [finalFilteredCourseCodes, setSearchParams]);
 
   return (
-    <div className="flex overflow-y-hidden" style={{ height: Measure.SCREEN_HEIGHT_STYLE }}>
-      <div className="w-[28%] overflow-auto hidden md:block">
+    <div className='flex overflow-y-hidden' style={{ height: Measure.SCREEN_HEIGHT_STYLE }}>
+      <div className='w-[28%] overflow-auto hidden md:block'>
         <DiscussFilter
           algorithm={algorithm}
           dataset={dataset}
@@ -63,14 +63,14 @@ export default function Discuss({ algorithm, dataset }: Props) {
           }}
         />
       </div>
-      <div className="flex-1 overflow-auto px-5 md:px-20 pt-10">
+      <div className='flex-1 overflow-auto px-5 md:px-20 pt-10'>
         <DiscussMainArea
           algorithm={algorithm}
           dataset={dataset}
           courseIds={finalFilteredCourseCodes}
           filterSection={
             <Button
-              className="md:hidden md:-mb-6"
+              className='md:hidden md:-mb-6'
               icon={<FilterOutlined />}
               onClick={() => {
                 setOpenFilterDrawer(true);
@@ -88,12 +88,12 @@ export default function Discuss({ algorithm, dataset }: Props) {
           setOpenFilterDrawer(false);
           setFilteredCourseCodes(finalFilteredCourseCodes);
         }}
-        placement="bottom"
-        size={"large"}
-        className="md:hidden"
+        placement='bottom'
+        size={'large'}
+        className='md:hidden'
         extra={
           <Button
-            type="primary"
+            type='primary'
             onClick={() => {
               setFinalFilteredCourseCodes(filteredCourseCodes);
               setOpenFilterDrawer(false);

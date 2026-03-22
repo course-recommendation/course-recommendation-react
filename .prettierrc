@@ -5,6 +5,6 @@
   "trailingComma": "all",
   "arrowParens": "always",
   "printWidth": 100,
-  "singleQuote": false,
-  "jsxSingleQuote": false
+  "singleQuote": true,
+  "jsxSingleQuote": true
 }

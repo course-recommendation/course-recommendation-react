@@ -1,6 +1,6 @@
-import { useCourseDomainContext } from "@/common/context/DomainContext";
-import { Algorithm } from "@/common/types/Course.types";
-import FSRecommendation from "./FSRecommendation";
+import { useCourseDomainContext } from '@/common/context/DomainContext';
+import { Algorithm } from '@/common/types/Course.types';
+import FSRecommendation from './FSRecommendation';
 
 export default function RecommendationPage() {
   const { algorithm, dataset } = useCourseDomainContext();

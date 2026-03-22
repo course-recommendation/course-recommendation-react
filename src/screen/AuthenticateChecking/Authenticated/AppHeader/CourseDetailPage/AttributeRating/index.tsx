@@ -1,5 +1,5 @@
-import { Rate } from "antd";
-import { useAttributeValueToLabel } from "../../RecommendationPage/FSRecommendation/hooks/useAttributeValueToLabel";
+import { Rate } from 'antd';
+import { useAttributeValueToLabel } from '../../RecommendationPage/FSRecommendation/hooks/useAttributeValueToLabel';
 
 type Props = {
   attributeValues: string[];

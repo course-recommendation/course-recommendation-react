@@ -1,5 +1,5 @@
-import { Domain } from "@/common/types/Course.types";
-import { createContext, useContext } from "react";
+import { Domain } from '@/common/types/Course.types';
+import { createContext, useContext } from 'react';
 
 export type DomainContextType = Domain;
 

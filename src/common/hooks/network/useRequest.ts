@@ -1,7 +1,7 @@
-import defaultAxios from "@/common/services/defaultAxios";
-import { RestError, RestResponse } from "@/common/types/Network";
-import { AxiosRequestConfig, AxiosResponse } from "axios";
-import { useCallback, useState } from "react";
+import defaultAxios from '@/common/services/defaultAxios';
+import { RestError, RestResponse } from '@/common/types/Network';
+import { AxiosRequestConfig, AxiosResponse } from 'axios';
+import { useCallback, useState } from 'react';
 
 type UseRequestState<T> = {
   isPending?: boolean;
