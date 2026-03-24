@@ -1,0 +1,44 @@
+# name: Check Pull Request
+
+# on:
+#   pull_request:
+#     branches:
+#       - develop
+#       - staging
+#       - main
+
+# jobs:
+#   set-env:
+#     runs-on: ubuntu-22.04
+#     outputs:
+#       environment-name: ${{ steps.set-env.outputs.environment-name }}
+#     steps:
+#       - id: set-env
+#         run: |
+#           BASE_REF="${{ github.event.pull_request.base.ref }}"
+#           if [[ "$BASE_REF" == "develop" ]]; then
+#             echo "environment-name=dev" >> $GITHUB_OUTPUT
+#           elif [[ "$BASE_REF" == "staging" ]]; then
+#             echo "environment-name=stag" >> $GITHUB_OUTPUT
+#           elif [[ "$BASE_REF" == "main" ]]; then
+#             echo "environment-name=prod" >> $GITHUB_OUTPUT
+#           else
+#             echo "Unknown target branch $BASE_REF"
+#             exit 1
+#           fi
+#   build:
+#     needs: [set-env]
+#     name: Build
+#     uses: ./.github/workflows/workflow-build.yaml
+#     permissions:
+#       contents: read
+#       pull-requests: write
+#       id-token: write
+#     with:
+#       environment-name: ${{ needs.set-env.outputs.environment-name }}
+#     secrets: inherit # pragma: allowlist secret
+
+#   quality-check:
+#     name: Quality Check
+#     uses: ./.github/workflows/workflow-quality-check.yaml
+#     secrets: inherit # pragma: allowlist secret

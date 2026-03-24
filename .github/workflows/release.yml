@@ -1,0 +1,23 @@
+name: Release Application
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  # build:
+  #   name: Build
+  #   uses: ./.github/workflows/workflow-build.yaml
+  #   permissions:
+  #     contents: read
+  #     id-token: write
+  #   secrets: inherit
+
+  release:
+    name: Release Application
+    # needs: build
+    uses: ./.github/workflows/workflow-release.yaml
+    permissions:
+      id-token: write
+      contents: read
+    secrets: inherit
