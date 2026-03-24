@@ -5,14 +5,6 @@ on:
       - main
 
 jobs:
-  # build:
-  #   name: Build
-  #   uses: ./.github/workflows/workflow-build.yaml
-  #   permissions:
-  #     contents: read
-  #     id-token: write
-  #   secrets: inherit
-
   release:
     name: Release Application
     # needs: build
