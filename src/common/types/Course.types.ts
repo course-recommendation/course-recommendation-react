@@ -2,6 +2,8 @@ export type Course = {
   id: number;
   code: string;
   name: string;
+  description: string;
+  thumbnailUrl?: string;
 };
 
 export enum UserCourseStatus {

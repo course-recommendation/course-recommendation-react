@@ -6,7 +6,7 @@ export default function RecommendationPage() {
   const { algorithm, dataset } = useCourseDomainContext();
 
   return (
-    <div>
+    <>
       {(() => {
         if (algorithm === Algorithm.FS) {
           return <FSRecommendation dataset={dataset} />;
@@ -14,6 +14,6 @@ export default function RecommendationPage() {
 
         return <div></div>;
       })()}
-    </div>
+    </>
   );
 }

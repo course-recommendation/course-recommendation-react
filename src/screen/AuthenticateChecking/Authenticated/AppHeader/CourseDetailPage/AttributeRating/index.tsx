@@ -15,16 +15,21 @@ export default function AttributeRating({
   const attributeValueToLabel = useAttributeValueToLabel();
 
   return (
-    <div>
+    <div className='flex flex-col gap-5'>
       {attributeValues.map((attributeValue) => {
         return (
           <div>
-            <div>{attributeValueToLabel(attributeValue)}</div>
+            <div className='text-gray-600 font-semibold'>
+              {attributeValueToLabel(attributeValue)}
+            </div>
+            <div className='my-3'></div>
             <Rate
+              className='text-5xl'
               defaultValue={attributeValueToRatingScore[attributeValue] ?? 0}
               onChange={(score) => {
                 onRatingChange(attributeValue, score);
               }}
+              allowClear
             />
           </div>
         );

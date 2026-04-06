@@ -15,7 +15,7 @@ export default function PostCommentSection({ postCommentDetails, commenting, onC
       {postCommentDetails.length === 0 && !commenting ? (
         <Empty description='Chưa có bình luận nào' className='text-sm md:text-base' />
       ) : (
-        <div className='flex flex-col gap-3 max-h-[500px] overflow-y-scroll'>
+        <div className='flex flex-col gap-3 max-h-[500px] overflow-y-scroll overscroll-none'>
           {postCommentDetails.map((postCommentDetail) => {
             return (
               <PostCommentItem

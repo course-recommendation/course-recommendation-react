@@ -1,3 +1,4 @@
+import BookIcon from '@/assets/icons/BookIcon';
 import { LocalStorageKey } from '@/common/constants/LocalStorageKey';
 import { useCourseDomainContext } from '@/common/context/DomainContext';
 import { Algorithm, Dataset } from '@/common/types/Course.types';
@@ -22,6 +23,7 @@ const PathKey = {
   RECOMMENDATION: 'RECOMMENDATION',
   DISCUSS: 'DISCUSS',
   MY_COURSES: 'MY_COURSES',
+  COURSES: 'COURSES',
 };
 
 export default function AppHeader() {
@@ -32,11 +34,16 @@ export default function AppHeader() {
 
   const isDiscussPage = pathname.includes('/discuss');
   const isMyCoursesPage = pathname.includes('/my-courses');
+  const isCoursesPage = pathname.includes('/courses');
 
   const headerMenuItems: MenuProps['items'] = [
     {
       key: PathKey.RECOMMENDATION,
       label: <Link to={'/'}>Gợi ý môn học</Link>,
+    },
+    {
+      key: PathKey.COURSES,
+      label: <Link to={'/courses'}>Môn học</Link>,
     },
     {
       key: PathKey.DISCUSS,
@@ -54,6 +61,9 @@ export default function AppHeader() {
     }
     if (isMyCoursesPage) {
       return PathKey.MY_COURSES;
+    }
+    if (isCoursesPage) {
+      return PathKey.COURSES;
     }
     return PathKey.RECOMMENDATION;
   })();
@@ -125,10 +135,10 @@ export default function AppHeader() {
   );
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
-      <Header className='bg-white shadow z-10 sticky top-0 px-4 md:px-6'>
+    <Layout style={{ height: '100vh' }}>
+      <Header className='bg-white shadow z-10 sticky top-0 px-20'>
         <div className='flex items-center justify-between h-full'>
-          <div className='flex items-center flex-1'>
+          <div className='flex items-center'>
             <Button
               className='md:hidden'
               type='text'
@@ -136,14 +146,14 @@ export default function AppHeader() {
               onClick={() => setMobileMenuOpen(true)}
             />
             <div className='mx-1'></div>
-            <Typography.Title level={4} className='my-0 text-xl whitespace-nowrap'>
-              <Link to={'/'} className='text-black'>
-                App Name
-              </Link>
-            </Typography.Title>
-
+            <Link to={'/'} className='text-black'>
+              <span className='flex items-center gap-2'>
+                <BookIcon className='text-primary inline w-[40px] h-[40px]' />
+                <span className='font-bold text-2xl'>CourseHub</span>
+              </span>
+            </Link>
             <div className='hidden md:flex ml-8'>
-              <div className='w-[400px]'>
+              <div className='w-[450px]'>
                 <Menu mode='horizontal' items={headerMenuItems} selectedKeys={[selectedKey]} />
               </div>
             </div>
@@ -195,7 +205,9 @@ export default function AppHeader() {
         </Drawer>
       </Header>
 
-      <Outlet />
+      <div className='flex-1 min-h-0 overflow-auto overscroll-y-none px-20 py-10'>
+        <Outlet />
+      </div>
     </Layout>
   );
 }

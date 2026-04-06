@@ -4,5 +4,9 @@ import Discuss from './Discuss';
 export default function DiscussPage() {
   const { algorithm, dataset } = useCourseDomainContext();
 
-  return <Discuss algorithm={algorithm} dataset={dataset} />;
+  return (
+    <div className='h-full'>
+      <Discuss algorithm={algorithm} dataset={dataset} />
+    </div>
+  );
 }

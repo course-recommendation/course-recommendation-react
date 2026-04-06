@@ -1,4 +1,3 @@
-import { Measure } from '@/common/constants/Measure';
 import { Algorithm, Dataset } from '@/common/types/Course.types';
 import { FilterOutlined } from '@ant-design/icons';
 import { Button, Drawer } from 'antd';
@@ -51,19 +50,21 @@ export default function Discuss({ algorithm, dataset }: Props) {
   }, [finalFilteredCourseCodes, setSearchParams]);
 
   return (
-    <div className='flex overflow-y-hidden' style={{ height: Measure.SCREEN_HEIGHT_STYLE }}>
-      <div className='w-[28%] overflow-auto hidden md:block'>
-        <DiscussFilter
-          algorithm={algorithm}
-          dataset={dataset}
-          selectedCourseIds={filteredCourseCodes}
-          onSelectedCourseIdsChange={(courseIds) => {
-            setFilteredCourseCodes(courseIds);
-            setFinalFilteredCourseCodes(courseIds);
-          }}
-        />
+    <div className='flex gap-8'>
+      <div className='w-[28%] hidden md:block h-full sticky top-0'>
+        <div>
+          <DiscussFilter
+            algorithm={algorithm}
+            dataset={dataset}
+            selectedCourseIds={filteredCourseCodes}
+            onSelectedCourseIdsChange={(courseIds) => {
+              setFilteredCourseCodes(courseIds);
+              setFinalFilteredCourseCodes(courseIds);
+            }}
+          />
+        </div>
       </div>
-      <div className='flex-1 overflow-auto px-5 md:px-20 pt-10'>
+      <div className='flex-1'>
         <DiscussMainArea
           algorithm={algorithm}
           dataset={dataset}

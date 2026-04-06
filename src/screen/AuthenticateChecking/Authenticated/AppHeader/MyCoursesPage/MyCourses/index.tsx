@@ -9,7 +9,8 @@ import {
   UpdateUserCourseRequest as UpdateUserCoursesRequest,
   UserCourseStatus,
 } from '@/common/types/Course.types';
-import MyCoursesCard from '@/screen/AuthenticateChecking/Authenticated/AppHeader/MyCoursesPage/components/MyCoursesCard';
+import MyCoursesSection from '@/screen/AuthenticateChecking/Authenticated/AppHeader/MyCoursesPage/components/MyCoursesSection';
+import { BookOutlined, CheckCircleOutlined } from '@ant-design/icons';
 
 type Props = {
   algorithm: Algorithm;
@@ -61,9 +62,19 @@ export default function MyCourses({ algorithm, dataset }: Props) {
   });
 
   return (
-    <div className='p-8'>
-      <MyCoursesCard
-        title={'Các môn dự kiến học'}
+    <div>
+      <MyCoursesSection
+        title={
+          <span className='flex gap-3'>
+            <BookOutlined className='text-primary' />
+            <span>
+              Các môn dự kiến học{' '}
+              <span className='font-normal text-gray-500'>
+                ({planningCourseDetailsResponse?.data.length})
+              </span>
+            </span>
+          </span>
+        }
         onOk={async (courseIds) => {
           await updateUserCourses({
             url: '/me/courses',
@@ -88,8 +99,18 @@ export default function MyCourses({ algorithm, dataset }: Props) {
 
       <div className='my-8'></div>
 
-      <MyCoursesCard
-        title={'Các môn đã hoàn thành'}
+      <MyCoursesSection
+        title={
+          <span className='flex gap-3'>
+            <CheckCircleOutlined className='text-green-500' />
+            <span>
+              Các môn đã hoàn thành{' '}
+              <span className='font-normal text-gray-500'>
+                ({completedCourseDetailsResponse?.data.length})
+              </span>
+            </span>
+          </span>
+        }
         onOk={async (courseIds) => {
           await updateUserCourses({
             url: '/me/courses',

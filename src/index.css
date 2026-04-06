@@ -3,12 +3,19 @@
 @import 'tailwindcss/utilities.css' layer(utilities) important;
 
 @theme {
-  --color-primary: #1677ff;
+  --color-primary: #4f39f5;
+  --color-light-gray: #f4f4f6;
 }
 @layer {
   img {
     @apply inline-block;
   }
+}
+
+html,
+body,
+#root {
+  height: 100%;
 }
 
 :root {
@@ -22,12 +29,12 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  scrollbar-color: rgb(217, 213, 213);
+  scrollbar-color: rgb(217, 213, 213) transparent;
 }
 
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
-    background-color: #f5f5f5;
+    background-color: #fafafb;
   }
 }

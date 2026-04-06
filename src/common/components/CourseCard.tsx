@@ -1,37 +1,36 @@
-import { CourseDetail } from '@/common/types/Course.types';
-import { Card } from 'antd';
-import React from 'react';
+import { Button, Card } from 'antd';
 import { Link } from 'react-router';
+import { CourseDetail } from '../types/Course.types';
 
-interface Props {
+type Props = {
   courseDetail: CourseDetail;
-  footer?: React.ReactNode;
-  cardProps?: React.HTMLAttributes<HTMLDivElement>;
-}
+};
 
-export default function CourseCard({ courseDetail, footer, cardProps }: Props) {
+export default function CourseCard({ courseDetail }: Props) {
+  const course = courseDetail.course;
   return (
-    <Link to={`/courses/${courseDetail.course.code}`}>
+    <Link to={`/courses/${course.code}`}>
       <Card
-        className='bg-white rounded-lg overflow-hidden border border-gray-300'
-        styles={{ body: { padding: 0 } }}
-        {...cardProps}
+        styles={{
+          body: {
+            padding: 0,
+          },
+        }}
+        variant='borderless'
+        className='overflow-hidden shadow hover:shadow-xl transition-shadow'
       >
-        <div className='relative w-full h-32 md:h-48 overflow-hidden'>
-          <img
-            src={`https://picsum.photos/seed/${courseDetail.course.code}/1600/900`}
-            alt={courseDetail.course.code}
-            className='w-full h-full object-cover'
-          />
+        <img src={course.thumbnailUrl} className='w-full h-32 object-cover' />
+        <div className='p-5'>
+          <div className='text-xl font-bold line-clamp-1'>{course.name}</div>
+          <div className='my-2'></div>
+          <div className='text-gray-600 line-clamp-2'>{course.description}</div>
+          <div className='my-2'></div>
+          <div className='flex justify-end'>
+            <Button type='link' className='font-bold'>
+              Xem chi tiết →
+            </Button>
+          </div>
         </div>
-
-        <div className='p-3 md:p-4'>
-          <h3 className='text-base md:text-lg font-semibold text-gray-800 line-clamp-1'>
-            {courseDetail.course.name}
-          </h3>
-        </div>
-
-        {footer && <div className='px-3 pb-3 md:px-4 md:pb-4'>{footer}</div>}
       </Card>
     </Link>
   );

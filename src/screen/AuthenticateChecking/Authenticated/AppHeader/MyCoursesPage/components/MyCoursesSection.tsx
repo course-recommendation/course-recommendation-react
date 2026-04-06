@@ -1,9 +1,9 @@
+import CourseCard from '@/common/components/CourseCard';
 import { CourseDetail } from '@/common/types/Course.types';
 import { ProForm, ProFormSelect } from '@ant-design/pro-components';
-import { Button, Card, Empty, Modal, Skeleton, Spin, Typography } from 'antd';
+import { Button, Empty, Modal, Skeleton, Spin, Typography } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import { ReactNode, useState } from 'react';
-import CourseCard from '../../../../../../common/components/CourseCard';
 import { RestResponse } from '../../../../../../common/types/Network';
 
 export type UpdateMyCoursesFormType = {
@@ -20,7 +20,7 @@ type Props = {
   refetching: boolean;
 };
 
-export default function MyCoursesCard({
+export default function MyCoursesSection({
   title,
   allCourseDetailsPending,
   allCourseDetailsResponse,
@@ -35,7 +35,7 @@ export default function MyCoursesCard({
 
   return (
     <Spin spinning={refetching}>
-      <Card className='shadow'>
+      <div>
         <div className='flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4'>
           <Typography.Title level={3} className='m-0 text-xl sm:text-2xl'>
             {title}
@@ -123,7 +123,7 @@ export default function MyCoursesCard({
             );
           })()}
         </Modal>
-      </Card>
+      </div>
     </Spin>
   );
 }
