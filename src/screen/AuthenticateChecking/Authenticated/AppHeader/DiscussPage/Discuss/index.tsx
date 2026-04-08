@@ -49,8 +49,8 @@ export default function Discuss({ algorithm }: Props) {
   }, [finalFilteredCourseCodes, setSearchParams]);
 
   return (
-    <div className='flex gap-8'>
-      <div className='w-[28%] hidden md:block h-full sticky top-0'>
+    <div className='grid grid-cols-1 md:grid-cols-[320px_1fr] gap-5 md:gap-8'>
+      <div className='hidden md:block h-full sticky top-0'>
         <div>
           <DiscussFilter
             algorithm={algorithm}
@@ -68,8 +68,9 @@ export default function Discuss({ algorithm }: Props) {
           courseIds={finalFilteredCourseCodes}
           filterSection={
             <Button
-              className='md:hidden md:-mb-6'
+              className='md:hidden shadow-sm'
               icon={<FilterOutlined />}
+              size='large'
               onClick={() => {
                 setOpenFilterDrawer(true);
               }}
@@ -89,6 +90,7 @@ export default function Discuss({ algorithm }: Props) {
         placement='bottom'
         size={'large'}
         className='md:hidden'
+        title='Bộ lọc thảo luận'
         extra={
           <Button
             type='primary'

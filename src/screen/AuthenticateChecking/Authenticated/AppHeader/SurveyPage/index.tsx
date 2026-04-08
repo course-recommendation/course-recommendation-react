@@ -7,12 +7,10 @@ import { FSRecommendationRequest, FSRecommendationResult } from '@/common/types/
 import { Button, Card, Typography } from 'antd';
 import useApp from 'antd/es/app/useApp';
 import { useState } from 'react';
-import { useNavigate } from 'react-router';
 import { useAttributeValueToLabel } from '../RecommendationPage/FSRecommendation/hooks/useAttributeValueToLabel';
 
 export default function SurveyPage() {
   const { message } = useApp();
-  const navigate = useNavigate();
   const algorithm = useAlgorithmContext();
   const attributeValueToLabel = useAttributeValueToLabel();
 
@@ -71,8 +69,8 @@ export default function SurveyPage() {
   };
 
   return (
-    <div className='max-w-4xl mx-auto'>
-      <Card className='shadow-lg border border-blue-100'>
+    <div className='max-w-4xl mx-auto w-full'>
+      <Card className='shadow-lg border border-blue-100' bodyStyle={{ padding: 16 }}>
         <div className='space-y-5'>
           <div>
             <Typography.Title level={2} className='m-0'>
@@ -121,6 +119,7 @@ export default function SurveyPage() {
             <Button
               type='primary'
               size='large'
+              className='w-full md:w-auto'
               loading={creatingRecommendation || completingSurvey}
               onClick={handleDone}
             >

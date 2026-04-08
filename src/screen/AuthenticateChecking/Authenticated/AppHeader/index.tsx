@@ -122,7 +122,7 @@ export default function AppHeader() {
 
   return (
     <Layout style={{ height: '100vh' }}>
-      <Header className='bg-white shadow z-10 sticky top-0 px-20'>
+      <Header className='bg-white shadow z-10 sticky top-0 px-4 md:px-20'>
         <div className='flex items-center justify-between h-full'>
           <div className='flex items-center'>
             <Button
@@ -135,8 +135,8 @@ export default function AppHeader() {
             <div className='mx-1'></div>
             <Link to={'/'} className='text-black'>
               <span className='flex items-center gap-2'>
-                <BookIcon className='text-primary inline w-10 h-10' />
-                <span className='font-bold text-2xl'>CourseHub</span>
+                <BookIcon className='text-primary inline w-8 h-8 md:w-10 md:h-10' />
+                <span className='font-bold text-xl md:text-2xl'>CourseHub</span>
               </span>
             </Link>
             {!isDoingSurvey && (
@@ -192,7 +192,7 @@ export default function AppHeader() {
         </Drawer>
       </Header>
 
-      <div className='flex-1 min-h-0 overflow-auto overscroll-y-none px-20 py-10'>
+      <div className='flex-1 min-h-0 overflow-auto overscroll-y-none px-4 py-6 md:px-20 md:py-10'>
         <Outlet />
       </div>
     </Layout>

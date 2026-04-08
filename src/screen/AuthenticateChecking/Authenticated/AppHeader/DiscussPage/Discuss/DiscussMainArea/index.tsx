@@ -29,15 +29,14 @@ export default function DiscussMainArea({ algorithm, courseIds, filterSection }:
   });
 
   return (
-    <div>
+    <div className='space-y-4 md:space-y-6'>
       <CreatePostCard
         afterPost={async () => {
           await refetchPosts();
         }}
         algorithm={algorithm}
       />
-      <div className='my-6 md:my-10'></div>
-      {filterSection && <div className='flex justify-end mb-4'>{filterSection}</div>}
+      {filterSection && <div className='flex justify-end'>{filterSection}</div>}
       <div>
         {(() => {
           if (postDetailsPending) {

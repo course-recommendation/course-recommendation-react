@@ -22,7 +22,7 @@ export default function CourseList({ courseDetails: courseDetailsOpt, loading }:
           return <Empty description={'Không có môn học nào'} />;
         }
         return (
-          <div className='grid grid-cols-4 gap-5'>
+          <div className='grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-5'>
             {courseDetails.map((courseDetail) => {
               return <CourseCard key={courseDetail.course.code} courseDetail={courseDetail} />;
             })}

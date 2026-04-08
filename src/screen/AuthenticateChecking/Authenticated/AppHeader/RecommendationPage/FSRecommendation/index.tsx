@@ -456,7 +456,7 @@ export default function FSRecommendation() {
         </Drawer>
 
         <div className='h-full flex flex-col overflow-hidden w-full'>
-          <div className='font-bold text-[26px] shrink-0'>Gợi ý môn học</div>
+          <div className='font-bold text-2xl md:text-[26px] shrink-0'>Gợi ý môn học</div>
           <div className='my-3 shrink-0'></div>
           <div className='flex-1 min-h-0'>
             {(() => {
@@ -499,7 +499,7 @@ export default function FSRecommendation() {
                             topCourseDetail,
                             recommendationResult.itemIdToItemSentiments,
                           )}
-                          topLeftBadge={
+                          topRightBadge={
                             getEffectiveUserCourseStatus(topCourseDetail) ===
                             UserCourseStatus.COMPLETED ? (
                               <Tag variant='solid' color={'green'}>
@@ -541,7 +541,7 @@ export default function FSRecommendation() {
                             key={JSON.stringify(categoryDetail)}
                             styles={{ body: { padding: 0 } }}
                           >
-                            <div className='sticky top-0 z-10 bg-white px-6 py-4 rounded-t-lg'>
+                            <div className='sticky top-0 z-20 bg-white px-6 py-4 rounded-t-lg'>
                               <Typography.Text strong className='text-xl m-0'>
                                 {categoryDetail.category.map((tradeoffPair, idx) => {
                                   const isUp = isDirectionUp(tradeoffPair.direction);
@@ -587,7 +587,7 @@ export default function FSRecommendation() {
                                         courseDetail,
                                         recommendationResult.itemIdToItemSentiments,
                                       )}
-                                      topLeftBadge={
+                                      topRightBadge={
                                         getEffectiveUserCourseStatus(courseDetail) ===
                                         UserCourseStatus.COMPLETED ? (
                                           <Tag variant='solid' color={'green'}>

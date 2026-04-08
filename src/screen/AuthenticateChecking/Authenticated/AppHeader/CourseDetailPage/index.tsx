@@ -54,22 +54,25 @@ export default function CourseDetailPage() {
 
         return (
           <div>
-            <Link to={'/courses'} className='font-medium text-xl'>
+            <Link to={'/courses'} className='font-medium text-base md:text-xl'>
               ← Quay về danh sách môn học
             </Link>
-            <div className='my-8'></div>
+            <div className='my-5 md:my-8'></div>
             <Card
               variant={'borderless'}
               className='shadow overflow-hidden'
               styles={{ body: { padding: 0 } }}
             >
-              <img src={course.thumbnailUrl} className='w-full object-cover h-[300px]' />
-              <div className='py-5 px-10'>
-                <div className='text-2xl font-bold'>{course.name}</div>
+              <img
+                src={course.thumbnailUrl}
+                className='w-full object-cover h-[220px] md:h-[300px]'
+              />
+              <div className='py-5 px-4 md:px-10'>
+                <div className='text-xl md:text-2xl font-bold'>{course.name}</div>
                 <div className='my-3'></div>
                 <div className='text-gray-600 whitespace-pre-line'>{course.description}</div>
                 <div className='my-4'></div>
-                <div className='flex gap-3'>
+                <div className='flex flex-col md:flex-row gap-3'>
                   <CourseStatusButton
                     type='plan'
                     marked={userCourseStatus === UserCourseStatus.PLANNED}
@@ -91,7 +94,9 @@ export default function CourseDetailPage() {
                 </div>
                 <Divider />
                 <div className='rounded-2xl border-2 border-amber-300 bg-amber-50 px-5 py-4'>
-                  <div className='mt-2 text-2xl font-bold text-amber-900'>Đánh giá môn học</div>
+                  <div className='mt-2 text-xl md:text-2xl font-bold text-amber-900'>
+                    Đánh giá môn học
+                  </div>
                   <div className='mt-2 text-amber-900/80 font-medium'>
                     Chia sẻ cảm nhận của bạn để hệ thống gợi ý môn học chính xác hơn cho bạn và
                     những sinh viên khác.

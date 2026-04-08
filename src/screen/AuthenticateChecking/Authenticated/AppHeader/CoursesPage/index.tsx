@@ -36,10 +36,10 @@ export default function CoursesPage() {
 
   return (
     <div>
-      <div className='flex justify-between'>
-        <div className='text-3xl font-bold'>Môn học</div>
+      <div className='flex flex-col md:flex-row md:items-center justify-between gap-3'>
+        <div className='text-2xl md:text-3xl font-bold'>Môn học</div>
         <Input
-          className='w-[300px]'
+          className='w-full md:w-[300px]'
           placeholder='Tìm kiếm môn học...'
           size='large'
           prefix={<SearchOutlined />}
