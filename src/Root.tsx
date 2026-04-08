@@ -1,3 +1,4 @@
+import { App } from 'antd';
 import { Outlet } from 'react-router';
 import { LocalStorageKey } from './common/constants/LocalStorageKey';
 import { CourseDomainContext, DomainContextType } from './common/context/DomainContext';
@@ -18,9 +19,11 @@ function Root() {
     defaultCourseDomain.dataset;
 
   return (
-    <CourseDomainContext value={{ algorithm, dataset }}>
-      <Outlet />
-    </CourseDomainContext>
+    <App>
+      <CourseDomainContext value={{ algorithm, dataset }}>
+        <Outlet />
+      </CourseDomainContext>
+    </App>
   );
 }
 

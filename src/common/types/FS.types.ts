@@ -46,6 +46,11 @@ export type FSCategoryDetail = {
   courseDetails: CourseDetail[];
 };
 
+export type FsItemSentiment = {
+  attribute: string;
+  sentimentScore: number;
+};
+
 export type FSRecommendationResult = {
   id: number;
   attributeToPreferenceConfigure: Record<string, FSPreferenceConfigure>;
@@ -54,4 +59,5 @@ export type FSRecommendationResult = {
   itemIdToTradeoffVector: Record<string, FSTradeoffPair[]>;
   filterCoursesOptions: FilterCoursesOption[];
   customFilteredCourseCodes: string[];
+  itemIdToItemSentiments: Record<string, FsItemSentiment[]>;
 };

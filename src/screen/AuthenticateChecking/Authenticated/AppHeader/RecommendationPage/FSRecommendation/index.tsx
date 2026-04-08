@@ -5,15 +5,21 @@ import RecommendedCourseCard from '@/common/components/RecommendedCourseCard';
 import useGet from '@/common/hooks/network/useGet';
 import useRequest from '@/common/hooks/network/useRequest';
 import { useBreakpoint } from '@/common/hooks/useBreakpoint';
-import { Algorithm, Course, Dataset } from '@/common/types/Course.types';
+import { Algorithm, Course, CourseDetail, Dataset } from '@/common/types/Course.types';
 import {
+  FsItemSentiment,
   FSRecommendationRequest,
   FSRecommendationResult,
   FSRefinedRecommendationRequest,
   isDirectionUp,
 } from '@/common/types/FS.types';
 import { FilterCoursesOption } from '@/common/types/Recommendation.types';
-import { ArrowUpOutlined, SettingOutlined, StarFilled } from '@ant-design/icons';
+import {
+  ArrowUpOutlined,
+  QuestionCircleFilled,
+  SettingOutlined,
+  StarFilled,
+} from '@ant-design/icons';
 import {
   ProForm,
   ProFormCheckbox,
@@ -21,7 +27,8 @@ import {
   ProFormItem,
   ProFormSelect,
 } from '@ant-design/pro-components';
-import { Button, Card, Divider, Drawer, Empty, Modal, Skeleton, Spin, Typography } from 'antd';
+import { Button, Card, Divider, Drawer, Empty, Modal, Rate, Skeleton, Spin, Typography } from 'antd';
+import useApp from 'antd/es/app/useApp';
 import { useForm } from 'antd/es/form/Form';
 import { useEffect, useState } from 'react';
 import { useAttributeValueToLabel } from './hooks/useAttributeValueToLabel';
@@ -38,6 +45,7 @@ type Props = {
 
 export default function FSRecommendation({ dataset }: Props) {
   const attributeValueToLabel = useAttributeValueToLabel();
+  const { modal } = useApp();
 
   const isDesktop = useBreakpoint('md');
 
@@ -141,6 +149,47 @@ export default function FSRecommendation({ dataset }: Props) {
       Xem kết quả
     </Button>
   );
+
+  const getCourseNameComponent = (
+    courseDetail: CourseDetail,
+    itemIdToItemSentiments: Record<string, FsItemSentiment[]>,
+  ) => {
+    return (
+      <div className='flex gap-1 items-center'>
+        <div className='line-clamp-1'>{courseDetail.course.name}</div>
+        <Button
+          type='text'
+          onClick={(e) => {
+            e.preventDefault();
+            modal.info({
+              title: <div className='text-xl'>Điểm số của các thuộc tính</div>,
+              content: (
+                <div>
+                  {itemIdToItemSentiments[courseDetail.course.code].map((fsItemSentiment) => {
+                    return (
+                      <div key={fsItemSentiment.attribute} className='flex gap-1'>
+                        <div className='font-semibold'>
+                          {attributeValueToLabel(fsItemSentiment.attribute)}:{' '}
+                        </div>
+                        <div className='font-bold text-primary'>
+                          {fsItemSentiment.sentimentScore.toFixed(2)}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ),
+              maskClosable: true,
+              okText: 'Đóng',
+            });
+          }}
+          shape='circle'
+        >
+          <QuestionCircleFilled className='text-primary text-xl' />
+        </Button>
+      </div>
+    );
+  };
 
   const settingsForm = (
     <div>
@@ -310,6 +359,8 @@ export default function FSRecommendation({ dataset }: Props) {
                 );
               }
 
+              const topCourseDetail = recommendationResult.topCourseDetail;
+
               return (
                 <div className='h-full overflow-y-auto overscroll-none'>
                   <Spin
@@ -327,7 +378,11 @@ export default function FSRecommendation({ dataset }: Props) {
                       <div className='my-3'></div>
                       <div className='w-full'>
                         <RecommendedCourseCard
-                          courseDetail={recommendationResult.topCourseDetail}
+                          courseDetail={topCourseDetail}
+                          courseName={getCourseNameComponent(
+                            topCourseDetail,
+                            recommendationResult.itemIdToItemSentiments,
+                          )}
                         />
                       </div>
                     </Card>
@@ -382,6 +437,10 @@ export default function FSRecommendation({ dataset }: Props) {
                                     <RecommendedCourseCard
                                       key={courseDetail.course.code}
                                       courseDetail={courseDetail}
+                                      courseName={getCourseNameComponent(
+                                        courseDetail,
+                                        recommendationResult.itemIdToItemSentiments,
+                                      )}
                                       extra={
                                         <Button
                                           icon={<ArrowUpOutlined />}
