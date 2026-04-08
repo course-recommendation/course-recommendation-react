@@ -8,6 +8,7 @@ import {
 import { getUserFullName } from '@/common/types/User.types';
 import { Avatar, Card, Divider, Skeleton, Typography } from 'antd';
 import { useState } from 'react';
+import { Link } from 'react-router';
 import PostCommentSection from './PostCommentSection';
 
 type Props = {
@@ -41,9 +42,11 @@ export default function PostCard({ postDetail }: Props) {
             </Typography.Text>
           </div>
           <div className='max-w-[50%]'>
-            <div className='text-sm md:text-base line-clamp-1 bg-primary text-white px-2 rounded'>
-              {postDetail.course.name}
-            </div>
+            <Link to={`/courses/${postDetail.course.code}`}>
+              <div className='text-sm md:text-base line-clamp-1 bg-primary text-white px-2 rounded'>
+                {postDetail.course.name}
+              </div>
+            </Link>
           </div>
         </div>
         <div className='my-3'></div>

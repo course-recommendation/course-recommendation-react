@@ -5,7 +5,7 @@ import { useState } from 'react';
 
 import useGet from '@/common/hooks/network/useGet';
 import useRequest from '@/common/hooks/network/useRequest';
-import { Algorithm, Course, Dataset, GetCoursesRequest } from '@/common/types/Course.types';
+import { Algorithm, Course, GetCoursesRequest } from '@/common/types/Course.types';
 import { CreatePostRequest } from '@/common/types/Discuss.types';
 import { useMeContext } from '@/screen/AuthenticateChecking/Authenticated/context/MeContext';
 
@@ -17,10 +17,9 @@ type CreatePostFormType = {
 type Props = {
   afterPost?: () => void;
   algorithm: Algorithm;
-  dataset: Dataset;
 };
 
-export default function CreatePostCard({ afterPost, algorithm, dataset }: Props) {
+export default function CreatePostCard({ afterPost, algorithm }: Props) {
   const { me } = useMeContext();
 
   const [openModal, setOpenModal] = useState(false);
@@ -34,10 +33,7 @@ export default function CreatePostCard({ afterPost, algorithm, dataset }: Props)
     `/courses`,
     {
       params: {
-        domain: {
-          algorithm,
-          dataset,
-        },
+        algorithm,
       } as GetCoursesRequest,
     },
   );
@@ -106,6 +102,7 @@ export default function CreatePostCard({ afterPost, algorithm, dataset }: Props)
             <ProForm<CreatePostFormType> form={form} submitter={false} clearOnDestroy>
               <ProFormSelect
                 name={'courseId'}
+                label='Môn học'
                 placeholder={'Chọn môn học mà bài viết này thảo luận'}
                 options={allCourseDetails.map((course) => {
                   return {

@@ -1,27 +1,22 @@
 import useGet from '@/common/hooks/network/useGet';
-import { Algorithm, Course, Dataset, GetCoursesRequest } from '@/common/types/Course.types';
+import { Algorithm, Course, GetCoursesRequest } from '@/common/types/Course.types';
 import { Card, Checkbox, Collapse, Input, Skeleton, Tag, Typography } from 'antd';
 import { useMemo, useState } from 'react';
 
 type Props = {
   algorithm: Algorithm;
-  dataset: Dataset;
   selectedCourseIds: string[];
   onSelectedCourseIdsChange: (courseIds: string[]) => void;
 };
 
 export default function DiscussFilter({
   algorithm,
-  dataset,
   selectedCourseIds,
   onSelectedCourseIdsChange,
 }: Props) {
   const { data: allCoursesResponse, isPending: allCoursesPending } = useGet<Course[]>('/courses', {
     params: {
-      domain: {
-        algorithm,
-        dataset,
-      },
+      algorithm,
     } as GetCoursesRequest,
   });
   const [input, setInput] = useState('');

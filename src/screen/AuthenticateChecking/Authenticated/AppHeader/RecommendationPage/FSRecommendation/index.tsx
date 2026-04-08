@@ -1,11 +1,18 @@
 import TrendingDown from '@/assets/icons/TrendingDown';
 import TrendingUp from '@/assets/icons/TrendingUp';
+import CourseStatusButton from '@/common/components/CourseStatusButton';
 import RatingBox from '@/common/components/RatingBox';
 import RecommendedCourseCard from '@/common/components/RecommendedCourseCard';
 import useGet from '@/common/hooks/network/useGet';
 import useRequest from '@/common/hooks/network/useRequest';
 import { useBreakpoint } from '@/common/hooks/useBreakpoint';
-import { Algorithm, Course, CourseDetail, Dataset } from '@/common/types/Course.types';
+import {
+  Algorithm,
+  Course,
+  CourseDetail,
+  GetCoursesRequest,
+  UserCourseStatus,
+} from '@/common/types/Course.types';
 import {
   FsItemSentiment,
   FSRecommendationRequest,
@@ -17,6 +24,8 @@ import { FilterCoursesOption } from '@/common/types/Recommendation.types';
 import {
   ArrowUpOutlined,
   QuestionCircleFilled,
+  QuestionCircleOutlined,
+  QuestionOutlined,
   SettingOutlined,
   StarFilled,
 } from '@ant-design/icons';
@@ -27,7 +36,20 @@ import {
   ProFormItem,
   ProFormSelect,
 } from '@ant-design/pro-components';
-import { Button, Card, Divider, Drawer, Empty, Modal, Rate, Skeleton, Spin, Typography } from 'antd';
+import {
+  Button,
+  Card,
+  Divider,
+  Drawer,
+  Empty,
+  Modal,
+  Skeleton,
+  Space,
+  Spin,
+  Table,
+  Tag,
+  Typography,
+} from 'antd';
 import useApp from 'antd/es/app/useApp';
 import { useForm } from 'antd/es/form/Form';
 import { useEffect, useState } from 'react';
@@ -39,11 +61,7 @@ type RecommendationSettingFormType = {
   customFilteredCourseCodes?: string[];
 };
 
-type Props = {
-  dataset: Dataset;
-};
-
-export default function FSRecommendation({ dataset }: Props) {
+export default function FSRecommendation() {
   const attributeValueToLabel = useAttributeValueToLabel();
   const { modal } = useApp();
 
@@ -51,11 +69,8 @@ export default function FSRecommendation({ dataset }: Props) {
 
   const { data: allCoursesResponse } = useGet<Course[]>(`/courses`, {
     params: {
-      domain: {
-        dataset,
-        algorithm: Algorithm.FS,
-      },
-    },
+      algorithm: Algorithm.FS,
+    } as GetCoursesRequest,
   });
 
   const [form] = useForm<RecommendationSettingFormType>();
@@ -65,7 +80,6 @@ export default function FSRecommendation({ dataset }: Props) {
     `/attributes`,
     {
       params: {
-        dataset,
         algorithm: Algorithm.FS,
       },
     },
@@ -75,7 +89,6 @@ export default function FSRecommendation({ dataset }: Props) {
     Record<string, number> | undefined
   >(`/user-preference`, {
     params: {
-      dataset,
       algorithm: Algorithm.FS,
     },
   });
@@ -85,9 +98,7 @@ export default function FSRecommendation({ dataset }: Props) {
     isPending: latestFSRecommendationResultPending,
     isRefetching: refetchingLatestFSRecommendationResult,
   } = useGet<FSRecommendationResult | undefined>(`/fs/latest-recommendation`, {
-    params: {
-      dataset,
-    },
+    params: {},
   });
 
   const { request: getFSRecommendation, isPending: getFSRecommendationPending } = useRequest<
@@ -101,10 +112,12 @@ export default function FSRecommendation({ dataset }: Props) {
   const [recommendationResult, setRecommendationResult] = useState<
     FSRecommendationResult | undefined
   >(undefined);
+  const [courseStatusOverrides, setCourseStatusOverrides] = useState<
+    Record<string, UserCourseStatus | undefined>
+  >({});
 
   useEffect(() => {
     if (!latestFSRecommendationResultPending) {
-      // TODO: find the correct way to do
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setRecommendationResult(latestFSRecommendationResultResponse!.data);
     }
@@ -123,7 +136,6 @@ export default function FSRecommendation({ dataset }: Props) {
         method: 'post',
         url: '/fs/recommendation',
         data: {
-          dataset,
           attributeToPreferenceConfigure: Object.fromEntries(
             Object.entries(formValues.attributeToTargetSentimentScore).map(([key, value]) => [
               key,
@@ -161,22 +173,46 @@ export default function FSRecommendation({ dataset }: Props) {
           type='text'
           onClick={(e) => {
             e.preventDefault();
+
+            const sentimentRows = itemIdToItemSentiments[courseDetail.course.code].map(
+              (fsItemSentiment) => ({
+                key: fsItemSentiment.attribute,
+                attribute: attributeValueToLabel(fsItemSentiment.attribute),
+                score: Number(fsItemSentiment.sentimentScore.toFixed(2)),
+              }),
+            );
+
             modal.info({
-              title: <div className='text-xl'>Điểm số của các thuộc tính</div>,
+              title: <div className='text-xl'>Điểm số các tiêu chí</div>,
               content: (
                 <div>
-                  {itemIdToItemSentiments[courseDetail.course.code].map((fsItemSentiment) => {
-                    return (
-                      <div key={fsItemSentiment.attribute} className='flex gap-1'>
-                        <div className='font-semibold'>
-                          {attributeValueToLabel(fsItemSentiment.attribute)}:{' '}
-                        </div>
-                        <div className='font-bold text-primary'>
-                          {fsItemSentiment.sentimentScore.toFixed(2)}
-                        </div>
-                      </div>
-                    );
-                  })}
+                  <div className='text-gray-700'>
+                    Bảng dưới đây hiển thị điểm cảm nhận trung bình của sinh viên cho từng tiêu chí
+                    của môn học này.
+                  </div>
+                  <div className='my-2'></div>
+                  <div className='text-gray-600'>
+                    Thang điểm từ 1 đến 5. Điểm càng cao nghĩa là mức độ cảm nhận tích cực càng lớn.
+                  </div>
+                  <div className='my-3'></div>
+                  <Table
+                    size='small'
+                    pagination={false}
+                    dataSource={sentimentRows}
+                    columns={[
+                      {
+                        title: 'Tiêu chí',
+                        dataIndex: 'attribute',
+                        key: 'attribute',
+                      },
+                      {
+                        title: 'Điểm trung bình',
+                        dataIndex: 'score',
+                        key: 'score',
+                        render: (value: number) => `${value.toFixed(2)} / 5`,
+                      },
+                    ]}
+                  />
                 </div>
               ),
               maskClosable: true,
@@ -189,6 +225,13 @@ export default function FSRecommendation({ dataset }: Props) {
         </Button>
       </div>
     );
+  };
+
+  const getEffectiveUserCourseStatus = (courseDetail: CourseDetail) => {
+    if (courseDetail.course.code in courseStatusOverrides) {
+      return courseStatusOverrides[courseDetail.course.code];
+    }
+    return courseDetail.userCourseStatus;
   };
 
   const settingsForm = (
@@ -218,27 +261,61 @@ export default function FSRecommendation({ dataset }: Props) {
                 latestFSRecommendationResult?.customFilteredCourseCodes ?? [],
             }}
           >
-            <div className='font-bold text-2xl'>Lọc môn học</div>
+            <div className='flex gap-2'>
+              <div className='font-bold text-2xl'>Lọc môn học</div>
+              <QuestionCircleOutlined
+                onClick={() => {
+                  modal.info({
+                    title: <div className='text-xl font-semibold'>Hướng dẫn lọc môn học</div>,
+                    content: (
+                      <div className='space-y-3'>
+                        <div className='text-gray-700'>
+                          Phần này giúp bạn loại bỏ các môn không muốn xuất hiện trong kết quả gợi ý
+                          để danh sách phù hợp hơn với nhu cầu hiện tại.
+                        </div>
+
+                        <div className='rounded-lg border border-blue-100 bg-blue-50 px-3 py-2 text-gray-700'>
+                          <div className='font-semibold text-blue-700'>Cách dùng nhanh</div>
+                          <div>
+                            Chọn một hoặc nhiều tùy chọn bên dưới. Hệ thống sẽ tự động loại các môn
+                            tương ứng trước khi tính toán gợi ý.
+                          </div>
+                        </div>
+
+                        <div className='rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-gray-700'>
+                          Nếu chọn <span className='font-semibold'>Bỏ những môn học tùy chỉnh</span>
+                          , bạn có thể chọn chính xác các mã môn muốn loại ở danh sách bên dưới.
+                        </div>
+                      </div>
+                    ),
+                    okText: 'Đã hiểu',
+                  });
+                }}
+              />
+            </div>
             <div className='my-3'></div>
             <ProFormCheckbox.Group
               noStyle
               layout='vertical'
               name={'filterCoursesOptions'}
+              fieldProps={{
+                className: 'flex flex-col gap-3',
+              }}
               options={[
                 {
-                  label: <div className='font-medium text-gray-800'>Bỏ những môn dự kiến học</div>,
+                  label: (
+                    <div className='font-medium text-gray-800'>Loại các môn đang dự kiến học</div>
+                  ),
                   value: FilterCoursesOption.PLANNING,
                 },
                 {
                   label: (
-                    <div className='font-medium text-gray-800'>Bỏ những môn đã hoàn thành</div>
+                    <div className='font-medium text-gray-800'>Loại các môn đã hoàn thành</div>
                   ),
                   value: FilterCoursesOption.COMPLETED,
                 },
                 {
-                  label: (
-                    <div className='font-medium text-gray-800'>Bỏ những môn học tùy chỉnh</div>
-                  ),
+                  label: <div className='font-medium text-gray-800'>Loại các môn tự chọn</div>,
                   value: FilterCoursesOption.CUSTOM,
                 },
               ]}
@@ -252,7 +329,7 @@ export default function FSRecommendation({ dataset }: Props) {
                 return (
                   <ProFormSelect
                     name={'customFilteredCourseCodes'}
-                    label={<div className='font-medium text-gray-800'>Chọn môn học để bỏ</div>}
+                    label={<div className='font-medium text-gray-800'>Chọn các môn cần loại</div>}
                     mode='multiple'
                     showSearch
                     hidden={!filterCoursesOptions?.includes(FilterCoursesOption.CUSTOM)}
@@ -264,9 +341,11 @@ export default function FSRecommendation({ dataset }: Props) {
                         };
                       }) ?? []
                     }
-                    fieldProps={{
-                      maxTagCount: 'responsive',
-                    }}
+                    fieldProps={
+                      {
+                        // maxTagCount: 'responsive',
+                      }
+                    }
                   />
                 );
               }}
@@ -274,7 +353,44 @@ export default function FSRecommendation({ dataset }: Props) {
             <Divider />
 
             <div>
-              <div className='font-bold text-2xl'>Điều chỉnh chỉ số</div>
+              <div className='flex gap-2'>
+                <div className='font-bold text-2xl'>Tùy chỉnh tiêu chí</div>
+                <QuestionCircleOutlined
+                  onClick={() => {
+                    modal.info({
+                      title: (
+                        <div className='text-xl font-semibold'>Hướng dẫn tùy chỉnh tiêu chí</div>
+                      ),
+                      content: (
+                        <div className='space-y-3'>
+                          <div className='text-gray-700'>
+                            Bạn đang thiết lập mức độ mong muốn cho từng tiêu chí của môn học. Hệ
+                            thống sẽ ưu tiên gợi ý các môn có điểm cảm nhận gần với các mức bạn
+                            chọn.
+                          </div>
+
+                          <div className='rounded-lg border border-blue-100 bg-blue-50 px-3 py-2 text-gray-700'>
+                            <span className='font-semibold text-blue-700'>Cách hiểu nhanh:</span>{' '}
+                            Chỉ số càng cao nghĩa là bạn muốn tiêu chí đó có cảm nhận tích cực hơn.
+                          </div>
+
+                          <div className='rounded-lg border border-gray-200 bg-gray-50 px-3 py-2'>
+                            <div className='font-semibold text-gray-800 mb-1'>Ví dụ</div>
+                            <div className='text-gray-700'>
+                              Nếu bạn tăng chỉ số{' '}
+                              <span className='font-semibold'>"Bài tập về nhà"</span>, hệ thống sẽ
+                              ưu tiên các môn mà sinh viên đánh giá tích cực hơn ở khía cạnh bài tập
+                              về nhà (điều này có nghĩa là bài tập có thể dễ hơn, hoặc khối lượng ít
+                              hơn,...).
+                            </div>
+                          </div>
+                        </div>
+                      ),
+                      okText: 'Đã hiểu',
+                    });
+                  }}
+                />
+              </div>
               <div className='my-3'></div>
               {attributes.map((attribute) => (
                 <ProFormItem
@@ -339,7 +455,7 @@ export default function FSRecommendation({ dataset }: Props) {
           {recommendButton}
         </Drawer>
 
-        <div className='h-full flex flex-col overflow-hidden'>
+        <div className='h-full flex flex-col overflow-hidden w-full'>
           <div className='font-bold text-[26px] shrink-0'>Gợi ý môn học</div>
           <div className='my-3 shrink-0'></div>
           <div className='flex-1 min-h-0'>
@@ -383,6 +499,36 @@ export default function FSRecommendation({ dataset }: Props) {
                             topCourseDetail,
                             recommendationResult.itemIdToItemSentiments,
                           )}
+                          topLeftBadge={
+                            getEffectiveUserCourseStatus(topCourseDetail) ===
+                            UserCourseStatus.COMPLETED ? (
+                              <Tag variant='solid' color={'green'}>
+                                Đã hoàn thành
+                              </Tag>
+                            ) : undefined
+                          }
+                          extra={
+                            <CourseStatusButton
+                              type={'plan'}
+                              className='w-full'
+                              marked={
+                                getEffectiveUserCourseStatus(topCourseDetail) ===
+                                UserCourseStatus.PLANNED
+                              }
+                              courseId={topCourseDetail.course.id}
+                              onMarkChange={(marked) => {
+                                setCourseStatusOverrides((prev) => ({
+                                  ...prev,
+                                  [topCourseDetail.course.code]: marked
+                                    ? UserCourseStatus.PLANNED
+                                    : undefined,
+                                }));
+                              }}
+                              onClick={(e) => {
+                                e.preventDefault();
+                              }}
+                            />
+                          }
                         />
                       </div>
                     </Card>
@@ -441,31 +587,109 @@ export default function FSRecommendation({ dataset }: Props) {
                                         courseDetail,
                                         recommendationResult.itemIdToItemSentiments,
                                       )}
+                                      topLeftBadge={
+                                        getEffectiveUserCourseStatus(courseDetail) ===
+                                        UserCourseStatus.COMPLETED ? (
+                                          <Tag variant='solid' color={'green'}>
+                                            Đã hoàn thành
+                                          </Tag>
+                                        ) : undefined
+                                      }
                                       extra={
-                                        <Button
-                                          icon={<ArrowUpOutlined />}
-                                          type='primary'
-                                          onClick={async (e) => {
-                                            e.preventDefault();
+                                        <div className='w-full'>
+                                          <CourseStatusButton
+                                            type={'plan'}
+                                            className='w-full'
+                                            marked={
+                                              getEffectiveUserCourseStatus(courseDetail) ===
+                                              UserCourseStatus.PLANNED
+                                            }
+                                            courseId={courseDetail.course.id}
+                                            onMarkChange={(marked) => {
+                                              setCourseStatusOverrides((prev) => ({
+                                                ...prev,
+                                                [courseDetail.course.code]: marked
+                                                  ? UserCourseStatus.PLANNED
+                                                  : undefined,
+                                              }));
+                                            }}
+                                            onClick={(e) => {
+                                              e.preventDefault();
+                                            }}
+                                          />
+                                          <div className='my-2'></div>
+                                          <div className='flex gap-3'>
+                                            <Space.Compact className='w-full'>
+                                              <Button
+                                                icon={<ArrowUpOutlined />}
+                                                color='primary'
+                                                variant='outlined'
+                                                className='w-full'
+                                                onClick={async (e) => {
+                                                  e.preventDefault();
 
-                                            const result = (
-                                              await getRefinedFSRecommendation({
-                                                url: '/fs/recommendation/refined',
-                                                method: 'post',
-                                                data: {
-                                                  dataset,
-                                                  recommendationId: recommendationResult.id,
-                                                  itemId: courseDetail.course.code,
-                                                  category: categoryDetail.category,
-                                                },
-                                              })
-                                            ).data;
+                                                  const result = (
+                                                    await getRefinedFSRecommendation({
+                                                      url: '/fs/recommendation/refined',
+                                                      method: 'post',
+                                                      data: {
+                                                        recommendationId: recommendationResult.id,
+                                                        itemId: courseDetail.course.code,
+                                                        category: categoryDetail.category,
+                                                      },
+                                                    })
+                                                  ).data;
 
-                                            setRecommendationResult(result);
-                                          }}
-                                        >
-                                          Tương tự
-                                        </Button>
+                                                  setRecommendationResult(result);
+                                                }}
+                                              >
+                                                Tương tự
+                                              </Button>
+                                              <Button
+                                                color='primary'
+                                                variant='outlined'
+                                                icon={<QuestionOutlined />}
+                                                onClick={(e) => {
+                                                  e.preventDefault();
+                                                  modal.info({
+                                                    title: (
+                                                      <div className='text-xl font-semibold'>
+                                                        Gợi ý tương tự hoạt động thế nào?
+                                                      </div>
+                                                    ),
+                                                    content: (
+                                                      <div className='space-y-3'>
+                                                        <div className='text-gray-700'>
+                                                          Khi chọn nút Tương tự, hệ thống sẽ ưu tiên
+                                                          tìm các môn học gần với môn hiện tại trong
+                                                          đúng nhóm gợi ý bạn đang xem.
+                                                        </div>
+
+                                                        <div className='rounded-lg border border-blue-100 bg-blue-50 px-3 py-2 text-gray-700'>
+                                                          <div className='font-semibold text-blue-700'>
+                                                            Mẹo
+                                                          </div>
+                                                          <div>
+                                                            Dùng tính năng này khi bạn thích môn
+                                                            đang xem và muốn khám phá các lựa chọn
+                                                            có trải nghiệm gần giống.
+                                                          </div>
+                                                        </div>
+
+                                                        <div className='rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-gray-700'>
+                                                          Kết quả mới sẽ thay thế danh sách hiện tại
+                                                          để bạn tập trung vào nhóm môn học liên
+                                                          quan nhất.
+                                                        </div>
+                                                      </div>
+                                                    ),
+                                                    okText: 'Đã hiểu',
+                                                  });
+                                                }}
+                                              ></Button>
+                                            </Space.Compact>
+                                          </div>
+                                        </div>
                                       }
                                     />
                                   );

@@ -9,8 +9,10 @@ import CoursesPage from './screen/AuthenticateChecking/Authenticated/AppHeader/C
 import DiscussPage from './screen/AuthenticateChecking/Authenticated/AppHeader/DiscussPage';
 import MyCoursesPage from './screen/AuthenticateChecking/Authenticated/AppHeader/MyCoursesPage';
 import RecommendationPage from './screen/AuthenticateChecking/Authenticated/AppHeader/RecommendationPage';
+import SurveyPage from './screen/AuthenticateChecking/Authenticated/AppHeader/SurveyPage';
 import PublicPage from './screen/PublicPage';
-import Login from './screen/PublicPage/Login';
+import LoginPage from './screen/PublicPage/LoginPage';
+import RegisterPage from './screen/PublicPage/RegisterPage';
 
 export const router = createBrowserRouter([
   {
@@ -19,7 +21,11 @@ export const router = createBrowserRouter([
     children: [
       {
         path: 'login',
-        element: <Login />,
+        element: <LoginPage />,
+      },
+      {
+        path: 'register',
+        element: <RegisterPage />,
       },
     ],
   },
@@ -44,6 +50,10 @@ export const router = createBrowserRouter([
                   {
                     path: '',
                     element: <RecommendationPage />,
+                  },
+                  {
+                    path: '/survey',
+                    element: <SurveyPage />,
                   },
                   {
                     path: '/discuss',

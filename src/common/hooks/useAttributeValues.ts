@@ -1,17 +1,10 @@
-import { Algorithm, Dataset } from '../types/Course.types';
+import { Algorithm } from '../types/Course.types';
 import useGet from './network/useGet';
 
-export function useAttributeValues({
-  algorithm,
-  dataset,
-}: {
-  algorithm: Algorithm;
-  dataset: Dataset;
-}) {
+export function useAttributeValues({ algorithm }: { algorithm: Algorithm }) {
   const { data, isPending } = useGet<string[]>(`/attributes`, {
     params: {
       algorithm,
-      dataset,
     },
   });
   return { data, isPending };

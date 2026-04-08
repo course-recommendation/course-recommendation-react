@@ -1,10 +1,10 @@
 import useGet from '@/common/hooks/network/useGet';
-import { CourseDetail, Domain } from '@/common/types/Course.types';
+import { Algorithm, CourseDetail } from '@/common/types/Course.types';
 
-export function useGetCourseDetails({ domain, name }: { domain: Domain; name: string }) {
+export function useGetCourseDetails({ algorithm, name }: { algorithm: Algorithm; name: string }) {
   return useGet<CourseDetail[]>(`/courses/detail`, {
     params: {
-      domain,
+      algorithm,
       name,
     },
   });

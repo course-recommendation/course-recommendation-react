@@ -1,28 +1,21 @@
 import { App } from 'antd';
 import { Outlet } from 'react-router';
 import { LocalStorageKey } from './common/constants/LocalStorageKey';
-import { CourseDomainContext, DomainContextType } from './common/context/DomainContext';
-import { Algorithm, Dataset } from './common/types/Course.types';
+import { AlgorithmContext } from './common/context/AlgorithmContext';
+import { Algorithm } from './common/types/Course.types';
 import './index.css';
 
-const defaultCourseDomain: DomainContextType = {
-  algorithm: Algorithm.FS,
-  dataset: Dataset.FIT,
-};
+const defaultAlgorithm = Algorithm.FS;
 
 function Root() {
   const algorithm: Algorithm =
-    (localStorage.getItem(LocalStorageKey.ALGORITHM) as Algorithm | null) ??
-    defaultCourseDomain.algorithm;
-  const dataset: Dataset =
-    (localStorage.getItem(LocalStorageKey.DATASET) as Dataset | null) ??
-    defaultCourseDomain.dataset;
+    (localStorage.getItem(LocalStorageKey.ALGORITHM) as Algorithm | null) ?? defaultAlgorithm;
 
   return (
     <App>
-      <CourseDomainContext value={{ algorithm, dataset }}>
+      <AlgorithmContext value={algorithm}>
         <Outlet />
-      </CourseDomainContext>
+      </AlgorithmContext>
     </App>
   );
 }

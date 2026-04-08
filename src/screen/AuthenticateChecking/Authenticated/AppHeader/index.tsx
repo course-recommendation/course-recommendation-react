@@ -1,7 +1,7 @@
 import BookIcon from '@/assets/icons/BookIcon';
 import { LocalStorageKey } from '@/common/constants/LocalStorageKey';
-import { useCourseDomainContext } from '@/common/context/DomainContext';
-import { Algorithm, Dataset } from '@/common/types/Course.types';
+import { useAlgorithmContext } from '@/common/context/AlgorithmContext';
+import { Algorithm } from '@/common/types/Course.types';
 import { MenuOutlined } from '@ant-design/icons';
 import {
   Avatar,
@@ -29,8 +29,9 @@ const PathKey = {
 export default function AppHeader() {
   const { pathname } = useLocation();
   const { me } = useMeContext();
-  const { algorithm, dataset } = useCourseDomainContext();
+  const algorithm = useAlgorithmContext();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const isDoingSurvey = !me.didSurvey || pathname === '/survey';
 
   const isDiscussPage = pathname.includes('/discuss');
   const isMyCoursesPage = pathname.includes('/my-courses');
@@ -93,21 +94,6 @@ export default function AppHeader() {
     />
   );
 
-  const datasetSelect = (
-    <Select
-      className='w-full md:w-auto'
-      options={[
-        { label: 'HCMUS', value: Dataset.FIT },
-        { label: 'Cellphone', value: Dataset.CELLPHONE },
-      ]}
-      onSelect={(value) => {
-        localStorage.setItem(LocalStorageKey.DATASET, value);
-        window.location.reload();
-      }}
-      defaultValue={dataset}
-    />
-  );
-
   const userDropdown = (
     <Dropdown
       placement='bottomRight'
@@ -143,26 +129,28 @@ export default function AppHeader() {
               className='md:hidden'
               type='text'
               icon={<MenuOutlined />}
+              hidden={isDoingSurvey}
               onClick={() => setMobileMenuOpen(true)}
             />
             <div className='mx-1'></div>
             <Link to={'/'} className='text-black'>
               <span className='flex items-center gap-2'>
-                <BookIcon className='text-primary inline w-[40px] h-[40px]' />
+                <BookIcon className='text-primary inline w-10 h-10' />
                 <span className='font-bold text-2xl'>CourseHub</span>
               </span>
             </Link>
-            <div className='hidden md:flex ml-8'>
-              <div className='w-[450px]'>
-                <Menu mode='horizontal' items={headerMenuItems} selectedKeys={[selectedKey]} />
+            {!isDoingSurvey && (
+              <div className='hidden md:flex ml-8'>
+                <div className='w-[450px]'>
+                  <Menu mode='horizontal' items={headerMenuItems} selectedKeys={[selectedKey]} />
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           <div className='flex items-center gap-2 md:gap-3'>
             <div className='hidden md:flex items-center gap-3'>
               {algorithmSelect}
-              {datasetSelect}
               {userDropdown}
             </div>
 
@@ -174,7 +162,7 @@ export default function AppHeader() {
           title='Menu'
           placement='left'
           onClose={() => setMobileMenuOpen(false)}
-          open={mobileMenuOpen}
+          open={mobileMenuOpen && !isDoingSurvey}
           size={280}
         >
           <div className='flex flex-col gap-4'>
@@ -198,7 +186,6 @@ export default function AppHeader() {
                 <Typography.Text className='text-xs text-gray-500 mb-1 block'>
                   Dữ liệu
                 </Typography.Text>
-                {datasetSelect}
               </div>
             </div>
           </div>

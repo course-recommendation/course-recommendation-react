@@ -1,8 +1,8 @@
-import { useCourseDomainContext } from '@/common/context/DomainContext';
+import { useAlgorithmContext } from '@/common/context/AlgorithmContext';
 import MyCourses from './MyCourses';
 
 export default function MyCoursesPage() {
-  const { algorithm, dataset } = useCourseDomainContext();
+  const algorithm = useAlgorithmContext();
 
-  return <MyCourses algorithm={algorithm} dataset={dataset} />;
+  return <MyCourses algorithm={algorithm} />;
 }

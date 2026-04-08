@@ -3,29 +3,25 @@ import useRequest from '@/common/hooks/network/useRequest';
 import {
   Algorithm,
   CourseDetail,
-  Dataset,
   GetCourseDetailsRequest,
   GetCoursesOfUserRequest,
-  UpdateUserCourseRequest as UpdateUserCoursesRequest,
+  UpdateUserCourseStatusesRequest as UpdateUserCoursesRequest,
   UserCourseStatus,
 } from '@/common/types/Course.types';
 import MyCoursesSection from '@/screen/AuthenticateChecking/Authenticated/AppHeader/MyCoursesPage/components/MyCoursesSection';
 import { BookOutlined, CheckCircleOutlined } from '@ant-design/icons';
+import { useCallback } from 'react';
 
 type Props = {
   algorithm: Algorithm;
-  dataset: Dataset;
 };
 
-export default function MyCourses({ algorithm, dataset }: Props) {
+export default function MyCourses({ algorithm }: Props) {
   const { data: allCourseDetailsResponse, isPending: allCourseDetailsPending } = useGet<
     CourseDetail[]
   >('/courses/detail', {
     params: {
-      domain: {
-        algorithm,
-        dataset,
-      },
+      algorithm,
     } as GetCourseDetailsRequest,
   });
 
@@ -38,10 +34,7 @@ export default function MyCourses({ algorithm, dataset }: Props) {
     isRefetching: refetchingCompletedCourses,
   } = useGet<CourseDetail[]>('/me/courses', {
     params: {
-      domain: {
-        algorithm,
-        dataset,
-      },
+      algorithm,
       userCourseStatus: UserCourseStatus.COMPLETED,
     } as GetCoursesOfUserRequest,
   });
@@ -53,13 +46,15 @@ export default function MyCourses({ algorithm, dataset }: Props) {
     isRefetching: refetchingPlanningCourses,
   } = useGet<CourseDetail[]>('/me/courses', {
     params: {
-      domain: {
-        algorithm,
-        dataset,
-      },
-      userCourseStatus: UserCourseStatus.PLANNING,
+      algorithm,
+      userCourseStatus: UserCourseStatus.PLANNED,
     } as GetCoursesOfUserRequest,
   });
+
+  const refetchMyCourses = useCallback(() => {
+    refetchCompletedCourses();
+    refetchPlanningCourses();
+  }, [refetchCompletedCourses, refetchPlanningCourses]);
 
   return (
     <div>
@@ -81,14 +76,11 @@ export default function MyCourses({ algorithm, dataset }: Props) {
             method: 'PUT',
             data: {
               courseIds,
-              userCourseStatus: UserCourseStatus.PLANNING,
-              domain: {
-                algorithm,
-                dataset,
-              },
+              userCourseStatus: UserCourseStatus.PLANNED,
+              algorithm,
             },
           });
-          refetchPlanningCourses();
+          refetchMyCourses();
         }}
         allCourseDetailsPending={allCourseDetailsPending}
         allCourseDetailsResponse={allCourseDetailsResponse}
@@ -118,13 +110,10 @@ export default function MyCourses({ algorithm, dataset }: Props) {
             data: {
               courseIds,
               userCourseStatus: UserCourseStatus.COMPLETED,
-              domain: {
-                algorithm,
-                dataset,
-              },
+              algorithm,
             },
           });
-          refetchCompletedCourses();
+          refetchMyCourses();
         }}
         allCourseDetailsPending={allCourseDetailsPending}
         allCourseDetailsResponse={allCourseDetailsResponse}

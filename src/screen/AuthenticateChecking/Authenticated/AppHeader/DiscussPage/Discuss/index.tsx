@@ -1,4 +1,4 @@
-import { Algorithm, Dataset } from '@/common/types/Course.types';
+import { Algorithm } from '@/common/types/Course.types';
 import { FilterOutlined } from '@ant-design/icons';
 import { Button, Drawer } from 'antd';
 import { useEffect, useState } from 'react';
@@ -8,10 +8,9 @@ import DiscussMainArea from './DiscussMainArea';
 
 type Props = {
   algorithm: Algorithm;
-  dataset: Dataset;
 };
 
-export default function Discuss({ algorithm, dataset }: Props) {
+export default function Discuss({ algorithm }: Props) {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [filteredCourseCodes, setFilteredCourseCodes] = useState<string[]>([]);
@@ -55,7 +54,6 @@ export default function Discuss({ algorithm, dataset }: Props) {
         <div>
           <DiscussFilter
             algorithm={algorithm}
-            dataset={dataset}
             selectedCourseIds={filteredCourseCodes}
             onSelectedCourseIdsChange={(courseIds) => {
               setFilteredCourseCodes(courseIds);
@@ -67,7 +65,6 @@ export default function Discuss({ algorithm, dataset }: Props) {
       <div className='flex-1'>
         <DiscussMainArea
           algorithm={algorithm}
-          dataset={dataset}
           courseIds={finalFilteredCourseCodes}
           filterSection={
             <Button
@@ -106,7 +103,6 @@ export default function Discuss({ algorithm, dataset }: Props) {
       >
         <DiscussFilter
           algorithm={algorithm}
-          dataset={dataset}
           selectedCourseIds={filteredCourseCodes}
           onSelectedCourseIdsChange={(courseIds) => {
             setFilteredCourseCodes(courseIds);

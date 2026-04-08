@@ -115,7 +115,7 @@ export default function MyCoursesSection({
                   }))}
                   showSearch
                   fieldProps={{
-                    maxTagCount: 'responsive',
+                    // maxTagCount: 'responsive',
                     placeholder: 'Chọn môn học',
                   }}
                 />

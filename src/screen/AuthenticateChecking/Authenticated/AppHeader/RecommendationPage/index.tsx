@@ -1,15 +1,15 @@
-import { useCourseDomainContext } from '@/common/context/DomainContext';
+import { useAlgorithmContext } from '@/common/context/AlgorithmContext';
 import { Algorithm } from '@/common/types/Course.types';
 import FSRecommendation from './FSRecommendation';
 
 export default function RecommendationPage() {
-  const { algorithm, dataset } = useCourseDomainContext();
+  const algorithm = useAlgorithmContext();
 
   return (
     <>
       {(() => {
         if (algorithm === Algorithm.FS) {
-          return <FSRecommendation dataset={dataset} />;
+          return <FSRecommendation />;
         }
 
         return <div></div>;

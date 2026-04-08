@@ -1,5 +1,5 @@
 import useGet from '@/common/hooks/network/useGet';
-import { Algorithm, Dataset } from '@/common/types/Course.types';
+import { Algorithm } from '@/common/types/Course.types';
 import { FindPostDetailsRequest, PostDetail } from '@/common/types/Discuss.types';
 import { Empty, Skeleton } from 'antd';
 import { ReactNode } from 'react';
@@ -8,12 +8,11 @@ import PostCard from './PostCard';
 
 type Props = {
   algorithm: Algorithm;
-  dataset: Dataset;
   courseIds: string[];
   filterSection?: ReactNode;
 };
 
-export default function DiscussMainArea({ algorithm, dataset, courseIds, filterSection }: Props) {
+export default function DiscussMainArea({ algorithm, courseIds, filterSection }: Props) {
   const {
     data: postDetailsResponse,
     isPending: postDetailsPending,
@@ -21,10 +20,7 @@ export default function DiscussMainArea({ algorithm, dataset, courseIds, filterS
   } = useGet<PostDetail[]>(`/posts`, {
     params: {
       sort: ['createdAt,desc'],
-      domain: {
-        algorithm,
-        dataset,
-      },
+      algorithm,
       courseIdsRequest: {
         fetchAll: courseIds.length === 0,
         data: courseIds,
@@ -39,7 +35,6 @@ export default function DiscussMainArea({ algorithm, dataset, courseIds, filterS
           await refetchPosts();
         }}
         algorithm={algorithm}
-        dataset={dataset}
       />
       <div className='my-6 md:my-10'></div>
       {filterSection && <div className='flex justify-end mb-4'>{filterSection}</div>}
