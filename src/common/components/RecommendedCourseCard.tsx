@@ -7,6 +7,7 @@ type Props = {
   courseDetail: CourseDetail;
   extra?: ReactNode;
   courseName?: ReactNode;
+  topLeftBadge?: ReactNode;
   topRightBadge?: ReactNode;
 };
 
@@ -14,14 +15,16 @@ export default function RecommendedCourseCard({
   courseDetail,
   extra,
   courseName,
+  topLeftBadge,
   topRightBadge,
 }: Props) {
   return (
     <Link to={`/courses/${courseDetail.course.code}`}>
       <Card
         variant='borderless'
-        className='relative bg-gray-50 shadow-xs group hover:bg-gray-100 overflow-hidden'
+        className='relative overflow-hidden group bg-white border border-gray-200 shadow-sm transition-all duration-200 hover:bg-blue-50/40 hover:border-blue-300 hover:shadow-md'
       >
+        {topLeftBadge && <div className='absolute top-3 left-3 z-10'>{topLeftBadge}</div>}
         {topRightBadge && <div className='absolute top-3 right-3 z-10'>{topRightBadge}</div>}
         <div className='flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-5'>
           <div className='w-full md:w-52 aspect-video overflow-hidden rounded-xl shrink-0'>

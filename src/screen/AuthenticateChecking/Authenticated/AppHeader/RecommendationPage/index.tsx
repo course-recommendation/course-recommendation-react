@@ -1,6 +1,7 @@
 import { useAlgorithmContext } from '@/common/context/AlgorithmContext';
 import { Algorithm } from '@/common/types/Course.types';
 import FSRecommendation from './FSRecommendation';
+import TriRankRecommendation from './TriRankRecommendation';
 
 export default function RecommendationPage() {
   const algorithm = useAlgorithmContext();
@@ -12,7 +13,11 @@ export default function RecommendationPage() {
           return <FSRecommendation />;
         }
 
-        return <div></div>;
+        if (algorithm === Algorithm.TRI_RANK) {
+          return <TriRankRecommendation />;
+        }
+
+        return null;
       })()}
     </>
   );

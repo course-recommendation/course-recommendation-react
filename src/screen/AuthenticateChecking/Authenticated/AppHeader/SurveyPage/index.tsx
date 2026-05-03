@@ -1,9 +1,14 @@
 import RatingBox from '@/common/components/RatingBox';
+import { TRI_RANK_NUMBER_OF_COURSES } from '@/common/constants/Recommendation.constant';
 import { useAlgorithmContext } from '@/common/context/AlgorithmContext';
 import useGet from '@/common/hooks/network/useGet';
 import useRequest from '@/common/hooks/network/useRequest';
 import { Algorithm } from '@/common/types/Course.types';
 import { FSRecommendationRequest, FSRecommendationResult } from '@/common/types/FS.types';
+import {
+  TriRankRecommendationRequest,
+  TriRankRecommendationResult,
+} from '@/common/types/TriRank.types';
 import { Button, Card, Typography } from 'antd';
 import useApp from 'antd/es/app/useApp';
 import { useState } from 'react';
@@ -23,14 +28,14 @@ export default function SurveyPage() {
     },
   );
 
-  const [attributeToTargetSentimentScore, setAttributeToTargetSentimentScore] = useState<
-    Record<string, number>
-  >({});
+  const [attributeToScore, setAttributeToScore] = useState<Record<string, number>>({});
 
-  const { request: getFSRecommendation, isPending: creatingRecommendation } = useRequest<
+  const { request: getFSRecommendation, isPending: creatingFSRecommendation } = useRequest<
     FSRecommendationResult,
     FSRecommendationRequest
   >();
+  const { request: getTriRankRecommendation, isPending: creatingTriRankRecommendation } =
+    useRequest<TriRankRecommendationResult, TriRankRecommendationRequest>();
 
   const { request: completeSurvey, isPending: completingSurvey } = useRequest<void, undefined>();
 
@@ -40,22 +45,40 @@ export default function SurveyPage() {
     }
 
     try {
-      await getFSRecommendation({
-        method: 'post',
-        url: '/fs/recommendation',
-        data: {
-          attributeToPreferenceConfigure: Object.fromEntries(
-            attributesResponse.data.map((attribute) => [
-              attribute,
-              {
-                targetSentimentScore: attributeToTargetSentimentScore[attribute] ?? 3,
-              },
-            ]),
-          ),
-          filterCoursesOptions: [],
-          customFilteredCourseCodes: [],
-        },
-      });
+      if (algorithm === Algorithm.FS) {
+        await getFSRecommendation({
+          method: 'post',
+          url: '/fs/recommendation',
+          data: {
+            attributeToPreferenceConfigure: Object.fromEntries(
+              attributesResponse.data.map((attribute) => [
+                attribute,
+                {
+                  targetSentimentScore: attributeToScore[attribute] ?? 3,
+                },
+              ]),
+            ),
+            filterCoursesOptions: [],
+            customFilteredCourseCodes: [],
+          },
+        });
+      } else {
+        await getTriRankRecommendation({
+          method: 'post',
+          url: '/tri-rank/recommendation',
+          data: {
+            numberOfCourses: TRI_RANK_NUMBER_OF_COURSES,
+            attributeToScore: Object.fromEntries(
+              attributesResponse.data.map((attribute) => [
+                attribute,
+                attributeToScore[attribute] ?? 3,
+              ]),
+            ),
+            filterCoursesOptions: [],
+            customFilteredCourseCodes: [],
+          },
+        });
+      }
 
       await completeSurvey({
         method: 'put',
@@ -101,9 +124,9 @@ export default function SurveyPage() {
                     </Typography.Text>
                     <RatingBox
                       highlightSmallerValues
-                      value={attributeToTargetSentimentScore[attribute] ?? 3}
+                      value={attributeToScore[attribute] ?? 3}
                       onChange={(score) => {
-                        setAttributeToTargetSentimentScore((prev) => ({
+                        setAttributeToScore((prev) => ({
                           ...prev,
                           [attribute]: score,
                         }));
@@ -120,7 +143,9 @@ export default function SurveyPage() {
               type='primary'
               size='large'
               className='w-full md:w-auto'
-              loading={creatingRecommendation || completingSurvey}
+              loading={
+                creatingFSRecommendation || creatingTriRankRecommendation || completingSurvey
+              }
               onClick={handleDone}
             >
               Hoàn tất và xem gợi ý

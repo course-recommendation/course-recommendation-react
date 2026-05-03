@@ -1,11 +1,9 @@
 import TrendingDown from '@/assets/icons/TrendingDown';
 import TrendingUp from '@/assets/icons/TrendingUp';
 import CourseStatusButton from '@/common/components/CourseStatusButton';
-import RatingBox from '@/common/components/RatingBox';
 import RecommendedCourseCard from '@/common/components/RecommendedCourseCard';
 import useGet from '@/common/hooks/network/useGet';
 import useRequest from '@/common/hooks/network/useRequest';
-import { useBreakpoint } from '@/common/hooks/useBreakpoint';
 import {
   Algorithm,
   Course,
@@ -20,52 +18,24 @@ import {
   FSRefinedRecommendationRequest,
   isDirectionUp,
 } from '@/common/types/FS.types';
-import { FilterCoursesOption } from '@/common/types/Recommendation.types';
+import { RecommendationSettingsFormType } from '@/common/types/TriRank.types';
 import {
   ArrowUpOutlined,
   QuestionCircleFilled,
-  QuestionCircleOutlined,
   QuestionOutlined,
-  SettingOutlined,
   StarFilled,
 } from '@ant-design/icons';
-import {
-  ProForm,
-  ProFormCheckbox,
-  ProFormDependency,
-  ProFormItem,
-  ProFormSelect,
-} from '@ant-design/pro-components';
-import {
-  Button,
-  Card,
-  Divider,
-  Drawer,
-  Empty,
-  Modal,
-  Skeleton,
-  Space,
-  Spin,
-  Table,
-  Tag,
-  Typography,
-} from 'antd';
+import { Button, Card, Empty, Modal, Skeleton, Space, Spin, Table, Tag, Typography } from 'antd';
 import useApp from 'antd/es/app/useApp';
 import { useForm } from 'antd/es/form/Form';
 import { useEffect, useState } from 'react';
+import RecommendationSettingsForm from '../components/RecommendationSettingsForm';
+import RecommendationSettingsSidebar from '../components/RecommendationSettingsSidebar';
 import { useAttributeValueToLabel } from './hooks/useAttributeValueToLabel';
-
-type RecommendationSettingFormType = {
-  attributeToTargetSentimentScore: Record<string, number>;
-  filterCoursesOptions?: FilterCoursesOption[];
-  customFilteredCourseCodes?: string[];
-};
 
 export default function FSRecommendation() {
   const attributeValueToLabel = useAttributeValueToLabel();
   const { modal } = useApp();
-
-  const isDesktop = useBreakpoint('md');
 
   const { data: allCoursesResponse } = useGet<Course[]>(`/courses`, {
     params: {
@@ -73,7 +43,7 @@ export default function FSRecommendation() {
     } as GetCoursesRequest,
   });
 
-  const [form] = useForm<RecommendationSettingFormType>();
+  const [form] = useForm<RecommendationSettingsFormType>();
   const [settingsDrawerOpen, setSettingsDrawerOpen] = useState(false);
 
   const { data: attributesResponse, isPending: attributesPending } = useGet<string[]>(
@@ -137,7 +107,7 @@ export default function FSRecommendation() {
         url: '/fs/recommendation',
         data: {
           attributeToPreferenceConfigure: Object.fromEntries(
-            Object.entries(formValues.attributeToTargetSentimentScore).map(([key, value]) => [
+            Object.entries(formValues.attributeToScore).map(([key, value]) => [
               key,
               { targetSentimentScore: value },
             ]),
@@ -235,225 +205,40 @@ export default function FSRecommendation() {
   };
 
   const settingsForm = (
-    <div>
+    <>
       {(() => {
         if (attributesPending || attributeToScorePending || latestFSRecommendationResultPending) {
           return <Skeleton active />;
         }
 
-        const attributes = attributesResponse!.data;
-        const attributeToTargetSentimentScore = attributeToScoreResponse!.data;
-        const latestFSRecommendationResult = latestFSRecommendationResultResponse!.data;
-
         return (
-          <ProForm<RecommendationSettingFormType>
+          <RecommendationSettingsForm
             form={form}
-            submitter={false}
-            initialValues={{
-              attributeToTargetSentimentScore: Object.fromEntries(
-                attributes.map((attribute) => [
-                  attribute,
-                  attributeToTargetSentimentScore?.[attribute] ?? 3,
-                ]),
-              ),
-              filterCoursesOptions: latestFSRecommendationResult?.filterCoursesOptions ?? [],
-              customFilteredCourseCodes:
-                latestFSRecommendationResult?.customFilteredCourseCodes ?? [],
-            }}
-          >
-            <div className='flex gap-2'>
-              <div className='font-bold text-2xl'>Lọc môn học</div>
-              <QuestionCircleOutlined
-                onClick={() => {
-                  modal.info({
-                    title: <div className='text-xl font-semibold'>Hướng dẫn lọc môn học</div>,
-                    content: (
-                      <div className='space-y-3'>
-                        <div className='text-gray-700'>
-                          Phần này giúp bạn loại bỏ các môn không muốn xuất hiện trong kết quả gợi ý
-                          để danh sách phù hợp hơn với nhu cầu hiện tại.
-                        </div>
-
-                        <div className='rounded-lg border border-blue-100 bg-blue-50 px-3 py-2 text-gray-700'>
-                          <div className='font-semibold text-blue-700'>Cách dùng nhanh</div>
-                          <div>
-                            Chọn một hoặc nhiều tùy chọn bên dưới. Hệ thống sẽ tự động loại các môn
-                            tương ứng trước khi tính toán gợi ý.
-                          </div>
-                        </div>
-
-                        <div className='rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-gray-700'>
-                          Nếu chọn <span className='font-semibold'>Bỏ những môn học tùy chỉnh</span>
-                          , bạn có thể chọn chính xác các mã môn muốn loại ở danh sách bên dưới.
-                        </div>
-                      </div>
-                    ),
-                    okText: 'Đã hiểu',
-                  });
-                }}
-              />
-            </div>
-            <div className='my-3'></div>
-            <ProFormCheckbox.Group
-              noStyle
-              layout='vertical'
-              name={'filterCoursesOptions'}
-              fieldProps={{
-                className: 'flex flex-col gap-3',
-              }}
-              options={[
-                {
-                  label: (
-                    <div className='font-medium text-gray-800'>Loại các môn đang dự kiến học</div>
-                  ),
-                  value: FilterCoursesOption.PLANNING,
-                },
-                {
-                  label: (
-                    <div className='font-medium text-gray-800'>Loại các môn đã hoàn thành</div>
-                  ),
-                  value: FilterCoursesOption.COMPLETED,
-                },
-                {
-                  label: <div className='font-medium text-gray-800'>Loại các môn tự chọn</div>,
-                  value: FilterCoursesOption.CUSTOM,
-                },
-              ]}
-            />
-            <div className='my-3'></div>
-            <ProFormDependency name={['filterCoursesOptions']}>
-              {({ filterCoursesOptions: _filterCoursesOptions }) => {
-                const filterCoursesOptions = _filterCoursesOptions as
-                  | FilterCoursesOption[]
-                  | undefined;
-                return (
-                  <ProFormSelect
-                    name={'customFilteredCourseCodes'}
-                    label={<div className='font-medium text-gray-800'>Chọn các môn cần loại</div>}
-                    mode='multiple'
-                    showSearch
-                    hidden={!filterCoursesOptions?.includes(FilterCoursesOption.CUSTOM)}
-                    options={
-                      allCoursesResponse?.data.map((course) => {
-                        return {
-                          label: course.name,
-                          value: course.code,
-                        };
-                      }) ?? []
-                    }
-                    fieldProps={
-                      {
-                        // maxTagCount: 'responsive',
-                      }
-                    }
-                  />
-                );
-              }}
-            </ProFormDependency>
-            <Divider />
-
-            <div>
-              <div className='flex gap-2'>
-                <div className='font-bold text-2xl'>Tùy chỉnh tiêu chí</div>
-                <QuestionCircleOutlined
-                  onClick={() => {
-                    modal.info({
-                      title: (
-                        <div className='text-xl font-semibold'>Hướng dẫn tùy chỉnh tiêu chí</div>
-                      ),
-                      content: (
-                        <div className='space-y-3'>
-                          <div className='text-gray-700'>
-                            Bạn đang thiết lập mức độ mong muốn cho từng tiêu chí của môn học. Hệ
-                            thống sẽ ưu tiên gợi ý các môn có điểm cảm nhận gần với các mức bạn
-                            chọn.
-                          </div>
-
-                          <div className='rounded-lg border border-blue-100 bg-blue-50 px-3 py-2 text-gray-700'>
-                            <span className='font-semibold text-blue-700'>Cách hiểu nhanh:</span>{' '}
-                            Chỉ số càng cao nghĩa là bạn muốn tiêu chí đó có cảm nhận tích cực hơn.
-                          </div>
-
-                          <div className='rounded-lg border border-gray-200 bg-gray-50 px-3 py-2'>
-                            <div className='font-semibold text-gray-800 mb-1'>Ví dụ</div>
-                            <div className='text-gray-700'>
-                              Nếu bạn tăng chỉ số{' '}
-                              <span className='font-semibold'>"Bài tập về nhà"</span>, hệ thống sẽ
-                              ưu tiên các môn mà sinh viên đánh giá tích cực hơn ở khía cạnh bài tập
-                              về nhà (điều này có nghĩa là bài tập có thể dễ hơn, hoặc khối lượng ít
-                              hơn,...).
-                            </div>
-                          </div>
-                        </div>
-                      ),
-                      okText: 'Đã hiểu',
-                    });
-                  }}
-                />
-              </div>
-              <div className='my-3'></div>
-              {attributes.map((attribute) => (
-                <ProFormItem
-                  key={attribute}
-                  name={['attributeToTargetSentimentScore', attribute]}
-                  label={
-                    <div className='font-semibold text-gray-600'>
-                      {attributeValueToLabel(attribute)}
-                    </div>
-                  }
-                  className='pl-2'
-                  layout='vertical'
-                >
-                  <RatingBox highlightSmallerValues />
-                </ProFormItem>
-              ))}
-            </div>
-          </ProForm>
+            attributes={attributesResponse!.data}
+            allCourses={allCoursesResponse?.data ?? []}
+            initialAttributeToScore={attributeToScoreResponse!.data}
+            initialFilterCoursesOptions={
+              latestFSRecommendationResultResponse?.data?.filterCoursesOptions ?? []
+            }
+            initialCustomFilteredCourseCodes={
+              latestFSRecommendationResultResponse?.data?.customFilteredCourseCodes ?? []
+            }
+            attributeValueToLabel={attributeValueToLabel}
+          />
         );
       })()}
-    </div>
+    </>
   );
 
   return (
     <div className='flex flex-col md:flex-row md:items-center h-full'>
       <div className='w-full h-full flex flex-col md:flex-row gap-4 md:gap-8'>
-        <Card
-          variant='borderless'
-          className='hidden md:flex md:w-[400px] flex-col gap-3 md:shrink-0'
-          styles={{
-            body: {
-              overflow: 'hidden',
-            },
-          }}
-        >
-          <div className='flex flex-col h-full gap-5'>
-            <div className='flex-1 overflow-auto overscroll-none'>{isDesktop && settingsForm}</div>
-            {recommendButton}
-          </div>
-        </Card>
-
-        <Button
-          className='md:hidden w-full'
-          type='primary'
-          icon={<SettingOutlined />}
-          onClick={() => setSettingsDrawerOpen(true)}
-          size='large'
-        >
-          Cài đặt gợi ý
-        </Button>
-
-        <Drawer
-          title='Cài đặt gợi ý'
-          placement='bottom'
-          onClose={() => setSettingsDrawerOpen(false)}
-          open={settingsDrawerOpen}
-          size={'large'}
-          className='md:hidden'
-        >
-          {settingsForm}
-          <div className='my-5'></div>
-          {recommendButton}
-        </Drawer>
+        <RecommendationSettingsSidebar
+          settingsForm={settingsForm}
+          recommendButton={recommendButton}
+          settingsDrawerOpen={settingsDrawerOpen}
+          setSettingsDrawerOpen={setSettingsDrawerOpen}
+        />
 
         <div className='h-full flex flex-col overflow-hidden w-full'>
           <div className='font-bold text-2xl md:text-[26px] shrink-0'>Gợi ý môn học</div>
@@ -661,8 +446,8 @@ export default function FSRecommendation() {
                                                       <div className='space-y-3'>
                                                         <div className='text-gray-700'>
                                                           Khi chọn nút Tương tự, hệ thống sẽ ưu tiên
-                                                          tìm các môn học gần với môn hiện tại trong
-                                                          đúng nhóm gợi ý bạn đang xem.
+                                                          tìm các môn học gần các môn trong nhóm gợi
+                                                          ý bạn đang xem.
                                                         </div>
 
                                                         <div className='rounded-lg border border-blue-100 bg-blue-50 px-3 py-2 text-gray-700'>

@@ -1,0 +1,1 @@
+export const TRI_RANK_NUMBER_OF_COURSES = 10;
