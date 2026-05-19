@@ -11,8 +11,6 @@ import {
 } from '@/common/types/Course.types';
 import {
   RecommendationSettingsFormType,
-  TriRankItemAspect,
-  TriRankItemAspectTuple,
   TriRankRecommendationRequest,
   TriRankRecommendationResult,
 } from '@/common/types/TriRank.types';
@@ -23,50 +21,6 @@ import { useEffect, useState } from 'react';
 import RecommendationSettingsForm from '../components/RecommendationSettingsForm';
 import RecommendationSettingsSidebar from '../components/RecommendationSettingsSidebar';
 import { useAttributeValueToLabel } from '../FSRecommendation/hooks/useAttributeValueToLabel';
-
-function normalizeTriRankItemAspects(
-  itemAspects: Array<TriRankItemAspect | TriRankItemAspectTuple>,
-): TriRankItemAspect[] {
-  return itemAspects.map((itemAspect) => {
-    if (Array.isArray(itemAspect)) {
-      return {
-        aspect: itemAspect[0],
-        score: itemAspect[1],
-      };
-    }
-
-    return itemAspect;
-  });
-}
-
-function toRangeOneToFive(itemAspects: TriRankItemAspect[]): TriRankItemAspect[] {
-  if (!itemAspects.length) {
-    return itemAspects;
-  }
-
-  const scores = itemAspects.map((itemAspect) => itemAspect.score);
-  const minScore = Math.min(...scores);
-  const maxScore = Math.max(...scores);
-
-  if (minScore >= 1 && maxScore <= 5) {
-    return itemAspects.map((itemAspect) => ({
-      ...itemAspect,
-      score: Math.min(5, Math.max(1, itemAspect.score)),
-    }));
-  }
-
-  if (maxScore === minScore) {
-    return itemAspects.map((itemAspect) => ({
-      ...itemAspect,
-      score: 3,
-    }));
-  }
-
-  return itemAspects.map((itemAspect) => ({
-    ...itemAspect,
-    score: ((itemAspect.score - minScore) / (maxScore - minScore)) * 4 + 1,
-  }));
-}
 
 export default function TriRankRecommendation() {
   const attributeValueToLabel = useAttributeValueToLabel();
@@ -302,20 +256,16 @@ export default function TriRankRecommendation() {
                                   onClick={(e) => {
                                     e.preventDefault();
 
-                                    const normalizedItemAspects = normalizeTriRankItemAspects(
+                                    const sortedItemAspects =
                                       recommendationResult.itemIdToItemAspects[
                                         courseDetail.course.code
-                                      ] ?? [],
-                                    );
-                                    const itemAspectsInRange =
-                                      toRangeOneToFive(normalizedItemAspects);
-                                    const sortedItemAspects = [...itemAspectsInRange].sort((a, b) =>
-                                      attributeValueToLabel(a.aspect).localeCompare(
-                                        attributeValueToLabel(b.aspect),
-                                        'vi',
-                                        { sensitivity: 'base' },
-                                      ),
-                                    );
+                                      ].sort((a, b) =>
+                                        attributeValueToLabel(a.aspect).localeCompare(
+                                          attributeValueToLabel(b.aspect),
+                                          'vi',
+                                          { sensitivity: 'base' },
+                                        ),
+                                      );
 
                                     Modal.info({
                                       title: (

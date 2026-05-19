@@ -82,7 +82,10 @@ export default function SurveyPage() {
 
       await completeSurvey({
         method: 'put',
-        url: '/me/complete-survey',
+        url: '/me/done-first-login',
+        params: {
+          algorithm,
+        } as { algorithm: Algorithm },
       });
 
       window.location.href = '/';

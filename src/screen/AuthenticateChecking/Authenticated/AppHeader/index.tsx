@@ -28,10 +28,10 @@ const PathKey = {
 
 export default function AppHeader() {
   const { pathname } = useLocation();
-  const { me } = useMeContext();
+  const { me, isFirstLogin } = useMeContext();
   const algorithm = useAlgorithmContext();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const isDoingSurvey = !me.didSurvey || pathname === '/survey';
+  const isDoingSurvey = isFirstLogin || pathname === '/survey';
 
   const isDiscussPage = pathname.includes('/discuss');
   const isMyCoursesPage = pathname.includes('/my-courses');

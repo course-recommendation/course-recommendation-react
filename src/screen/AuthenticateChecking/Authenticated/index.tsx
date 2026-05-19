@@ -1,4 +1,6 @@
 import useGet from '@/common/hooks/network/useGet';
+import { useAlgorithmContext } from '@/common/context/AlgorithmContext';
+import { Algorithm } from '@/common/types/Course.types';
 import { User } from '@/common/types/User.types';
 import { Spin } from 'antd';
 import { useEffect } from 'react';
@@ -8,31 +10,40 @@ import { MeContext } from './context/MeContext';
 export default function Authenticated() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const algorithm = useAlgorithmContext();
 
   const { data: meResponse, isPending: mePending } = useGet<User>(`/me`);
+  const { data: isFirstLoginResponse, isPending: firstLoginPending } = useGet<boolean>(
+    '/me/first-login',
+    {
+      params: {
+        algorithm,
+      } as { algorithm: Algorithm },
+    },
+  );
 
   useEffect(() => {
-    if (mePending) {
+    if (mePending || firstLoginPending) {
       return;
     }
 
-    const didSurvey = meResponse!.data.didSurvey;
+    const isFirstLogin = isFirstLoginResponse!.data;
     const isSurveyPage = pathname === '/survey';
 
-    if (!didSurvey && !isSurveyPage) {
+    if (isFirstLogin && !isSurveyPage) {
       navigate('/survey', { replace: true });
       return;
     }
 
-    if (didSurvey && isSurveyPage) {
+    if (!isFirstLogin && isSurveyPage) {
       navigate('/', { replace: true });
     }
-  }, [mePending, meResponse, navigate, pathname]);
+  }, [firstLoginPending, isFirstLoginResponse, mePending, navigate, pathname]);
 
-  return mePending ? (
+  return mePending || firstLoginPending ? (
     <Spin fullscreen />
   ) : (
-    <MeContext value={{ me: meResponse!.data }}>
+    <MeContext value={{ me: meResponse!.data, isFirstLogin: isFirstLoginResponse!.data }}>
       <Outlet />
     </MeContext>
   );

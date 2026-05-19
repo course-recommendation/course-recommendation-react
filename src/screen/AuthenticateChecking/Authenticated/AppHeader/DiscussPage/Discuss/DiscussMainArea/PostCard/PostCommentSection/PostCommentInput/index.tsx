@@ -25,7 +25,7 @@ export default function PostCommentInput({ onComment }: Props) {
       <Avatar src={me.avatarUrl} size={{ xs: 32, sm: 36, md: 40 }} className='shrink-0' />
       <div className='relative w-full'>
         <Input.TextArea
-          className='w-full '
+          className='w-full rounded-2xl border-slate-200 bg-slate-50/90 pr-12'
           autoSize={{ minRows: 1, maxRows: 6 }}
           placeholder='Bình luận...'
           value={text}
@@ -43,7 +43,7 @@ export default function PostCommentInput({ onComment }: Props) {
           icon={<SendOutlined className='text-sm md:text-base' />}
           disabled={!text.trim()}
           onClick={handleSubmit}
-          className='absolute bottom-0.5 right-1 md:right-2 h-8 w-8 flex items-center justify-center'
+          className='absolute bottom-0.5 right-1 flex h-8 w-8 items-center justify-center rounded-full text-indigo-500 enabled:hover:bg-indigo-50 enabled:hover:text-indigo-600 md:right-2'
         />
       </div>
     </div>

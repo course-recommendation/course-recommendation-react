@@ -39,16 +39,19 @@ export default function CreatePostCard({ afterPost, algorithm }: Props) {
   );
 
   return (
-    <Card className='shadow' styles={{ body: { padding: 15 } }}>
+    <Card
+      className='rounded-2xl border border-slate-200/80 bg-white/95 shadow-sm'
+      styles={{ body: { padding: 15 } }}
+    >
       <div className='flex gap-3 items-center'>
         <Avatar src={me.avatarUrl} size={{ xs: 32, sm: 36, md: 40 }} className='shrink-0' />
         <div
-          className='bg-[#F0F2F5] rounded-full w-full h-12 flex flex-col justify-center cursor-pointer hover:bg-[#E4E6E9]'
+          className='h-12 w-full cursor-pointer rounded-full border border-slate-200 bg-gradient-to-r from-slate-100 to-slate-50 px-5 text-slate-500 transition-colors hover:border-indigo-200 hover:text-slate-600'
           onClick={() => {
             setOpenModal(true);
           }}
         >
-          <Typography.Text className='ml-5 text-[#65686c] text-sm md:text-base'>
+          <Typography.Text className='leading-[48px] text-sm text-inherit md:text-base'>
             Viết gì đó...
           </Typography.Text>
         </div>
@@ -118,7 +121,7 @@ export default function CreatePostCard({ afterPost, algorithm }: Props) {
                 fieldProps={{
                   variant: 'borderless',
                   placeholder: 'Viết gì đó...',
-                  className: 'text-2xl',
+                  className: 'text-lg md:text-xl',
                   autoSize: true,
                 }}
                 rules={[{ required: true, message: 'Bài đăng không được trống' }]}

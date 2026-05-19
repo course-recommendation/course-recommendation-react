@@ -27,7 +27,10 @@ export default function PostCard({ postDetail }: Props) {
   const [commenting, setCommenting] = useState(false);
 
   return (
-    <Card className='shadow' styles={{ body: { padding: '12px 15px' } }}>
+    <Card
+      className='rounded-2xl border border-slate-200/80 bg-white/95 shadow-sm'
+      styles={{ body: { padding: '14px 16px' } }}
+    >
       <div>
         <div className='flex justify-between items-center gap-3'>
           <div className='flex items-center'>
@@ -43,15 +46,15 @@ export default function PostCard({ postDetail }: Props) {
           </div>
           <div className='max-w-[50%]'>
             <Link to={`/courses/${postDetail.course.code}`}>
-              <div className='text-sm md:text-base line-clamp-1 bg-primary text-white px-2 rounded'>
+              <div className='line-clamp-1 rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 px-3 py-1 text-xs text-white shadow-sm md:text-sm'>
                 {postDetail.course.name}
               </div>
             </Link>
           </div>
         </div>
-        <div className='my-3'></div>
+        <div className='my-3' />
         <div>
-          <Typography.Text className='whitespace-pre-wrap text-sm sm:text-base wrap-break-words'>
+          <Typography.Text className='whitespace-pre-wrap text-sm text-slate-700 sm:text-base break-words'>
             {postDetail.post.content}
           </Typography.Text>
         </div>

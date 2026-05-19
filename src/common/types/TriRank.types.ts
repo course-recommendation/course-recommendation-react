@@ -20,7 +20,7 @@ export type TriRankRecommendationResult = {
   courseDetails: CourseDetail[];
   filterCoursesOptions: FilterCoursesOption[];
   customFilteredCourseCodes: string[];
-  itemIdToItemAspects: Record<string, Array<TriRankItemAspect | TriRankItemAspectTuple>>;
+  itemIdToItemAspects: Record<string, TriRankItemAspect[]>;
 };
 
 export type RecommendationSettingsFormType = {

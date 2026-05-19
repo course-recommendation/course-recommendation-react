@@ -4,7 +4,6 @@ export type User = {
   firstName: string;
   lastName: string;
   avatarUrl?: string;
-  didSurvey: boolean;
 };
 
 export function getUserFullName(user: User) {
