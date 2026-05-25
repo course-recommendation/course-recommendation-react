@@ -1,4 +1,5 @@
 import RatingBox from '@/common/components/RatingBox';
+import { useAlgorithmContext } from '@/common/context/AlgorithmContext';
 import { Course } from '@/common/types/Course.types';
 import { FilterCoursesOption } from '@/common/types/Recommendation.types';
 import { RecommendationSettingsFormType } from '@/common/types/TriRank.types';
@@ -10,6 +11,7 @@ import {
   ProFormItem,
   ProFormSelect,
 } from '@ant-design/pro-components';
+import { useStatsigClient } from '@statsig/react-bindings';
 import { Divider } from 'antd';
 import useApp from 'antd/es/app/useApp';
 import { FormInstance } from 'antd/es/form';
@@ -34,6 +36,8 @@ export default function RecommendationSettingsForm({
   attributeValueToLabel,
 }: Props) {
   const { modal } = useApp();
+  const algorithm = useAlgorithmContext();
+  const { client } = useStatsigClient();
 
   return (
     <ProForm<RecommendationSettingsFormType>
@@ -86,6 +90,9 @@ export default function RecommendationSettingsForm({
         name={'filterCoursesOptions'}
         fieldProps={{
           className: 'flex flex-col gap-3',
+          onChange: () => {
+            client.logEvent('click_filter_courses_option', undefined, { algorithm });
+          },
         }}
         options={[
           {
@@ -175,7 +182,12 @@ export default function RecommendationSettingsForm({
               className='pl-2'
               layout='vertical'
             >
-              <RatingBox highlightSmallerValues />
+              <RatingBox
+                highlightSmallerValues
+                onChange={async (value) => {
+                  client.logEvent('adjust_preference', value, { algorithm, attribute });
+                }}
+              />
             </ProFormItem>
           ))}
       </div>

@@ -15,6 +15,8 @@
     "@ant-design/pro-components": "^2.8.10",
     "@kodingdotninja/use-tailwind-breakpoint": "^1.0.0",
     "@statsig/react-bindings": "^3.33.0",
+    "@statsig/session-replay": "^3.33.0",
+    "@statsig/web-analytics": "^3.33.0",
     "@tanstack/react-query": "^5.90.12",
     "@types/qs": "^6.14.0",
     "@typescript-eslint/eslint-plugin": "^8.49.0",

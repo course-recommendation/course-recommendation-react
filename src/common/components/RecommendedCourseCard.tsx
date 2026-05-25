@@ -9,6 +9,7 @@ type Props = {
   courseName?: ReactNode;
   topLeftBadge?: ReactNode;
   topRightBadge?: ReactNode;
+  onClick?: (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => void;
 };
 
 export default function RecommendedCourseCard({
@@ -17,9 +18,15 @@ export default function RecommendedCourseCard({
   courseName,
   topLeftBadge,
   topRightBadge,
+  onClick,
 }: Props) {
   return (
-    <Link to={`/courses/${courseDetail.course.code}`}>
+    <Link
+      to={`/courses/${courseDetail.course.code}`}
+      onClick={(e) => {
+        onClick?.(e);
+      }}
+    >
       <Card
         variant='borderless'
         className='relative overflow-hidden group bg-white border border-gray-200 shadow-sm transition-all duration-200 hover:bg-blue-50/40 hover:border-blue-300 hover:shadow-md'

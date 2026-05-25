@@ -2,6 +2,7 @@ import TrendingDown from '@/assets/icons/TrendingDown';
 import TrendingUp from '@/assets/icons/TrendingUp';
 import CourseStatusButton from '@/common/components/CourseStatusButton';
 import RecommendedCourseCard from '@/common/components/RecommendedCourseCard';
+import { useAlgorithmContext } from '@/common/context/AlgorithmContext';
 import useGet from '@/common/hooks/network/useGet';
 import useRequest from '@/common/hooks/network/useRequest';
 import {
@@ -21,10 +22,11 @@ import {
 import { RecommendationSettingsFormType } from '@/common/types/TriRank.types';
 import {
   ArrowUpOutlined,
-  QuestionCircleFilled,
+  ExclamationCircleOutlined,
   QuestionOutlined,
   StarFilled,
 } from '@ant-design/icons';
+import { useStatsigClient } from '@statsig/react-bindings';
 import { Button, Card, Empty, Modal, Skeleton, Space, Spin, Table, Tag, Typography } from 'antd';
 import useApp from 'antd/es/app/useApp';
 import { useForm } from 'antd/es/form/Form';
@@ -34,6 +36,8 @@ import RecommendationSettingsSidebar from '../components/RecommendationSettingsS
 import { useAttributeValueToLabel } from './hooks/useAttributeValueToLabel';
 
 export default function FSRecommendation() {
+  const { client } = useStatsigClient();
+  const algorithm = useAlgorithmContext();
   const attributeValueToLabel = useAttributeValueToLabel();
   const { modal } = useApp();
 
@@ -97,6 +101,8 @@ export default function FSRecommendation() {
   const [openCompletedCoursesModal, setOpenCompletedCoursesModal] = useState(false);
 
   const handleGetRecommendation = async () => {
+    client.logEvent('get_recommendation', undefined, { algorithm });
+
     setSettingsDrawerOpen(false);
 
     const formValues = await form.validateFields();
@@ -139,10 +145,21 @@ export default function FSRecommendation() {
     return (
       <div className='flex gap-1 items-center'>
         <div className='line-clamp-1'>{courseDetail.course.name}</div>
+        <div className='mx-1'></div>
         <Button
-          type='text'
+          color='primary'
+          variant='outlined'
+          size='small'
+          className='p-1'
+          icon={<ExclamationCircleOutlined />}
           onClick={(e) => {
             e.preventDefault();
+            e.stopPropagation();
+
+            client.logEvent('view_course_explanation', undefined, {
+              algorithm,
+              courseCode: courseDetail.course.code,
+            });
 
             const sentimentRows = itemIdToItemSentiments[courseDetail.course.code].map(
               (fsItemSentiment) => ({
@@ -189,9 +206,8 @@ export default function FSRecommendation() {
               okText: 'Đóng',
             });
           }}
-          shape='circle'
         >
-          <QuestionCircleFilled className='text-primary text-xl' />
+          Giải thích
         </Button>
       </div>
     );
@@ -284,6 +300,12 @@ export default function FSRecommendation() {
                             topCourseDetail,
                             recommendationResult.itemIdToItemSentiments,
                           )}
+                          onClick={() => {
+                            client.logEvent('see_course_detail', undefined, {
+                              algorithm,
+                              courseCode: topCourseDetail.course.code,
+                            });
+                          }}
                           topRightBadge={
                             getEffectiveUserCourseStatus(topCourseDetail) ===
                             UserCourseStatus.COMPLETED ? (
@@ -302,6 +324,14 @@ export default function FSRecommendation() {
                               }
                               courseId={topCourseDetail.course.id}
                               onMarkChange={(marked) => {
+                                if (marked) {
+                                  client.logEvent('click_planned', undefined, {
+                                    algorithm,
+                                    courseCode: topCourseDetail.course.code,
+                                    page: 'recommendation',
+                                  });
+                                }
+
                                 setCourseStatusOverrides((prev) => ({
                                   ...prev,
                                   [topCourseDetail.course.code]: marked
@@ -311,6 +341,7 @@ export default function FSRecommendation() {
                               }}
                               onClick={(e) => {
                                 e.preventDefault();
+                                e.stopPropagation();
                               }}
                             />
                           }
@@ -372,6 +403,12 @@ export default function FSRecommendation() {
                                         courseDetail,
                                         recommendationResult.itemIdToItemSentiments,
                                       )}
+                                      onClick={() => {
+                                        client.logEvent('see_course_detail', undefined, {
+                                          algorithm,
+                                          courseCode: topCourseDetail.course.code,
+                                        });
+                                      }}
                                       topRightBadge={
                                         getEffectiveUserCourseStatus(courseDetail) ===
                                         UserCourseStatus.COMPLETED ? (
@@ -391,6 +428,14 @@ export default function FSRecommendation() {
                                             }
                                             courseId={courseDetail.course.id}
                                             onMarkChange={(marked) => {
+                                              if (marked) {
+                                                client.logEvent('click_planned', undefined, {
+                                                  algorithm,
+                                                  courseCode: courseDetail.course.code,
+                                                  page: 'recommendation',
+                                                });
+                                              }
+
                                               setCourseStatusOverrides((prev) => ({
                                                 ...prev,
                                                 [courseDetail.course.code]: marked
@@ -400,6 +445,7 @@ export default function FSRecommendation() {
                                             }}
                                             onClick={(e) => {
                                               e.preventDefault();
+                                              e.stopPropagation();
                                             }}
                                           />
                                           <div className='my-2'></div>
@@ -412,6 +458,16 @@ export default function FSRecommendation() {
                                                 className='w-full'
                                                 onClick={async (e) => {
                                                   e.preventDefault();
+                                                  e.stopPropagation();
+
+                                                  client.logEvent(
+                                                    'get_refined_recommendation',
+                                                    undefined,
+                                                    {
+                                                      algorithm,
+                                                      courseCode: courseDetail.course.code,
+                                                    },
+                                                  );
 
                                                   const result = (
                                                     await getRefinedFSRecommendation({

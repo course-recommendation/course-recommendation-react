@@ -3,6 +3,7 @@ import RouteErrorBoundary from './common/RouteErrorBoundary';
 import Root from './Root';
 import AuthenticateChecking from './screen/AuthenticateChecking';
 import Authenticated from './screen/AuthenticateChecking/Authenticated';
+import AuthenticatedStatsig from './screen/AuthenticateChecking/Authenticated/AuthenticatedStatsig';
 import AppHeader from './screen/AuthenticateChecking/Authenticated/AppHeader';
 import CourseDetailPage from './screen/AuthenticateChecking/Authenticated/AppHeader/CourseDetailPage';
 import CoursesPage from './screen/AuthenticateChecking/Authenticated/AppHeader/CoursesPage';
@@ -45,31 +46,37 @@ export const router = createBrowserRouter([
             children: [
               {
                 path: '',
-                element: <AppHeader />,
+                element: <AuthenticatedStatsig />,
                 children: [
                   {
                     path: '',
-                    element: <RecommendationPage />,
-                  },
-                  {
-                    path: '/survey',
-                    element: <SurveyPage />,
-                  },
-                  {
-                    path: '/discuss',
-                    element: <DiscussPage />,
-                  },
-                  {
-                    path: '/my-courses',
-                    element: <MyCoursesPage />,
-                  },
-                  {
-                    path: '/courses/:courseCode',
-                    element: <CourseDetailPage />,
-                  },
-                  {
-                    path: '/courses',
-                    element: <CoursesPage />,
+                    element: <AppHeader />,
+                    children: [
+                      {
+                        path: '',
+                        element: <RecommendationPage />,
+                      },
+                      {
+                        path: '/survey',
+                        element: <SurveyPage />,
+                      },
+                      {
+                        path: '/discuss',
+                        element: <DiscussPage />,
+                      },
+                      {
+                        path: '/my-courses',
+                        element: <MyCoursesPage />,
+                      },
+                      {
+                        path: '/courses/:courseCode',
+                        element: <CourseDetailPage />,
+                      },
+                      {
+                        path: '/courses',
+                        element: <CoursesPage />,
+                      },
+                    ],
                   },
                 ],
               },

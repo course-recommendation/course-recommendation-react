@@ -9,6 +9,7 @@ import {
   RateCourseRequest,
   UserCourseStatus,
 } from '@/common/types/Course.types';
+import { useStatsigClient } from '@statsig/react-bindings';
 import { Card, Divider, Skeleton } from 'antd';
 import { useState } from 'react';
 import { Link, useParams } from 'react-router';
@@ -17,6 +18,7 @@ import AttributeRating from './AttributeRating';
 export default function CourseDetailPage() {
   const { courseCode: courseCodeOpt } = useParams();
   const algorithm = useAlgorithmContext();
+  const { client } = useStatsigClient();
 
   const courseCode = courseCodeOpt!;
 
@@ -77,6 +79,13 @@ export default function CourseDetailPage() {
                     type='plan'
                     marked={userCourseStatus === UserCourseStatus.PLANNED}
                     onMarkChange={(marked) => {
+                      if (marked) {
+                        client.logEvent('click_planned', undefined, {
+                          algorithm,
+                          courseCode,
+                          page: 'detail',
+                        });
+                      }
                       setUserCourseStatusOverride(marked ? UserCourseStatus.PLANNED : undefined);
                       setIsUserCourseStatusOverridden(true);
                     }}

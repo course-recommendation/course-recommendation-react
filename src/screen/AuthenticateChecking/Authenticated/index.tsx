@@ -1,11 +1,10 @@
-import useGet from '@/common/hooks/network/useGet';
 import { useAlgorithmContext } from '@/common/context/AlgorithmContext';
+import useGet from '@/common/hooks/network/useGet';
 import { Algorithm } from '@/common/types/Course.types';
 import { User } from '@/common/types/User.types';
 import { Spin } from 'antd';
 import { useEffect } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router';
-import { MeContext } from './context/MeContext';
 
 export default function Authenticated() {
   const navigate = useNavigate();
@@ -43,8 +42,6 @@ export default function Authenticated() {
   return mePending || firstLoginPending ? (
     <Spin fullscreen />
   ) : (
-    <MeContext value={{ me: meResponse!.data, isFirstLogin: isFirstLoginResponse!.data }}>
-      <Outlet />
-    </MeContext>
+    <Outlet context={{ me: meResponse!.data, isFirstLogin: isFirstLoginResponse!.data }} />
   );
 }

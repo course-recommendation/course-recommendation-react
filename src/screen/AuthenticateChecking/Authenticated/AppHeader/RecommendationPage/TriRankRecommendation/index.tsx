@@ -1,6 +1,7 @@
 import CourseStatusButton from '@/common/components/CourseStatusButton';
 import RecommendedCourseCard from '@/common/components/RecommendedCourseCard';
 import { TRI_RANK_NUMBER_OF_COURSES } from '@/common/constants/Recommendation.constant';
+import { useAlgorithmContext } from '@/common/context/AlgorithmContext';
 import useGet from '@/common/hooks/network/useGet';
 import useRequest from '@/common/hooks/network/useRequest';
 import {
@@ -15,6 +16,7 @@ import {
   TriRankRecommendationResult,
 } from '@/common/types/TriRank.types';
 import { QuestionOutlined } from '@ant-design/icons';
+import { useStatsigClient } from '@statsig/react-bindings';
 import { Button, Empty, Modal, Progress, Skeleton, Spin, Tag, Typography } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import { useEffect, useState } from 'react';
@@ -23,6 +25,8 @@ import RecommendationSettingsSidebar from '../components/RecommendationSettingsS
 import { useAttributeValueToLabel } from '../FSRecommendation/hooks/useAttributeValueToLabel';
 
 export default function TriRankRecommendation() {
+  const { client } = useStatsigClient();
+  const algorithm = useAlgorithmContext();
   const attributeValueToLabel = useAttributeValueToLabel();
 
   const [form] = useForm<RecommendationSettingsFormType>();
@@ -88,6 +92,7 @@ export default function TriRankRecommendation() {
   };
 
   const handleGetRecommendation = async () => {
+    client.logEvent('get_recommendation', undefined, { algorithm });
     setSettingsDrawerOpen(false);
 
     const formValues = await form.validateFields();
@@ -204,6 +209,12 @@ export default function TriRankRecommendation() {
                           <RecommendedCourseCard
                             key={courseDetail.course.code}
                             courseDetail={courseDetail}
+                            onClick={() => {
+                              client.logEvent('see_course_detail', undefined, {
+                                algorithm,
+                                courseCode: courseDetail.course.code,
+                              });
+                            }}
                             topLeftBadge={
                               <Tag
                                 variant={isTopRank ? 'solid' : 'outlined'}
@@ -236,6 +247,14 @@ export default function TriRankRecommendation() {
                                   }
                                   courseId={courseDetail.course.id}
                                   onMarkChange={(marked) => {
+                                    if (marked) {
+                                      client.logEvent('click_planned', undefined, {
+                                        algorithm,
+                                        courseCode: courseDetail.course.code,
+                                        page: 'recommendation',
+                                      });
+                                    }
+
                                     setCourseStatusOverrides((prev) => ({
                                       ...prev,
                                       [courseDetail.course.code]: marked
@@ -245,6 +264,7 @@ export default function TriRankRecommendation() {
                                   }}
                                   onClick={(e) => {
                                     e.preventDefault();
+                                    e.stopPropagation();
                                   }}
                                 />
                                 <div className='my-2'></div>
@@ -255,6 +275,12 @@ export default function TriRankRecommendation() {
                                   className='w-full'
                                   onClick={(e) => {
                                     e.preventDefault();
+                                    e.stopPropagation();
+
+                                    client.logEvent('view_explanation', undefined, {
+                                      algorithm,
+                                      courseCode: courseDetail.course.code,
+                                    });
 
                                     const sortedItemAspects =
                                       recommendationResult.itemIdToItemAspects[

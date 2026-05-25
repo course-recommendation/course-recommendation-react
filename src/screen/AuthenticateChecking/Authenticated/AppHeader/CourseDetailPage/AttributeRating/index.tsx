@@ -18,7 +18,7 @@ export default function AttributeRating({
     <div className='flex flex-col gap-5'>
       {attributeValues.map((attributeValue) => {
         return (
-          <div>
+          <div key={attributeValue}>
             <div className='text-gray-600 font-semibold'>
               {attributeValueToLabel(attributeValue)}
             </div>
