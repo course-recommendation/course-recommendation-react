@@ -17,6 +17,7 @@ import {
 import { Header } from 'antd/es/layout/layout';
 import { useState } from 'react';
 import { Link, Outlet, useLocation } from 'react-router';
+import { useTenantName } from '@/common/hooks/useTenantName';
 import { useMeContext } from '../context/MeContext';
 
 const PathKey = {
@@ -30,8 +31,9 @@ export default function AppHeader() {
   const { pathname } = useLocation();
   const { me, isFirstLogin } = useMeContext();
   const algorithm = useAlgorithmContext();
+  const tenantName = useTenantName();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const isDoingSurvey = isFirstLogin || pathname === '/survey';
+  const isDoingSurvey = isFirstLogin || pathname === `/${tenantName}/survey`;
 
   const isDiscussPage = pathname.includes('/discuss');
   const isMyCoursesPage = pathname.includes('/my-courses');
@@ -40,19 +42,19 @@ export default function AppHeader() {
   const headerMenuItems: MenuProps['items'] = [
     {
       key: PathKey.RECOMMENDATION,
-      label: <Link to={'/'}>Gợi ý môn học</Link>,
+      label: <Link to={`/${tenantName}`}>Gợi ý môn học</Link>,
     },
     {
       key: PathKey.COURSES,
-      label: <Link to={'/courses'}>Môn học</Link>,
+      label: <Link to={`/${tenantName}/courses`}>Môn học</Link>,
     },
     {
       key: PathKey.DISCUSS,
-      label: <Link to={'/discuss'}>Thảo luận</Link>,
+      label: <Link to={`/${tenantName}/discuss`}>Thảo luận</Link>,
     },
     {
       key: PathKey.MY_COURSES,
-      label: <Link to={'/my-courses'}>Môn học của tôi</Link>,
+      label: <Link to={`/${tenantName}/my-courses`}>Môn học của tôi</Link>,
     },
   ];
 
@@ -133,7 +135,7 @@ export default function AppHeader() {
               onClick={() => setMobileMenuOpen(true)}
             />
             <div className='mx-1'></div>
-            <Link to={'/'} className='text-black'>
+            <Link to={`/${tenantName}`} className='text-black'>
               <span className='flex items-center gap-2'>
                 <BookIcon className='text-primary inline w-8 h-8 md:w-10 md:h-10' />
                 <span className='font-bold text-xl md:text-2xl'>CourseHub</span>

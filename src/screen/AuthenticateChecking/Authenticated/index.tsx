@@ -1,4 +1,5 @@
 import { useAlgorithmContext } from '@/common/context/AlgorithmContext';
+import { useTenantName } from '@/common/hooks/useTenantName';
 import useGet from '@/common/hooks/network/useGet';
 import { Algorithm } from '@/common/types/Course.types';
 import { User } from '@/common/types/User.types';
@@ -10,6 +11,7 @@ export default function Authenticated() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const algorithm = useAlgorithmContext();
+  const tenantName = useTenantName();
 
   const { data: meResponse, isPending: mePending } = useGet<User>(`/me`);
   const { data: isFirstLoginResponse, isPending: firstLoginPending } = useGet<boolean>(
@@ -27,17 +29,17 @@ export default function Authenticated() {
     }
 
     const isFirstLogin = isFirstLoginResponse!.data;
-    const isSurveyPage = pathname === '/survey';
+    const isSurveyPage = pathname === `/${tenantName}/survey`;
 
     if (isFirstLogin && !isSurveyPage) {
-      navigate('/survey', { replace: true });
+      navigate(`/${tenantName}/survey`, { replace: true });
       return;
     }
 
     if (!isFirstLogin && isSurveyPage) {
-      navigate('/', { replace: true });
+      navigate(`/${tenantName}`, { replace: true });
     }
-  }, [firstLoginPending, isFirstLoginResponse, mePending, navigate, pathname]);
+  }, [firstLoginPending, isFirstLoginResponse, mePending, navigate, pathname, tenantName]);
 
   return mePending || firstLoginPending ? (
     <Spin fullscreen />

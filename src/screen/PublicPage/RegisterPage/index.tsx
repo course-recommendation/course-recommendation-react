@@ -5,6 +5,7 @@ import { ProForm, ProFormDependency, ProFormText } from '@ant-design/pro-compone
 import { Button, Card } from 'antd';
 import useApp from 'antd/es/app/useApp';
 import { useForm } from 'antd/es/form/Form';
+import { useTenantName } from '@/common/hooks/useTenantName';
 import { Link, useNavigate } from 'react-router';
 
 type RegisterFormType = {
@@ -27,6 +28,7 @@ export default function RegisterPage() {
   const { request: register, isPending: registerPending } = useRequest<void, RegisterRequest>();
   const { message } = useApp();
   const navigate = useNavigate();
+  const tenantName = useTenantName();
 
   const handleLogin = async () => {
     const formValues = await form.validateFields();
@@ -35,6 +37,7 @@ export default function RegisterPage() {
       await register({
         url: '/auth/register',
         method: 'POST',
+        params: { organization: tenantName },
         data: {
           email: formValues.email,
           password: formValues.password,
@@ -45,11 +48,15 @@ export default function RegisterPage() {
 
       message.success('Đăng ký thành công');
 
-      navigate('/');
+      navigate(`/${tenantName}/public-path/login`);
     } catch (error) {
       if (error instanceof RestError) {
         if (error.errorCode === GlobalErrorCode.EMAIL_DUPLICATED) {
           form.setFields([{ name: 'email', errors: ['Email này đã được sử dụng'] }]);
+          return;
+        }
+        if (error.errorCode === GlobalErrorCode.TENANT_NOT_FOUND) {
+          message.error('Tổ chức (organization) không tồn tại');
           return;
         }
       }
@@ -129,7 +136,7 @@ export default function RegisterPage() {
         </Button>
         <div className='my-3'></div>
         <div className='flex justify-center'>
-          <Link to={'/public-path/login'}>Quay lại đăng nhập</Link>
+          <Link to={`/${tenantName}/public-path/login`}>Quay lại đăng nhập</Link>
         </div>
       </Card>
     </div>

@@ -1,5 +1,6 @@
 import { Button, Card } from 'antd';
 import { Link } from 'react-router';
+import { useTenantName } from '../hooks/useTenantName';
 import { CourseDetail } from '../types/Course.types';
 
 type Props = {
@@ -8,8 +9,9 @@ type Props = {
 
 export default function CourseCard({ courseDetail }: Props) {
   const course = courseDetail.course;
+  const tenantName = useTenantName();
   return (
-    <Link to={`/courses/${course.code}`}>
+    <Link to={`/${tenantName}/courses/${course.code}`}>
       <Card
         styles={{
           body: {

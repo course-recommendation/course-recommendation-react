@@ -1,6 +1,7 @@
 import { Card } from 'antd';
 import { ReactNode } from 'react';
 import { Link } from 'react-router';
+import { useTenantName } from '../hooks/useTenantName';
 import { CourseDetail } from '../types/Course.types';
 
 type Props = {
@@ -20,9 +21,10 @@ export default function RecommendedCourseCard({
   topRightBadge,
   onClick,
 }: Props) {
+  const tenantName = useTenantName();
   return (
     <Link
-      to={`/courses/${courseDetail.course.code}`}
+      to={`/${tenantName}/courses/${courseDetail.course.code}`}
       onClick={(e) => {
         onClick?.(e);
       }}

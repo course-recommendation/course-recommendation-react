@@ -17,25 +17,25 @@ import RegisterPage from './screen/PublicPage/RegisterPage';
 
 export const router = createBrowserRouter([
   {
-    path: 'public-path',
-    element: <PublicPage />,
-    children: [
-      {
-        path: 'login',
-        element: <LoginPage />,
-      },
-      {
-        path: 'register',
-        element: <RegisterPage />,
-      },
-    ],
-  },
-
-  {
-    path: '',
+    path: ':tenantName',
     element: <Root />,
     ErrorBoundary: RouteErrorBoundary,
     children: [
+      {
+        path: 'public-path',
+        element: <PublicPage />,
+        children: [
+          {
+            path: 'login',
+            element: <LoginPage />,
+          },
+          {
+            path: 'register',
+            element: <RegisterPage />,
+          },
+        ],
+      },
+
       {
         path: '',
         element: <AuthenticateChecking />,
@@ -57,23 +57,23 @@ export const router = createBrowserRouter([
                         element: <RecommendationPage />,
                       },
                       {
-                        path: '/survey',
+                        path: 'survey',
                         element: <SurveyPage />,
                       },
                       {
-                        path: '/discuss',
+                        path: 'discuss',
                         element: <DiscussPage />,
                       },
                       {
-                        path: '/my-courses',
+                        path: 'my-courses',
                         element: <MyCoursesPage />,
                       },
                       {
-                        path: '/courses/:courseCode',
+                        path: 'courses/:courseCode',
                         element: <CourseDetailPage />,
                       },
                       {
-                        path: '/courses',
+                        path: 'courses',
                         element: <CoursesPage />,
                       },
                     ],

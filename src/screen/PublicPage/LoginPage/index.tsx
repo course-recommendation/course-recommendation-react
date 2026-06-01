@@ -7,6 +7,7 @@ import { Button, Card } from 'antd';
 import useApp from 'antd/es/app/useApp';
 import { useForm } from 'antd/es/form/Form';
 import { Link } from 'react-router';
+import { useTenantName } from '@/common/hooks/useTenantName';
 
 type LoginFormType = {
   email: string;
@@ -21,6 +22,7 @@ type LoginRequest = {
 export default function LoginPage() {
   const { message } = useApp();
   const [form] = useForm<LoginFormType>();
+  const tenantName = useTenantName();
   const { request: login, isPending: loginPending } = useRequest<
     { accessToken: string },
     LoginRequest
@@ -43,7 +45,7 @@ export default function LoginPage() {
 
       localStorage.setItem(LocalStorageKey.ACCESS_TOKEN, loginResponse.accessToken);
 
-      window.location.href = '/';
+      window.location.href = `/${tenantName}`;
     } catch (error) {
       if (error instanceof RestError) {
         if (error.errorCode === GlobalErrorCode.EMAIL_NOT_FOUND) {
@@ -94,7 +96,7 @@ export default function LoginPage() {
 
         <div className='flex gap-2 items-center justify-center'>
           <div>Chưa có tài khoản?</div>
-          <Link to={'/public-path/register'}>Đăng ký</Link>
+          <Link to={`/${tenantName}/public-path/register`}>Đăng ký</Link>
         </div>
       </Card>
     </div>

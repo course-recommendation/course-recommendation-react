@@ -6,6 +6,7 @@ import {
   PostDetail,
 } from '@/common/types/Discuss.types';
 import { getUserFullName } from '@/common/types/User.types';
+import { useTenantName } from '@/common/hooks/useTenantName';
 import { Avatar, Card, Divider, Skeleton, Typography } from 'antd';
 import { useState } from 'react';
 import { Link } from 'react-router';
@@ -16,6 +17,7 @@ type Props = {
 };
 
 export default function PostCard({ postDetail }: Props) {
+  const tenantName = useTenantName();
   const {
     data: postCommentDetailsResponse,
     isPending: postCommentDetailsPending,
@@ -45,7 +47,7 @@ export default function PostCard({ postDetail }: Props) {
             </Typography.Text>
           </div>
           <div className='max-w-[50%]'>
-            <Link to={`/courses/${postDetail.course.code}`}>
+            <Link to={`/${tenantName}/courses/${postDetail.course.code}`}>
               <div className='line-clamp-1 rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 px-3 py-1 text-xs text-white shadow-sm md:text-sm'>
                 {postDetail.course.name}
               </div>
