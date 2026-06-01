@@ -4,8 +4,13 @@ import { LocalStorageKey } from '../constants/LocalStorageKey';
 import { GlobalErrorCode } from '../types/GlobalErrorCode';
 import { RestError } from '../types/Network';
 
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
+const resolvedBaseUrl = backendUrl
+  ? backendUrl.replace('{host}', window.location.hostname)
+  : window.location.origin;
+
 const defaultAxios = axios.create({
-  baseURL: import.meta.env.VITE_BACKEND_URL,
+  baseURL: resolvedBaseUrl,
   validateStatus: () => true,
   paramsSerializer: (params) =>
     QueryString.stringify(params, { arrayFormat: 'repeat', allowDots: true }),

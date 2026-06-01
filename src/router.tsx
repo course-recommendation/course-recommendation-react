@@ -3,14 +3,15 @@ import RouteErrorBoundary from './common/RouteErrorBoundary';
 import Root from './Root';
 import AuthenticateChecking from './screen/AuthenticateChecking';
 import Authenticated from './screen/AuthenticateChecking/Authenticated';
-import AuthenticatedStatsig from './screen/AuthenticateChecking/Authenticated/AuthenticatedStatsig';
 import AppHeader from './screen/AuthenticateChecking/Authenticated/AppHeader';
+import AdminHome from './screen/AuthenticateChecking/Authenticated/AppHeader/AdminHome';
 import CourseDetailPage from './screen/AuthenticateChecking/Authenticated/AppHeader/CourseDetailPage';
 import CoursesPage from './screen/AuthenticateChecking/Authenticated/AppHeader/CoursesPage';
 import DiscussPage from './screen/AuthenticateChecking/Authenticated/AppHeader/DiscussPage';
 import MyCoursesPage from './screen/AuthenticateChecking/Authenticated/AppHeader/MyCoursesPage';
 import RecommendationPage from './screen/AuthenticateChecking/Authenticated/AppHeader/RecommendationPage';
 import SurveyPage from './screen/AuthenticateChecking/Authenticated/AppHeader/SurveyPage';
+import AuthenticatedStatsig from './screen/AuthenticateChecking/Authenticated/AuthenticatedStatsig';
 import PublicPage from './screen/PublicPage';
 import LoginPage from './screen/PublicPage/LoginPage';
 import RegisterPage from './screen/PublicPage/RegisterPage';
@@ -24,6 +25,7 @@ export const router = createBrowserRouter([
         path: 'login',
         element: <LoginPage />,
       },
+
       {
         path: 'register',
         element: <RegisterPage />,
@@ -75,6 +77,10 @@ export const router = createBrowserRouter([
                       {
                         path: '/courses',
                         element: <CoursesPage />,
+                      },
+                      {
+                        path: 'admin',
+                        element: <AdminHome />,
                       },
                     ],
                   },

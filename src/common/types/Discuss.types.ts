@@ -5,6 +5,7 @@ import { User } from './User.types';
 export type CreatePostRequest = {
   courseId: string;
   content: string;
+  algorithm: Algorithm;
 };
 
 export type PostDetail = {

@@ -80,6 +80,7 @@ export default function CreatePostCard({ afterPost, algorithm }: Props) {
                   data: {
                     courseId: formValues.courseId,
                     content: formValues.content,
+                    algorithm,
                   },
                 });
                 setConfirmLoading(false);

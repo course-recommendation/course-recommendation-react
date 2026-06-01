@@ -4,7 +4,7 @@ import { Algorithm } from '@/common/types/Course.types';
 import { User } from '@/common/types/User.types';
 import { Spin } from 'antd';
 import { useEffect } from 'react';
-import { Outlet, useLocation, useNavigate } from 'react-router';
+import { Outlet, useNavigate, useLocation, Navigate } from 'react-router';
 
 export default function Authenticated() {
   const navigate = useNavigate();
@@ -20,9 +20,20 @@ export default function Authenticated() {
       } as { algorithm: Algorithm },
     },
   );
+  const { data: isAdminResponse, isPending: isAdminPending } = useGet<boolean>('/admin/is-admin');
 
   useEffect(() => {
-    if (mePending || firstLoginPending) {
+    if (mePending || firstLoginPending || isAdminPending) {
+      return;
+    }
+
+    const isAdmin = isAdminResponse!.data;
+
+    // Admins should be redirected to /admin and do not go through survey
+    if (isAdmin) {
+      if (pathname !== '/admin') {
+        navigate('/admin', { replace: true });
+      }
       return;
     }
 
@@ -37,11 +48,11 @@ export default function Authenticated() {
     if (!isFirstLogin && isSurveyPage) {
       navigate('/', { replace: true });
     }
-  }, [firstLoginPending, isFirstLoginResponse, mePending, navigate, pathname]);
+  }, [firstLoginPending, isFirstLoginResponse, mePending, navigate, pathname, isAdminPending]);
 
-  return mePending || firstLoginPending ? (
-    <Spin fullscreen />
-  ) : (
-    <Outlet context={{ me: meResponse!.data, isFirstLogin: isFirstLoginResponse!.data }} />
-  );
+  if (mePending || firstLoginPending || isAdminPending) {
+    return <Spin fullscreen />;
+  }
+
+  return <Outlet context={{ me: meResponse!.data, isFirstLogin: isFirstLoginResponse!.data, isAdmin: isAdminResponse!.data }} />;
 }

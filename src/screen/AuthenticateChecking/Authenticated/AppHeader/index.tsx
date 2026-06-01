@@ -1,6 +1,7 @@
 import BookIcon from '@/assets/icons/BookIcon';
 import { LocalStorageKey } from '@/common/constants/LocalStorageKey';
 import { useAlgorithmContext } from '@/common/context/AlgorithmContext';
+import useGet from '@/common/hooks/network/useGet';
 import { Algorithm } from '@/common/types/Course.types';
 import { MenuOutlined } from '@ant-design/icons';
 import {
@@ -11,12 +12,13 @@ import {
   Layout,
   Menu,
   MenuProps,
+  Result,
   Select,
   Typography,
 } from 'antd';
 import { Header } from 'antd/es/layout/layout';
 import { useState } from 'react';
-import { Link, Outlet, useLocation } from 'react-router';
+import { Link, Navigate, Outlet, useLocation } from 'react-router';
 import { useMeContext } from '../context/MeContext';
 
 const PathKey = {
@@ -24,37 +26,54 @@ const PathKey = {
   DISCUSS: 'DISCUSS',
   MY_COURSES: 'MY_COURSES',
   COURSES: 'COURSES',
+  ADMIN: 'ADMIN',
 };
 
 export default function AppHeader() {
   const { pathname } = useLocation();
-  const { me, isFirstLogin } = useMeContext();
+  const { me, isFirstLogin, isAdmin } = useMeContext();
   const algorithm = useAlgorithmContext();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const isDoingSurvey = isFirstLogin || pathname === '/survey';
 
+  const { data: tenantReadyResponse } = useGet<boolean>('/admin/tenant-ready');
+  const tenantReady = tenantReadyResponse?.data;
+
   const isDiscussPage = pathname.includes('/discuss');
   const isMyCoursesPage = pathname.includes('/my-courses');
   const isCoursesPage = pathname.includes('/courses');
+  const isAdminPage = pathname.includes('/admin');
 
-  const headerMenuItems: MenuProps['items'] = [
-    {
-      key: PathKey.RECOMMENDATION,
-      label: <Link to={'/'}>Gợi ý môn học</Link>,
-    },
-    {
-      key: PathKey.COURSES,
-      label: <Link to={'/courses'}>Môn học</Link>,
-    },
-    {
-      key: PathKey.DISCUSS,
-      label: <Link to={'/discuss'}>Thảo luận</Link>,
-    },
-    {
-      key: PathKey.MY_COURSES,
-      label: <Link to={'/my-courses'}>Môn học của tôi</Link>,
-    },
-  ];
+  // If admin and on root path, redirect to /admin immediately to avoid flicker
+  if (isAdmin && pathname === '/') {
+    return <Navigate to={'/admin'} replace />;
+  }
+
+  const headerMenuItems: MenuProps['items'] = isAdmin
+    ? [
+        {
+          key: PathKey.ADMIN,
+          label: <Link to={'/admin'}>Trang chủ</Link>,
+        },
+      ]
+    : [
+        {
+          key: PathKey.RECOMMENDATION,
+          label: <Link to={'/'}>Gợi ý môn học</Link>,
+        },
+        {
+          key: PathKey.COURSES,
+          label: <Link to={'/courses'}>Môn học</Link>,
+        },
+        {
+          key: PathKey.DISCUSS,
+          label: <Link to={'/discuss'}>Thảo luận</Link>,
+        },
+        {
+          key: PathKey.MY_COURSES,
+          label: <Link to={'/my-courses'}>Môn học của tôi</Link>,
+        },
+      ];
 
   const selectedKey = (() => {
     if (isDiscussPage) {
@@ -66,6 +85,9 @@ export default function AppHeader() {
     if (isCoursesPage) {
       return PathKey.COURSES;
     }
+    if (isAdminPage) {
+      return PathKey.ADMIN;
+    }
     return PathKey.RECOMMENDATION;
   })();
 
@@ -73,7 +95,7 @@ export default function AppHeader() {
     setMobileMenuOpen(false);
   };
 
-  const algorithmSelect = (
+  const algorithmSelect = isAdmin ? null : (
     <Select
       className='w-full md:w-auto'
       options={[
@@ -193,7 +215,15 @@ export default function AppHeader() {
       </Header>
 
       <div className='flex-1 min-h-0 overflow-auto overscroll-y-none px-4 py-6 md:px-20 md:py-10'>
-        <Outlet />
+        {!isAdmin && tenantReady === false ? (
+          <Result
+            status='warning'
+            title='Dữ liệu chưa sẵn sàng cho hệ thống này này'
+            subTitle='Vui lòng chờ quản trị viên cập nhật hệ thống'
+          />
+        ) : (
+          <Outlet />
+        )}
       </div>
     </Layout>
   );
