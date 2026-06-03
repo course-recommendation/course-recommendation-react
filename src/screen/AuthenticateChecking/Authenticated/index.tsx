@@ -4,7 +4,7 @@ import { Algorithm } from '@/common/types/Course.types';
 import { User } from '@/common/types/User.types';
 import { Spin } from 'antd';
 import { useEffect } from 'react';
-import { Outlet, useNavigate, useLocation, Navigate } from 'react-router';
+import { Outlet, useLocation, useNavigate } from 'react-router';
 
 export default function Authenticated() {
   const navigate = useNavigate();
@@ -48,11 +48,27 @@ export default function Authenticated() {
     if (!isFirstLogin && isSurveyPage) {
       navigate('/', { replace: true });
     }
-  }, [firstLoginPending, isFirstLoginResponse, mePending, navigate, pathname, isAdminPending]);
+  }, [
+    firstLoginPending,
+    isFirstLoginResponse,
+    mePending,
+    navigate,
+    pathname,
+    isAdminPending,
+    isAdminResponse,
+  ]);
 
   if (mePending || firstLoginPending || isAdminPending) {
     return <Spin fullscreen />;
   }
 
-  return <Outlet context={{ me: meResponse!.data, isFirstLogin: isFirstLoginResponse!.data, isAdmin: isAdminResponse!.data }} />;
+  return (
+    <Outlet
+      context={{
+        me: meResponse!.data,
+        isFirstLogin: isFirstLoginResponse!.data,
+        isAdmin: isAdminResponse!.data,
+      }}
+    />
+  );
 }

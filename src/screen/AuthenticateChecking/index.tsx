@@ -25,7 +25,7 @@ export default function AuthenticateChecking() {
         if (isAdmin) {
           navigate('/admin', { replace: true });
         }
-      } catch (e) {
+      } catch (_e) {
         // ignore
       } finally {
         setCheckingAdmin(false);

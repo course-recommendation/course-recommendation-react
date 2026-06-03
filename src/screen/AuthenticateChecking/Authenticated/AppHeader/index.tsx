@@ -1,8 +1,6 @@
 import BookIcon from '@/assets/icons/BookIcon';
 import { LocalStorageKey } from '@/common/constants/LocalStorageKey';
-import { useAlgorithmContext } from '@/common/context/AlgorithmContext';
 import useGet from '@/common/hooks/network/useGet';
-import { Algorithm } from '@/common/types/Course.types';
 import { MenuOutlined } from '@ant-design/icons';
 import {
   Avatar,
@@ -13,7 +11,6 @@ import {
   Menu,
   MenuProps,
   Result,
-  Select,
   Typography,
 } from 'antd';
 import { Header } from 'antd/es/layout/layout';
@@ -32,7 +29,6 @@ const PathKey = {
 export default function AppHeader() {
   const { pathname } = useLocation();
   const { me, isFirstLogin, isAdmin } = useMeContext();
-  const algorithm = useAlgorithmContext();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const isDoingSurvey = isFirstLogin || pathname === '/survey';
 
@@ -95,27 +91,6 @@ export default function AppHeader() {
     setMobileMenuOpen(false);
   };
 
-  const algorithmSelect = isAdmin ? null : (
-    <Select
-      className='w-full md:w-auto'
-      options={[
-        {
-          label: 'Feature Sentiment',
-          value: Algorithm.FS,
-        },
-        {
-          label: 'TriRank',
-          value: Algorithm.TRI_RANK,
-        },
-      ]}
-      onSelect={(value) => {
-        localStorage.setItem(LocalStorageKey.ALGORITHM, value);
-        window.location.reload();
-      }}
-      defaultValue={algorithm}
-    />
-  );
-
   const userDropdown = (
     <Dropdown
       placement='bottomRight'
@@ -171,10 +146,7 @@ export default function AppHeader() {
           </div>
 
           <div className='flex items-center gap-2 md:gap-3'>
-            <div className='hidden md:flex items-center gap-3'>
-              {algorithmSelect}
-              {userDropdown}
-            </div>
+            <div className='hidden md:flex items-center gap-3'>{userDropdown}</div>
 
             <div className='md:hidden'>{userDropdown}</div>
           </div>
@@ -198,12 +170,6 @@ export default function AppHeader() {
             <div className='border-t my-2' />
 
             <div className='flex flex-col gap-3'>
-              <div>
-                <Typography.Text className='text-xs text-gray-500 mb-1 block'>
-                  Thuật toán
-                </Typography.Text>
-                {algorithmSelect}
-              </div>
               <div>
                 <Typography.Text className='text-xs text-gray-500 mb-1 block'>
                   Dữ liệu

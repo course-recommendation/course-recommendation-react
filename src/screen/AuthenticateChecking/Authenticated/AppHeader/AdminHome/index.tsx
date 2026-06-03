@@ -19,7 +19,7 @@ export default function AdminHome() {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       message.success('Upload thành công');
-    } catch (e) {
+    } catch {
       message.error('Upload thất bại');
     }
   };
@@ -32,7 +32,7 @@ export default function AdminHome() {
     try {
       await saveAttr({ url: '/admin/attributes', method: 'POST', data: values });
       message.success('Lưu thuộc tính thành công');
-    } catch (e) {
+    } catch {
       message.error('Lưu thất bại (có thể đã tồn tại)');
     }
   };

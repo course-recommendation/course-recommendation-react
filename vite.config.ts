@@ -18,6 +18,11 @@ export default defineConfig({
     },
   },
   server: {
-    allowedHosts: ['tenant1.courserecom.site', 'tenant2.courserecom.site'],
+    allowedHosts: [
+      'fs.tenant1.courserecom.site',
+      'tr.tenant1.courserecom.site',
+      'fs.tenant2.courserecom.site',
+      'tr.tenant2.courserecom.site',
+    ],
   },
 });

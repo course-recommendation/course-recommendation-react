@@ -1,19 +1,19 @@
-import { App } from 'antd';
+import { App, Spin } from 'antd';
 import { Outlet } from 'react-router';
-import { LocalStorageKey } from './common/constants/LocalStorageKey';
 import { AlgorithmContext } from './common/context/AlgorithmContext';
+import useGet from './common/hooks/network/useGet';
 import { Algorithm } from './common/types/Course.types';
 import './index.css';
 
-const defaultAlgorithm = Algorithm.FS;
-
 function Root() {
-  const algorithm: Algorithm =
-    (localStorage.getItem(LocalStorageKey.ALGORITHM) as Algorithm | null) ?? defaultAlgorithm;
+  const { data: algorithmResponse, isPending: algorithmPending } =
+    useGet<Algorithm>(`/tenant/algorithm`);
+
+  if (algorithmPending) return <Spin fullscreen />;
 
   return (
     <App>
-      <AlgorithmContext value={algorithm}>
+      <AlgorithmContext value={algorithmResponse!.data}>
         <Outlet />
       </AlgorithmContext>
     </App>
