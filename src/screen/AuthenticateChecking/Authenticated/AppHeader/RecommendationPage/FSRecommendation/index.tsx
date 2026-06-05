@@ -7,6 +7,7 @@ import useGet from '@/common/hooks/network/useGet';
 import useRequest from '@/common/hooks/network/useRequest';
 import {
   Algorithm,
+  Attribute,
   Course,
   CourseDetail,
   GetCoursesRequest,
@@ -33,12 +34,10 @@ import { useForm } from 'antd/es/form/Form';
 import { useEffect, useState } from 'react';
 import RecommendationSettingsForm from '../components/RecommendationSettingsForm';
 import RecommendationSettingsSidebar from '../components/RecommendationSettingsSidebar';
-import { useAttributeValueToLabel } from './hooks/useAttributeValueToLabel';
 
 export default function FSRecommendation() {
   const { client } = useStatsigClient();
   const algorithm = useAlgorithmContext();
-  const attributeValueToLabel = useAttributeValueToLabel();
   const { modal } = useApp();
 
   const { data: allCoursesResponse } = useGet<Course[]>(`/courses`, {
@@ -50,7 +49,7 @@ export default function FSRecommendation() {
   const [form] = useForm<RecommendationSettingsFormType>();
   const [settingsDrawerOpen, setSettingsDrawerOpen] = useState(false);
 
-  const { data: attributesResponse, isPending: attributesPending } = useGet<string[]>(
+  const { data: attributesResponse, isPending: attributesPending } = useGet<Attribute[]>(
     `/attributes`,
     {
       params: {
@@ -164,7 +163,7 @@ export default function FSRecommendation() {
             const sentimentRows = itemIdToItemSentiments[courseDetail.course.code].map(
               (fsItemSentiment) => ({
                 key: fsItemSentiment.attribute,
-                attribute: attributeValueToLabel(fsItemSentiment.attribute),
+                attribute: fsItemSentiment.attribute,
                 score: Number(fsItemSentiment.sentimentScore.toFixed(2)),
               }),
             );
@@ -239,7 +238,6 @@ export default function FSRecommendation() {
             initialCustomFilteredCourseCodes={
               latestFSRecommendationResultResponse?.data?.customFilteredCourseCodes ?? []
             }
-            attributeValueToLabel={attributeValueToLabel}
           />
         );
       })()}
@@ -376,9 +374,7 @@ export default function FSRecommendation() {
                                       )}
 
                                       {/* TEXT */}
-                                      <span className='text-primary'>
-                                        {attributeValueToLabel(tradeoffPair.attribute)}
-                                      </span>
+                                      <span className='text-primary'>{tradeoffPair.attribute}</span>
 
                                       {` ${isUp ? 'tốt hơn' : 'tệ hơn'}`}
                                     </span>

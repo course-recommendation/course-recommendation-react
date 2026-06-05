@@ -6,6 +6,7 @@ import useGet from '@/common/hooks/network/useGet';
 import useRequest from '@/common/hooks/network/useRequest';
 import {
   Algorithm,
+  Attribute,
   Course,
   GetCoursesRequest,
   UserCourseStatus,
@@ -22,12 +23,10 @@ import { useForm } from 'antd/es/form/Form';
 import { useEffect, useState } from 'react';
 import RecommendationSettingsForm from '../components/RecommendationSettingsForm';
 import RecommendationSettingsSidebar from '../components/RecommendationSettingsSidebar';
-import { useAttributeValueToLabel } from '../FSRecommendation/hooks/useAttributeValueToLabel';
 
 export default function TriRankRecommendation() {
   const { client } = useStatsigClient();
   const algorithm = useAlgorithmContext();
-  const attributeValueToLabel = useAttributeValueToLabel();
 
   const [form] = useForm<RecommendationSettingsFormType>();
   const [settingsDrawerOpen, setSettingsDrawerOpen] = useState(false);
@@ -38,7 +37,7 @@ export default function TriRankRecommendation() {
     } as GetCoursesRequest,
   });
 
-  const { data: attributesResponse, isPending: attributesPending } = useGet<string[]>(
+  const { data: attributesResponse, isPending: attributesPending } = useGet<Attribute[]>(
     `/attributes`,
     {
       params: {
@@ -147,7 +146,6 @@ export default function TriRankRecommendation() {
             initialCustomFilteredCourseCodes={
               latestTriRankRecommendationResultResponse?.data?.customFilteredCourseCodes ?? []
             }
-            attributeValueToLabel={attributeValueToLabel}
           />
         );
       })()}
@@ -286,11 +284,9 @@ export default function TriRankRecommendation() {
                                       recommendationResult.itemIdToItemAspects[
                                         courseDetail.course.code
                                       ].sort((a, b) =>
-                                        attributeValueToLabel(a.aspect).localeCompare(
-                                          attributeValueToLabel(b.aspect),
-                                          'vi',
-                                          { sensitivity: 'base' },
-                                        ),
+                                        a.aspect.localeCompare(b.aspect, 'vi', {
+                                          sensitivity: 'base',
+                                        }),
                                       );
 
                                     Modal.info({
@@ -322,7 +318,7 @@ export default function TriRankRecommendation() {
                                                 >
                                                   <div className='mb-2 flex items-center justify-between gap-2'>
                                                     <Typography.Text className='font-medium text-gray-800'>
-                                                      {attributeValueToLabel(itemAspect.aspect)}
+                                                      {itemAspect.aspect}
                                                     </Typography.Text>
                                                     <Tag
                                                       className='mr-0 rounded-full px-2'

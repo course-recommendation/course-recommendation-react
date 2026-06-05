@@ -1,6 +1,6 @@
 import RatingBox from '@/common/components/RatingBox';
 import { useAlgorithmContext } from '@/common/context/AlgorithmContext';
-import { Course } from '@/common/types/Course.types';
+import { Attribute, Course } from '@/common/types/Course.types';
 import { FilterCoursesOption } from '@/common/types/Recommendation.types';
 import { RecommendationSettingsFormType } from '@/common/types/TriRank.types';
 import { QuestionCircleOutlined } from '@ant-design/icons';
@@ -18,12 +18,11 @@ import { FormInstance } from 'antd/es/form';
 
 type Props = {
   form: FormInstance<RecommendationSettingsFormType>;
-  attributes: string[];
+  attributes: Attribute[];
   allCourses: Course[];
   initialAttributeToScore?: Record<string, number>;
   initialFilterCoursesOptions: FilterCoursesOption[];
   initialCustomFilteredCourseCodes: string[];
-  attributeValueToLabel: (value: string) => string;
 };
 
 export default function RecommendationSettingsForm({
@@ -33,7 +32,6 @@ export default function RecommendationSettingsForm({
   initialAttributeToScore,
   initialFilterCoursesOptions,
   initialCustomFilteredCourseCodes,
-  attributeValueToLabel,
 }: Props) {
   const { modal } = useApp();
   const algorithm = useAlgorithmContext();
@@ -45,7 +43,7 @@ export default function RecommendationSettingsForm({
       submitter={false}
       initialValues={{
         attributeToScore: Object.fromEntries(
-          attributes.map((attribute) => [attribute, initialAttributeToScore?.[attribute] ?? 3]),
+          attributes.map((attribute) => [attribute.value, initialAttributeToScore?.[attribute.value] ?? 3]),
         ),
         filterCoursesOptions: initialFilterCoursesOptions,
         customFilteredCourseCodes: initialCustomFilteredCourseCodes,
@@ -166,26 +164,22 @@ export default function RecommendationSettingsForm({
         <div className='my-3'></div>
         {attributes
           .sort((a, b) =>
-            attributeValueToLabel(a).localeCompare(attributeValueToLabel(b), 'vi', {
+            a.value.localeCompare(b.value, 'vi', {
               sensitivity: 'base',
             }),
           )
           .map((attribute) => (
             <ProFormItem
-              key={attribute}
-              name={['attributeToScore', attribute]}
-              label={
-                <div className='font-semibold text-gray-600'>
-                  {attributeValueToLabel(attribute)}
-                </div>
-              }
+              key={attribute.id}
+              name={['attributeToScore', attribute.value]}
+              label={<div className='font-semibold text-gray-600'>{attribute.value}</div>}
               className='pl-2'
               layout='vertical'
             >
               <RatingBox
                 highlightSmallerValues
                 onChange={async (value) => {
-                  client.logEvent('adjust_preference', value, { algorithm, attribute });
+                  client.logEvent('adjust_preference', value, { algorithm, attribute: attribute.value });
                 }}
               />
             </ProFormItem>

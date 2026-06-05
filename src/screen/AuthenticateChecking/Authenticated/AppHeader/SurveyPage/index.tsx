@@ -3,7 +3,7 @@ import { TRI_RANK_NUMBER_OF_COURSES } from '@/common/constants/Recommendation.co
 import { useAlgorithmContext } from '@/common/context/AlgorithmContext';
 import useGet from '@/common/hooks/network/useGet';
 import useRequest from '@/common/hooks/network/useRequest';
-import { Algorithm } from '@/common/types/Course.types';
+import { Algorithm, Attribute } from '@/common/types/Course.types';
 import { FSRecommendationRequest, FSRecommendationResult } from '@/common/types/FS.types';
 import {
   TriRankRecommendationRequest,
@@ -12,14 +12,12 @@ import {
 import { Button, Card, Typography } from 'antd';
 import useApp from 'antd/es/app/useApp';
 import { useState } from 'react';
-import { useAttributeValueToLabel } from '../RecommendationPage/FSRecommendation/hooks/useAttributeValueToLabel';
 
 export default function SurveyPage() {
   const { message } = useApp();
   const algorithm = useAlgorithmContext();
-  const attributeValueToLabel = useAttributeValueToLabel();
 
-  const { data: attributesResponse, isPending: attributesPending } = useGet<string[]>(
+  const { data: attributesResponse, isPending: attributesPending } = useGet<Attribute[]>(
     `/attributes`,
     {
       params: {
@@ -52,9 +50,9 @@ export default function SurveyPage() {
           data: {
             attributeToPreferenceConfigure: Object.fromEntries(
               attributesResponse.data.map((attribute) => [
-                attribute,
+                attribute.value,
                 {
-                  targetSentimentScore: attributeToScore[attribute] ?? 3,
+                  targetSentimentScore: attributeToScore[attribute.value] ?? 3,
                 },
               ]),
             ),
@@ -70,8 +68,8 @@ export default function SurveyPage() {
             numberOfCourses: TRI_RANK_NUMBER_OF_COURSES,
             attributeToScore: Object.fromEntries(
               attributesResponse.data.map((attribute) => [
-                attribute,
-                attributeToScore[attribute] ?? 3,
+                attribute.value,
+                attributeToScore[attribute.value] ?? 3,
               ]),
             ),
             filterCoursesOptions: [],
@@ -121,17 +119,17 @@ export default function SurveyPage() {
             <div className='space-y-3'>
               {attributesResponse?.data.map((attribute) => {
                 return (
-                  <div key={attribute} className='rounded-xl border border-gray-200 px-4 py-3'>
+                  <div key={attribute.id} className='rounded-xl border border-gray-200 px-4 py-3'>
                     <Typography.Text strong className='text-gray-700 block mb-2'>
-                      {attributeValueToLabel(attribute)}
+                      {attribute.value}
                     </Typography.Text>
                     <RatingBox
                       highlightSmallerValues
-                      value={attributeToScore[attribute] ?? 3}
+                      value={attributeToScore[attribute.value] ?? 3}
                       onChange={(score) => {
                         setAttributeToScore((prev) => ({
                           ...prev,
-                          [attribute]: score,
+                          [attribute.value]: score,
                         }));
                       }}
                     />

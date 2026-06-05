@@ -1,33 +1,29 @@
+import { Attribute } from '@/common/types/Course.types';
 import { Rate } from 'antd';
-import { useAttributeValueToLabel } from '../../RecommendationPage/FSRecommendation/hooks/useAttributeValueToLabel';
 
 type Props = {
-  attributeValues: string[];
-  attributeValueToRatingScore: Record<string, number>;
-  onRatingChange: (attributeValue: string, score: number) => void;
+  attributes: Attribute[];
+  attributeIdToRatingScore: Record<number, number>;
+  onRatingChange: (attributeId: number, score: number) => void;
 };
 
 export default function AttributeRating({
-  attributeValues,
-  attributeValueToRatingScore,
+  attributes,
+  attributeIdToRatingScore,
   onRatingChange,
 }: Props) {
-  const attributeValueToLabel = useAttributeValueToLabel();
-
   return (
     <div className='flex flex-col gap-5'>
-      {attributeValues.map((attributeValue) => {
+      {attributes.map((attribute) => {
         return (
-          <div key={attributeValue}>
-            <div className='text-gray-600 font-semibold'>
-              {attributeValueToLabel(attributeValue)}
-            </div>
+          <div key={attribute.id}>
+            <div className='text-gray-600 font-semibold'>{attribute.value}</div>
             <div className='my-3'></div>
             <Rate
               className='text-5xl'
-              defaultValue={attributeValueToRatingScore[attributeValue] ?? 0}
+              defaultValue={attributeIdToRatingScore[attribute.id] ?? 0}
               onChange={(score) => {
-                onRatingChange(attributeValue, score);
+                onRatingChange(attribute.id, score);
               }}
               allowClear
             />

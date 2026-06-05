@@ -1,3 +1,8 @@
+export type Attribute = {
+  id: number;
+  value: string;
+};
+
 export type Course = {
   id: number;
   code: string;
@@ -19,7 +24,7 @@ export enum Algorithm {
 export type CourseDetail = {
   course: Course;
   userCourseStatus?: UserCourseStatus;
-  userAttributeValueToRatingScore: Record<string, number>;
+  userAttributeIdToRatingScore: Record<number, number>;
 };
 
 export type GetCoursesOfUserRequest = {
@@ -46,7 +51,7 @@ export type GetCourseDetailRequest = {
 };
 
 export type RateCourseRequest = {
-  attributeValue: string;
+  attributeId: number;
   score: number;
 };
 

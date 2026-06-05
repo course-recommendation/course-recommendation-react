@@ -1,4 +1,4 @@
-import { Course, CourseDetail } from './Course.types';
+import { Attribute, Course, CourseDetail } from './Course.types';
 import { FilterCoursesOption } from './Recommendation.types';
 
 export type TriRankRecommendationRequest = {
@@ -30,7 +30,7 @@ export type RecommendationSettingsFormType = {
 };
 
 export type RecommendationSettingsFormProps = {
-  attributes: string[];
+  attributes: Attribute[];
   allCourses: Course[];
   initialAttributeToScore?: Record<string, number>;
   initialFilterCoursesOptions: FilterCoursesOption[];

@@ -49,7 +49,7 @@ export default function CourseDetailPage() {
 
         const courseDetail = courseDetailResponse!.data;
         const course = courseDetail.course;
-        const attributeValues = attributeValuesResponse!.data;
+        const attributes = attributeValuesResponse!.data;
         const userCourseStatus = isUserCourseStatusOverridden
           ? userCourseStatusOverride
           : courseDetail.userCourseStatus;
@@ -114,14 +114,14 @@ export default function CourseDetailPage() {
                 <div className='my-5'></div>
                 <div>
                   <AttributeRating
-                    attributeValues={attributeValues}
-                    attributeValueToRatingScore={courseDetail.userAttributeValueToRatingScore}
-                    onRatingChange={async (attributeValue, score) => {
+                    attributes={attributes}
+                    attributeIdToRatingScore={courseDetail.userAttributeIdToRatingScore}
+                    onRatingChange={async (attributeId, score) => {
                       rateCourse({
                         method: 'PUT',
                         url: `/courses/${courseDetail.course.id}/rating`,
                         data: {
-                          attributeValue,
+                          attributeId,
                           score,
                         },
                       });
