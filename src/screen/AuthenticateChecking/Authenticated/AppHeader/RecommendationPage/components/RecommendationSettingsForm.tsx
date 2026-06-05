@@ -43,7 +43,10 @@ export default function RecommendationSettingsForm({
       submitter={false}
       initialValues={{
         attributeToScore: Object.fromEntries(
-          attributes.map((attribute) => [attribute.value, initialAttributeToScore?.[attribute.value] ?? 3]),
+          attributes.map((attribute) => [
+            attribute.value,
+            initialAttributeToScore?.[attribute.value] ?? 3,
+          ]),
         ),
         filterCoursesOptions: initialFilterCoursesOptions,
         customFilteredCourseCodes: initialCustomFilteredCourseCodes,
@@ -179,7 +182,10 @@ export default function RecommendationSettingsForm({
               <RatingBox
                 highlightSmallerValues
                 onChange={async (value) => {
-                  client.logEvent('adjust_preference', value, { algorithm, attribute: attribute.value });
+                  client.logEvent('adjust_preference', value, {
+                    algorithm,
+                    attribute: attribute.value,
+                  });
                 }}
               />
             </ProFormItem>
