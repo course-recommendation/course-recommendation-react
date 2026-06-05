@@ -11,15 +11,13 @@ type RegisterFormType = {
   email: string;
   password: string;
   confirmPassword: string;
-  firstName: string;
-  lastName: string;
+  fullName: string;
 };
 
 type RegisterRequest = {
   email: string;
   password: string;
-  firstName: string;
-  lastName: string;
+  fullName: string;
 };
 
 export default function RegisterPage() {
@@ -38,8 +36,7 @@ export default function RegisterPage() {
         data: {
           email: formValues.email,
           password: formValues.password,
-          firstName: formValues.firstName,
-          lastName: formValues.lastName,
+          fullName: formValues.fullName,
         },
       });
 
@@ -74,16 +71,10 @@ export default function RegisterPage() {
             rules={[{ required: true, message: 'Email không được trống' }]}
           />
           <ProFormText
-            name='lastName'
-            label='Họ'
-            placeholder={'Nhập học của bạn'}
-            rules={[{ required: true, message: 'Họ của bạn không được trống' }]}
-          />
-          <ProFormText
-            name='firstName'
-            label='Tên'
-            placeholder={'Nhập tên của bạn'}
-            rules={[{ required: true, message: 'Tên của bạn không được trống' }]}
+            name='fullName'
+            label='Họ và tên'
+            placeholder={'Nhập họ và tên của bạn'}
+            rules={[{ required: true, message: 'Họ và tên không được trống' }]}
           />
           <ProFormText.Password
             name='password'
