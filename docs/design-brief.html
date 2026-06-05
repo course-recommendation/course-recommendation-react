@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); color: var(--color-text-primary); background: transparent; padding: 0; }
+
+  .brief-header { padding: 28px 28px 20px; border-bottom: 1px solid var(--color-border-tertiary); }
+  .brief-title { font-size: 22px; font-weight: 500; margin-bottom: 6px; }
+  .brief-subtitle { font-size: 14px; color: var(--color-text-secondary); line-height: 1.6; }
+
+  .tabs { display: flex; gap: 2px; padding: 16px 28px 0; border-bottom: 1px solid var(--color-border-tertiary); overflow-x: auto; }
+  .tab { padding: 8px 16px; font-size: 13px; font-weight: 500; cursor: pointer; border-radius: 6px 6px 0 0; color: var(--color-text-secondary); border: 1px solid transparent; border-bottom: none; white-space: nowrap; transition: all .15s; }
+  .tab.active { color: var(--color-text-primary); background: var(--color-background-secondary); border-color: var(--color-border-tertiary); }
+  .tab:hover:not(.active) { color: var(--color-text-primary); }
+
+  .content { padding: 24px 28px 28px; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  .section { margin-bottom: 24px; }
+  .section-label { font-size: 11px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--color-text-tertiary); margin-bottom: 10px; }
+
+  .color-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .swatch { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--color-border-tertiary); background: var(--color-background-secondary); font-size: 13px; min-width: 160px; }
+  .swatch-dot { width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0; }
+  .swatch-name { font-weight: 500; font-size: 12px; }
+  .swatch-hex { font-size: 11px; color: var(--color-text-tertiary); font-family: var(--font-mono); }
+
+  .font-card { padding: 12px 16px; border-radius: 8px; border: 1px solid var(--color-border-tertiary); background: var(--color-background-secondary); margin-bottom: 8px; }
+  .font-role { font-size: 11px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; color: var(--color-text-tertiary); margin-bottom: 4px; }
+  .font-sample { font-size: 20px; font-weight: 500; margin-bottom: 2px; }
+  .font-name { font-size: 12px; color: var(--color-text-secondary); font-family: var(--font-mono); }
+
+  .token-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .token-card { padding: 10px 14px; border-radius: 8px; border: 1px solid var(--color-border-tertiary); background: var(--color-background-secondary); }
+  .token-key { font-size: 12px; font-family: var(--font-mono); color: var(--color-text-secondary); margin-bottom: 3px; }
+  .token-val { font-size: 13px; font-weight: 500; }
+
+  .component-list { display: flex; flex-direction: column; gap: 8px; }
+  .comp-card { padding: 12px 16px; border-radius: 8px; border: 1px solid var(--color-border-tertiary); background: var(--color-background-secondary); }
+  .comp-name { font-size: 13px; font-weight: 500; margin-bottom: 4px; }
+  .comp-desc { font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; }
+  .comp-tag { display: inline-block; font-size: 11px; font-weight: 500; padding: 2px 7px; border-radius: 4px; margin-right: 4px; margin-top: 6px; }
+  .tag-ant { background: #E6F1FB; color: #0C447C; }
+  .tag-tw { background: #EAF3DE; color: #27500A; }
+  .tag-custom { background: #EEEDFE; color: #3C3489; }
+
+  .motion-card { padding: 12px 16px; border-radius: 8px; border: 1px solid var(--color-border-tertiary); background: var(--color-background-secondary); margin-bottom: 8px; }
+  .motion-type { font-size: 12px; font-weight: 500; color: var(--color-text-tertiary); margin-bottom: 3px; }
+  .motion-desc { font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; }
+  .motion-css { font-size: 11px; font-family: var(--font-mono); color: var(--color-text-secondary); background: var(--color-background-tertiary); padding: 4px 8px; border-radius: 4px; margin-top: 6px; display: block; }
+
+  .copy-bar { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 8px; border: 1px solid var(--color-border-tertiary); background: var(--color-background-secondary); margin-bottom: 16px; }
+  .copy-bar span { font-size: 13px; color: var(--color-text-secondary); flex: 1; }
+  .copy-btn { padding: 6px 14px; border-radius: 6px; border: 1px solid var(--color-border-secondary); background: var(--color-background-primary); font-size: 12px; font-weight: 500; cursor: pointer; color: var(--color-text-primary); transition: all .15s; }
+  .copy-btn:hover { border-color: var(--color-border-primary); }
+  .copy-btn.copied { background: #EAF3DE; color: #27500A; border-color: #C0DD97; }
+
+  .prose { font-size: 14px; color: var(--color-text-secondary); line-height: 1.75; }
+  .prose strong { color: var(--color-text-primary); font-weight: 500; }
+
+  .discussion-note { padding: 14px 16px; border-left: 3px solid #7F77DD; border-radius: 0 8px 8px 0; background: #EEEDFE; margin-top: 12px; }
+  .discussion-note p { font-size: 13px; color: #3C3489; line-height: 1.6; }
+
+  .aesthetic-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; background: var(--color-background-secondary); border: 1px solid var(--color-border-tertiary); margin: 4px; }
+
+  .storage-instruction { background: var(--color-background-secondary); border: 1px solid var(--color-border-tertiary); border-radius: 10px; padding: 20px; margin-top: 4px; }
+  .storage-step { display: flex; gap: 12px; margin-bottom: 14px; align-items: flex-start; }
+  .step-num { width: 22px; height: 22px; border-radius: 50%; background: #EEEDFE; color: #3C3489; font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .step-text { font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; }
+  .step-text strong { color: var(--color-text-primary); font-weight: 500; }
+  .step-text code { font-family: var(--font-mono); font-size: 11px; background: var(--color-background-tertiary); padding: 1px 5px; border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<div class="brief-header">
+  <div class="brief-title">Design Brief — Course Recommendation Platform</div>
+  <div class="brief-subtitle">A complete visual language guide for your development team and Claude Code sessions.</div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('overview')">Overview</div>
+  <div class="tab" onclick="showTab('colors')">Colors</div>
+  <div class="tab" onclick="showTab('typography')">Typography</div>
+  <div class="tab" onclick="showTab('tokens')">Tokens</div>
+  <div class="tab" onclick="showTab('components')">Components</div>
+  <div class="tab" onclick="showTab('motion')">Motion</div>
+  <div class="tab" onclick="showTab('discussion')">Discussion page</div>
+  <div class="tab" onclick="showTab('usage')">How to use</div>
+</div>
+
+<div class="content">
+
+  <!-- OVERVIEW -->
+  <div class="panel active" id="panel-overview">
+    <div class="section">
+      <div class="section-label">Aesthetic direction</div>
+      <div style="display:flex;flex-wrap:wrap;margin-bottom:12px;">
+        <span class="aesthetic-badge">✦ Academic-modern</span>
+        <span class="aesthetic-badge">✦ Trust-forward</span>
+        <span class="aesthetic-badge">✦ Warm-neutral base</span>
+        <span class="aesthetic-badge">✦ Structured clarity</span>
+      </div>
+      <p class="prose">The platform sits at the intersection of a trusted learning institution and a smart digital product. The aesthetic leans <strong>editorial and refined</strong> — think a high-quality university publication, not a startup landing page. Layouts use generous whitespace, a warm off-white base, and indigo as the primary accent to signal intelligence and trust. The discussion page shifts to a slightly warmer tone — more community, less institution.</p>
+    </div>
+    <div class="section">
+      <div class="section-label">One sentence to remember</div>
+      <div style="padding:16px 20px;border-radius:10px;border-left:3px solid #7F77DD;background:#EEEDFE;">
+        <p style="font-size:15px;font-weight:500;color:#3C3489;line-height:1.6;">"A knowledgeable friend who studied everything and just wants to point you in the right direction."</p>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-label">Tech stack constraints</div>
+      <p class="prose" style="margin-bottom:8px;">Built on <strong>Ant Design + Tailwind CSS</strong>. The design system extends Ant Design's token system — never override AntD component internals; instead use <code style="font-family:var(--font-mono);font-size:12px;background:var(--color-background-tertiary);padding:1px 5px;border-radius:3px;">theme</code> tokens and Tailwind utilities for layout, spacing, and custom surface effects. Keep component logic inside AntD, visual decoration inside Tailwind.</p>
+    </div>
+  </div>
+
+  <!-- COLORS -->
+  <div class="panel" id="panel-colors">
+    <div class="section">
+      <div class="section-label">Primary palette</div>
+      <div class="color-row">
+        <div class="swatch"><div class="swatch-dot" style="background:#4338CA"></div><div><div class="swatch-name">Indigo 700</div><div class="swatch-hex">#4338CA</div></div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#6366F1"></div><div><div class="swatch-name">Indigo 500</div><div class="swatch-hex">#6366F1</div></div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#E0E7FF"></div><div><div class="swatch-name">Indigo 100</div><div class="swatch-hex">#E0E7FF</div></div></div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-label">Neutral base (warm)</div>
+      <div class="color-row">
+        <div class="swatch"><div class="swatch-dot" style="background:#FAF9F7"></div><div><div class="swatch-name">Warm white</div><div class="swatch-hex">#FAF9F7</div></div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#F2F0EB"></div><div><div class="swatch-name">Surface</div><div class="swatch-hex">#F2F0EB</div></div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#1C1917"></div><div><div class="swatch-name">Near-black</div><div class="swatch-hex">#1C1917</div></div></div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-label">Semantic accents</div>
+      <div class="color-row">
+        <div class="swatch"><div class="swatch-dot" style="background:#D97706"></div><div><div class="swatch-name">Amber — ratings</div><div class="swatch-hex">#D97706</div></div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#059669"></div><div><div class="swatch-name">Emerald — success</div><div class="swatch-hex">#059669</div></div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#7C3AED"></div><div><div class="swatch-name">Violet — AI badge</div><div class="swatch-hex">#7C3AED</div></div></div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-label">Usage rules</div>
+      <p class="prose"><strong>Indigo</strong> = primary CTAs, active states, recommendation highlights, links. <strong>Amber</strong> = star ratings, course scores, "hot pick" labels only. <strong>Violet</strong> = AI/recommendation engine labels — keep it rare so it reads as special. <strong>Warm neutrals</strong> = all backgrounds and card surfaces. Never use pure white (#FFF) as a background — always #FAF9F7.</p>
+    </div>
+  </div>
+
+  <!-- TYPOGRAPHY -->
+  <div class="panel" id="panel-typography">
+    <div class="font-card">
+      <div class="font-role">Display / headings</div>
+      <div class="font-sample" style="font-family:'Be Vietnam Pro',sans-serif;">Discover your next course</div>
+      <div class="font-name">Be Vietnam Pro — via Google Fonts</div>
+    </div>
+    <div class="font-card">
+      <div class="font-role">Body / UI</div>
+      <div class="font-sample" style="font-size:16px;font-weight:400;font-family:'Be Vietnam Pro',sans-serif;">This course matches your learning profile with 94% confidence.</div>
+      <div class="font-name">Be Vietnam Pro — primary typeface for all UI text</div>
+    </div>
+    <div class="font-card">
+      <div class="font-role">Labels / metadata</div>
+      <div class="font-sample" style="font-size:13px;letter-spacing:.04em;font-weight:500;text-transform:uppercase;font-family:'Be Vietnam Pro',sans-serif;">Beginner · 12 weeks · 4.8 ★</div>
+      <div class="font-name">Be Vietnam Pro 500 — uppercase tracking for metadata chips</div>
+    </div>
+    <div class="section" style="margin-top:16px;">
+      <div class="section-label">Type scale</div>
+      <div class="token-grid">
+        <div class="token-card"><div class="token-key">Hero heading</div><div class="token-val">40–48px / 500</div></div>
+        <div class="token-card"><div class="token-key">Section heading</div><div class="token-val">28px / 500</div></div>
+        <div class="token-card"><div class="token-key">Card title</div><div class="token-val">18px / 500</div></div>
+        <div class="token-card"><div class="token-key">Body</div><div class="token-val">15px / 400 / lh 1.7</div></div>
+        <div class="token-card"><div class="token-key">Metadata chip</div><div class="token-val">11px / 500 / uppercase</div></div>
+        <div class="token-card"><div class="token-key">Caption</div><div class="token-val">13px / 400</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOKENS -->
+  <div class="panel" id="panel-tokens">
+    <div class="section">
+      <div class="section-label">Spacing</div>
+      <div class="token-grid">
+        <div class="token-card"><div class="token-key">Card padding</div><div class="token-val">24px (p-6)</div></div>
+        <div class="token-card"><div class="token-key">Section gap</div><div class="token-val">64px (py-16)</div></div>
+        <div class="token-card"><div class="token-key">Card grid gap</div><div class="token-val">24px (gap-6)</div></div>
+        <div class="token-card"><div class="token-key">Content max-width</div><div class="token-val">1152px (max-w-6xl)</div></div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-label">Shape & depth</div>
+      <div class="token-grid">
+        <div class="token-card"><div class="token-key">Card radius</div><div class="token-val">12px (rounded-xl)</div></div>
+        <div class="token-card"><div class="token-key">Chip radius</div><div class="token-val">999px (rounded-full)</div></div>
+        <div class="token-card"><div class="token-key">Card shadow</div><div class="token-val">0 1px 4px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04)</div></div>
+        <div class="token-card"><div class="token-key">Card hover shadow</div><div class="token-val">0 4px 20px rgba(67,56,202,.12)</div></div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-label">AntD theme token overrides</div>
+      <div style="font-family:var(--font-mono);font-size:12px;background:var(--color-background-tertiary);padding:16px;border-radius:8px;line-height:1.9;color:var(--color-text-secondary);white-space:pre-wrap;">colorPrimary: '#4338CA'
+colorBgBase: '#FAF9F7'
+colorTextBase: '#1C1917'
+borderRadius: 10
+fontFamily: 'Be Vietnam Pro, sans-serif'
+colorBgContainer: '#FFFFFF'</div>
+    </div>
+  </div>
+
+  <!-- COMPONENTS -->
+  <div class="panel" id="panel-components">
+    <div class="component-list">
+      <div class="comp-card">
+        <div class="comp-name">Course card</div>
+        <div class="comp-desc">Warm white background (#FAF9F7), 12px radius, subtle shadow. Top: cover image or subject-color gradient strip (60px tall). Body: title (18px/500), provider name (13px muted), metadata chips (level · duration · rating). Bottom: match score bar if AI-recommended + primary CTA button.</div>
+        <span class="comp-tag tag-ant">AntD Card</span><span class="comp-tag tag-tw">Tailwind layout</span><span class="comp-tag tag-custom">Custom shadow</span>
+      </div>
+      <div class="comp-card">
+        <div class="comp-name">Recommendation explanation section</div>
+        <div class="comp-desc">Two-column layout: left side has a large serif heading + 2–3 sentences of explanation text in body size. Right side shows an animated "match factors" visualization — small labeled progress bars (skill match, interest alignment, pace fit) in indigo. Background: #F2F0EB (one tone warmer than page). Add a subtle violet "AI-powered" badge top-right.</div>
+        <span class="comp-tag tag-custom">Custom layout</span><span class="comp-tag tag-ant">AntD Progress</span><span class="comp-tag tag-tw">Tailwind grid</span>
+      </div>
+      <div class="comp-card">
+        <div class="comp-name">Match score badge</div>
+        <div class="comp-desc">Small pill on course cards. Violet background (#EDE9FE), violet-800 text. Shows "94% match" with a tiny sparkle icon. Only shown on AI-recommended cards — keep it rare to preserve meaning.</div>
+        <span class="comp-tag tag-custom">Custom chip</span>
+      </div>
+      <div class="comp-card">
+        <div class="comp-name">Category filter bar</div>
+        <div class="comp-desc">Horizontal scrollable row of AntD Tag components styled as rounded pills. Default: #F2F0EB bg, muted text. Active: indigo-700 bg, white text. No borders on any state. Sticky on scroll at 64px offset (below nav).</div>
+        <span class="comp-tag tag-ant">AntD Tag</span><span class="comp-tag tag-tw">Tailwind sticky</span>
+      </div>
+      <div class="comp-card">
+        <div class="comp-name">Section heading pattern</div>
+        <div class="comp-desc">Serif 28px heading + indigo decorative underline (3px, 32px wide, offset below). Subheading in body size, muted color, max 2 lines. Always left-aligned — avoid centered headings except on hero.</div>
+        <span class="comp-tag tag-custom">Custom heading</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MOTION -->
+  <div class="panel" id="panel-motion">
+    <div class="motion-card">
+      <div class="motion-type">Card entrance (page load)</div>
+      <div class="motion-desc">Cards fade up staggered — 40ms delay per card, 300ms duration, ease-out. Only on initial load, not on filter change.</div>
+      <code class="motion-css">opacity: 0 → 1, translateY: 16px → 0; stagger-delay: calc(var(--i) * 40ms)</code>
+    </div>
+    <div class="motion-card">
+      <div class="motion-type">Card hover</div>
+      <div class="motion-desc">Shadow transitions to indigo-tinted hover shadow. Slight scale up (1.015). Duration 180ms ease-out. No translateY lift — keeps cards grounded.</div>
+      <code class="motion-css">transform: scale(1.015); box-shadow: 0 4px 20px rgba(67,56,202,.12); transition: all 180ms ease-out</code>
+    </div>
+    <div class="motion-card">
+      <div class="motion-type">Match score bar (recommendation section)</div>
+      <div class="motion-desc">Animate width from 0 to final value when section enters viewport. 600ms duration, cubic-bezier(.22,1,.36,1). Delay each bar by 80ms.</div>
+      <code class="motion-css">width: 0 → {value}%; transition: width 600ms cubic-bezier(.22,1,.36,1)</code>
+    </div>
+    <div class="motion-card">
+      <div class="motion-type">Discussion — new post appearance</div>
+      <div class="motion-desc">New posts slide in from top with a subtle background flash (indigo-50 → transparent) over 800ms to draw attention without jarring.</div>
+      <code class="motion-css">translateY: -8px → 0, background: #E0E7FF → transparent; 300ms + 800ms</code>
+    </div>
+    <div class="motion-card">
+      <div class="motion-type">General principle</div>
+      <div class="motion-desc">Max 1 hero animation per viewport. Prefer entrance animations (load/scroll-into-view) over continuous loops. All animations under 400ms except deliberate data reveals.</div>
+      <code class="motion-css">Always wrap in: @media (prefers-reduced-motion: no-preference)</code>
+    </div>
+  </div>
+
+  <!-- DISCUSSION PAGE -->
+  <div class="panel" id="panel-discussion">
+    <div class="section">
+      <div class="section-label">Page purpose & tone</div>
+      <p class="prose">A community space where students compare courses, share experiences, and ask questions. Tone shifts slightly warmer and less institutional here — more peer-to-peer, less "smart system". Think Facebook Groups but with better typography and no visual noise.</p>
+    </div>
+    <div class="discussion-note">
+      <p>Keep the same color palette and type system — just lean into warmer neutrals and reduce indigo usage. The AI accent (violet) disappears on this page entirely.</p>
+    </div>
+    <div class="section" style="margin-top:20px;">
+      <div class="section-label">Layout structure</div>
+      <div class="component-list">
+        <div class="comp-card">
+          <div class="comp-name">Left sidebar (240px)</div>
+          <div class="comp-desc">Course filter nav — list of course names with unread count badges. Active course highlighted with indigo-left-border. Sticky. On mobile: collapses into a horizontal tab row.</div>
+        </div>
+        <div class="comp-card">
+          <div class="comp-name">Post feed (center, flex-1)</div>
+          <div class="comp-desc">Each post: avatar (AntD Avatar, 36px) + username (13px/500) + timestamp (11px muted) in a row. Post body: 15px body text, max 3 lines collapsed with "read more". Reactions row: 👍 count, 💬 reply count, share icon — all as ghost buttons. Card style: white bg (#FFF this time, not FAF9F7), 8px radius, 1px warm border (#E8E5E0).</div>
+        </div>
+        <div class="comp-card">
+          <div class="comp-name">Right sidebar (280px)</div>
+          <div class="comp-desc">"Most discussed courses" widget + "Trending topics" tags. Hidden on tablet, collapsed on mobile.</div>
+        </div>
+        <div class="comp-card">
+          <div class="comp-name">Compose box</div>
+          <div class="comp-desc">Pinned at top of feed. AntD Input.TextArea, 3 rows, placeholder "Share your experience or ask a question…". Below: course tag selector + Post button (indigo, rounded-full). Subtle box-shadow to separate from feed.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOW TO USE -->
+  <div class="panel" id="panel-usage">
+    <div class="copy-bar">
+      <span>Copy this brief to paste into Claude Code</span>
+      <button class="copy-btn" onclick="copyBrief()" id="copyBtn">Copy brief</button>
+    </div>
+    <div class="storage-instruction">
+      <div class="section-label" style="margin-bottom:16px;">How to store this brief (so you never paste it again)</div>
+      <div class="storage-step">
+        <div class="step-num">1</div>
+        <div class="step-text"><strong>Save it as a file in your project.</strong> Create <code>docs/design-brief.md</code> in your repo root and paste the brief there. Claude Code reads your whole project, so it will find it automatically.</div>
+      </div>
+      <div class="storage-step">
+        <div class="step-num">2</div>
+        <div class="step-text"><strong>Tell Claude Code to always read it first.</strong> Add a <code>CLAUDE.md</code> file at your project root (Claude Code reads this automatically on every session). In it, write: <em>"Always read docs/design-brief.md before making any UI changes."</em></div>
+      </div>
+      <div class="storage-step">
+        <div class="step-num">3</div>
+        <div class="step-text"><strong>One-time setup, forever reuse.</strong> After that, just open Claude Code in your project and say "refactor the course card UI" — it will already know the design system without you pasting anything.</div>
+      </div>
+      <div class="storage-step">
+        <div class="step-num">4</div>
+        <div class="step-text"><strong>Keep it updated.</strong> Whenever you evolve the design, update <code>docs/design-brief.md</code> and Claude Code stays in sync. You can also ask Claude (here in chat) to generate an updated brief anytime.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('panel-' + id).classList.add('active');
+}
+
+const BRIEF_TEXT = `# Design Brief — Course Recommendation Platform
+
+## Aesthetic direction
+Academic-modern, trust-forward, warm-neutral base, structured clarity.
+Tagline: "A knowledgeable friend who studied everything and just wants to point you in the right direction."
+Tech stack: Ant Design + Tailwind CSS.
+
+## Colors
+- Primary: Indigo 700 #4338CA, Indigo 500 #6366F1, Indigo 100 #E0E7FF
+- Background base: Warm white #FAF9F7 (NEVER pure white on page background)
+- Surface: #F2F0EB (cards, section backgrounds)
+- Text: Near-black #1C1917
+- Ratings/scores: Amber #D97706
+- Success states: Emerald #059669
+- AI/recommendation badge ONLY: Violet #7C3AED (keep rare)
+
+## Typography
+- Typeface: Be Vietnam Pro (Google Fonts) — used for all display, body, and UI text
+- Scale: Hero 40–48px/500, Section heading 28px/500, Card title 18px/500, Body 15px/400/lh1.7, Metadata chip 11px/500/uppercase, Caption 13px/400
+
+## Spacing & shape tokens
+- Card padding: 24px (p-6)
+- Section gap: 64px (py-16)
+- Card grid gap: 24px (gap-6)
+- Content max-width: 1152px (max-w-6xl)
+- Card radius: 12px (rounded-xl)
+- Chip radius: 999px (rounded-full)
+- Card shadow: 0 1px 4px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04)
+- Card hover shadow: 0 4px 20px rgba(67,56,202,.12)
+
+## AntD theme token overrides
+colorPrimary: '#4338CA'
+colorBgBase: '#FAF9F7'
+colorTextBase: '#1C1917'
+borderRadius: 10
+fontFamily: 'Be Vietnam Pro, sans-serif'
+colorBgContainer: '#FFFFFF'
+
+## Key components
+
+### Course card
+Warm white bg, 12px radius, subtle shadow. Top: cover image or subject-color gradient strip (60px). Body: title (18px/500), provider (13px muted), metadata chips (level · duration · rating). Bottom: match score bar if AI-recommended + primary CTA. Use AntD Card + Tailwind layout.
+
+### Recommendation explanation section
+Two-column: left = serif heading + explanation text. Right = animated match factors (indigo progress bars: skill match, interest alignment, pace fit). Background: #F2F0EB. Violet "AI-powered" badge top-right. Use AntD Progress + Tailwind grid.
+
+### Match score badge
+Pill on AI-recommended cards only. Violet bg (#EDE9FE), violet-800 text. Text: "94% match". Keep rare.
+
+### Category filter bar
+AntD Tag pills, horizontal scroll, sticky at 64px. Default: #F2F0EB bg + muted text. Active: indigo-700 bg + white text. No borders.
+
+### Section headings
+Serif 28px + 3px indigo underline (32px wide). Subheading muted, 2 lines max. Always left-aligned.
+
+## Motion
+- Card entrance: fade up, stagger 40ms/card, 300ms ease-out
+- Card hover: scale(1.015) + indigo shadow, 180ms ease-out
+- Match score bars: width 0→value, 600ms cubic-bezier(.22,1,.36,1), 80ms stagger
+- New discussion posts: slide from top + indigo-50 flash → transparent
+- Wrap all in: @media (prefers-reduced-motion: no-preference)
+
+## Discussion page
+Tone: warmer, peer-to-peer. Remove violet AI accent entirely.
+Layout: Left sidebar (240px, course filter nav) + Center feed (flex-1) + Right sidebar (280px trending).
+Post card: white bg (#FFF), 8px radius, 1px border (#E8E5E0). Avatar 36px + username 13px/500 + timestamp 11px muted. Body 15px, max 3 lines collapsed. Reactions: ghost buttons.
+Compose box: AntD TextArea, pinned top of feed, indigo rounded-full Post button.
+`;
+
+function copyBrief() {
+  navigator.clipboard.writeText(BRIEF_TEXT).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy brief'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+</script>
+</body>
+</html>

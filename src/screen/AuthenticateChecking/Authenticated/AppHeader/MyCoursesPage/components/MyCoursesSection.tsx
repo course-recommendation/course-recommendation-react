@@ -1,9 +1,10 @@
-import CourseCard from '@/common/components/CourseCard';
 import { CourseDetail } from '@/common/types/Course.types';
 import { ProForm, ProFormSelect } from '@ant-design/pro-components';
-import { Button, Empty, Modal, Skeleton, Spin, Typography } from 'antd';
+import { Button, Card, Modal, Skeleton, Spin, Table } from 'antd';
 import { useForm } from 'antd/es/form/Form';
+import type { ColumnsType } from 'antd/es/table';
 import { ReactNode, useState } from 'react';
+import { Link } from 'react-router';
 import { RestResponse } from '../../../../../../common/types/Network';
 
 export type UpdateMyCoursesFormType = {
@@ -20,6 +21,35 @@ type Props = {
   refetching: boolean;
 };
 
+const columns: ColumnsType<CourseDetail> = [
+  {
+    title: 'STT',
+    key: 'index',
+    width: 60,
+    render: (_: unknown, __: CourseDetail, index: number) => index + 1,
+  },
+  {
+    title: 'Mã',
+    dataIndex: ['course', 'code'],
+    key: 'code',
+    width: 110,
+  },
+  {
+    title: 'Tên môn học',
+    dataIndex: ['course', 'name'],
+    key: 'name',
+    render: (name: string, record: CourseDetail) => (
+      <Link to={`/courses/${record.course.code}`}>{name}</Link>
+    ),
+  },
+  {
+    title: 'Mô tả',
+    dataIndex: ['course', 'description'],
+    key: 'description',
+    ellipsis: true,
+  },
+];
+
 export default function MyCoursesSection({
   title,
   allCourseDetailsPending,
@@ -35,15 +65,21 @@ export default function MyCoursesSection({
 
   return (
     <Spin spinning={refetching}>
-      <div>
-        <div className='flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4'>
-          <Typography.Title level={3} className='m-0 text-xl sm:text-2xl'>
-            {title}
-          </Typography.Title>
+      <Card>
+        <div className='flex flex-col sm:flex-row sm:justify-between sm:items-end gap-3 mb-6'>
+          <div>
+            <div
+              className='text-[22px] font-semibold text-[#1C1917] leading-tight'
+              style={{ fontFamily: 'var(--font-serif)' }}
+            >
+              {title}
+            </div>
+            <div className='mt-2 w-8 h-[3px] rounded-full bg-indigo-700' />
+          </div>
           <Button
             type='primary'
             size='middle'
-            className='w-full sm:w-auto'
+            className='w-full sm:w-auto shrink-0'
             onClick={() => {
               form.setFieldsValue({
                 courseIds: courseDetailsResponse?.data.map((x) => x.course.id) ?? [],
@@ -54,35 +90,34 @@ export default function MyCoursesSection({
             Cập nhật
           </Button>
         </div>
-        <div>
-          {(() => {
-            if (courseDetailsPending) {
-              return <Skeleton active />;
-            }
 
-            const courseDetails = courseDetailsResponse!.data;
+        {(() => {
+          if (courseDetailsPending) return <Skeleton active />;
 
-            if (courseDetails.length === 0) {
-              return <Empty description='Chưa có môn học nào' />;
-            }
+          const courseDetails = courseDetailsResponse!.data;
 
-            return (
-              <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4'>
-                {courseDetails.map((courseDetail) => (
-                  <CourseCard key={courseDetail.course.id} courseDetail={courseDetail} />
-                ))}
-              </div>
-            );
-          })()}
-        </div>
+          return (
+            <Table<CourseDetail>
+              columns={columns}
+              dataSource={courseDetails}
+              rowKey={(r) => r.course.id}
+              scroll={{ x: 600 }}
+              pagination={{
+                defaultPageSize: 10,
+                showSizeChanger: true,
+                pageSizeOptions: ['10', '20', '50', '100', '1000000'],
+                showTotal: (total) => `Tổng ${total} bản ghi`,
+              }}
+              size='middle'
+            />
+          );
+        })()}
 
         <Modal
           okText='Xác nhận'
           cancelText='Hủy'
           open={openModal}
-          onCancel={() => {
-            setOpenModal(false);
-          }}
+          onCancel={() => setOpenModal(false)}
           confirmLoading={confirmLoading}
           onOk={async () => {
             setConfirmLoading(true);
@@ -97,9 +132,7 @@ export default function MyCoursesSection({
           }}
         >
           {(() => {
-            if (allCourseDetailsPending) {
-              return <Skeleton active />;
-            }
+            if (allCourseDetailsPending) return <Skeleton active />;
 
             const courses = allCourseDetailsResponse!.data;
 
@@ -114,16 +147,13 @@ export default function MyCoursesSection({
                     value: courseDetail.course.id,
                   }))}
                   showSearch
-                  fieldProps={{
-                    // maxTagCount: 'responsive',
-                    placeholder: 'Chọn môn học',
-                  }}
+                  fieldProps={{ placeholder: 'Chọn môn học' }}
                 />
               </ProForm>
             );
           })()}
         </Modal>
-      </div>
+      </Card>
     </Spin>
   );
 }

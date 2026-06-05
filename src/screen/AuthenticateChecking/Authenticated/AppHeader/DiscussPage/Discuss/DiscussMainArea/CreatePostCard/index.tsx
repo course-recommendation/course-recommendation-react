@@ -1,16 +1,16 @@
-import { ProForm, ProFormSelect, ProFormTextArea } from '@ant-design/pro-components';
-import { Avatar, Button, Card, Modal, Skeleton, Typography } from 'antd';
-import { useForm } from 'antd/es/form/Form';
-import { useState } from 'react';
-
 import useGet from '@/common/hooks/network/useGet';
 import useRequest from '@/common/hooks/network/useRequest';
 import { Algorithm, Course, GetCoursesRequest } from '@/common/types/Course.types';
 import { CreatePostRequest } from '@/common/types/Discuss.types';
 import { useMeContext } from '@/screen/AuthenticateChecking/Authenticated/context/MeContext';
+import { EditOutlined, PictureOutlined, SmileOutlined } from '@ant-design/icons';
+import { ProForm, ProFormSelect, ProFormTextArea } from '@ant-design/pro-components';
+import { Avatar, Button, Modal, Skeleton, Typography } from 'antd';
+import { useForm } from 'antd/es/form/Form';
+import { useState } from 'react';
 
 type CreatePostFormType = {
-  courseId: string;
+  courseCode: string;
   content: string;
 };
 
@@ -21,48 +21,80 @@ type Props = {
 
 export default function CreatePostCard({ afterPost, algorithm }: Props) {
   const { me } = useMeContext();
-
   const [openModal, setOpenModal] = useState(false);
-
   const [form] = useForm<CreatePostFormType>();
   const [confirmLoading, setConfirmLoading] = useState(false);
-
   const { request: createPost } = useRequest<void, CreatePostRequest>();
 
   const { data: allCourseDetailsResponse, isPending: allCourseDetailsPending } = useGet<Course[]>(
     `/courses`,
-    {
-      params: {
-        algorithm,
-      } as GetCoursesRequest,
-    },
+    { params: { algorithm } as GetCoursesRequest },
   );
 
   return (
-    <Card
-      className='rounded-2xl border border-slate-200/80 bg-white/95 shadow-sm'
-      styles={{ body: { padding: 15 } }}
-    >
-      <div className='flex gap-3 items-center'>
-        <Avatar src={me.avatarUrl} size={{ xs: 32, sm: 36, md: 40 }} className='shrink-0' />
-        <div
-          className='h-12 w-full cursor-pointer rounded-full border border-slate-200 bg-gradient-to-r from-slate-100 to-slate-50 px-5 text-slate-500 transition-colors hover:border-indigo-200 hover:text-slate-600'
-          onClick={() => {
-            setOpenModal(true);
-          }}
-        >
-          <Typography.Text className='leading-[48px] text-sm text-inherit md:text-base'>
-            Viết gì đó...
-          </Typography.Text>
+    <>
+      <div className='relative overflow-hidden rounded-2xl border border-indigo-100 bg-white shadow-md shadow-indigo-50/60'>
+        {/* Accent stripe */}
+        <div className='absolute inset-x-0 top-0 h-[3px] bg-indigo-700' />
+
+        <div className='px-5 pt-5 pb-4'>
+          {/* Prompt row */}
+          <div className='flex gap-3 items-center'>
+            <Avatar
+              src={me.avatarUrl}
+              size={40}
+              className='shrink-0 ring-2 ring-indigo-100 ring-offset-1'
+            />
+            <button
+              className='flex-1 h-11 rounded-full border border-slate-200 bg-slate-50 px-5 text-left text-slate-400 text-sm hover:border-indigo-300 hover:bg-indigo-50/40 hover:text-slate-500 transition-all cursor-pointer shadow-inner shadow-slate-100/80'
+              onClick={() => setOpenModal(true)}
+            >
+              Chia sẻ điều gì đó về môn học...
+            </button>
+          </div>
+
+          {/* Divider */}
+          <div className='mt-4 border-t border-slate-100' />
+
+          {/* Action buttons */}
+          <div className='flex items-center justify-between mt-3'>
+            <div className='flex gap-1'>
+              <button
+                onClick={() => setOpenModal(true)}
+                className='flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-500 hover:bg-indigo-50 hover:text-indigo-600 transition-colors'
+              >
+                <PictureOutlined className='text-green-500' />
+                Ảnh / Video
+              </button>
+              <button
+                onClick={() => setOpenModal(true)}
+                className='flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-500 hover:bg-indigo-50 hover:text-indigo-600 transition-colors'
+              >
+                <SmileOutlined className='text-yellow-500' />
+                Cảm xúc
+              </button>
+            </div>
+            <Button
+              type='primary'
+              size='small'
+              icon={<EditOutlined />}
+              onClick={() => setOpenModal(true)}
+              className='rounded-full text-xs font-semibold px-4'
+            >
+              Viết bài
+            </Button>
+          </div>
         </div>
       </div>
+
       <Modal
         open={openModal}
-        onCancel={() => {
-          setOpenModal(false);
-        }}
-        title={<Typography.Title level={4}>Tạo bài viết</Typography.Title>}
-        okText={'Đăng'}
+        onCancel={() => setOpenModal(false)}
+        title={
+          <Typography.Title level={4} className='m-0'>
+            Tạo bài viết
+          </Typography.Title>
+        }
         cancelButtonProps={{ hidden: true }}
         destroyOnHidden
         footer={
@@ -78,7 +110,7 @@ export default function CreatePostCard({ afterPost, algorithm }: Props) {
                   method: 'post',
                   url: '/posts',
                   data: {
-                    courseId: formValues.courseId,
+                    courseCode: formValues.courseCode,
                     content: formValues.content,
                     algorithm,
                   },
@@ -95,42 +127,33 @@ export default function CreatePostCard({ afterPost, algorithm }: Props) {
           </Button>
         }
       >
-        {(() => {
-          if (allCourseDetailsPending) {
-            return <Skeleton />;
-          }
-
-          const allCourseDetails = allCourseDetailsResponse!.data;
-
-          return (
-            <ProForm<CreatePostFormType> form={form} submitter={false} clearOnDestroy>
-              <ProFormSelect
-                name={'courseId'}
-                label='Môn học'
-                placeholder={'Chọn môn học mà bài viết này thảo luận'}
-                options={allCourseDetails.map((course) => {
-                  return {
-                    label: course.name,
-                    value: course.id,
-                  };
-                })}
-                showSearch
-                rules={[{ required: true, message: 'Vui lòng chọn ít nhất một môn học' }]}
-              />
-              <ProFormTextArea
-                name='content'
-                fieldProps={{
-                  variant: 'borderless',
-                  placeholder: 'Viết gì đó...',
-                  className: 'text-lg md:text-xl',
-                  autoSize: true,
-                }}
-                rules={[{ required: true, message: 'Bài đăng không được trống' }]}
-              />
-            </ProForm>
-          );
-        })()}
+        {allCourseDetailsPending ? (
+          <Skeleton />
+        ) : (
+          <ProForm<CreatePostFormType> form={form} submitter={false} clearOnDestroy>
+            <ProFormSelect
+              name='courseCode'
+              label='Môn học'
+              placeholder='Chọn môn học mà bài viết này thảo luận'
+              options={allCourseDetailsResponse!.data.map((course) => ({
+                label: course.name,
+                value: course.code,
+              }))}
+              showSearch
+              rules={[{ required: true, message: 'Vui lòng chọn ít nhất một môn học' }]}
+            />
+            <ProFormTextArea
+              name='content'
+              fieldProps={{
+                placeholder: 'Viết gì đó...',
+                className: 'text-base',
+                autoSize: { minRows: 4 },
+              }}
+              rules={[{ required: true, message: 'Bài đăng không được trống' }]}
+            />
+          </ProForm>
+        )}
       </Modal>
-    </Card>
+    </>
   );
 }

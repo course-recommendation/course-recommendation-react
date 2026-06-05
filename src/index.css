@@ -3,8 +3,9 @@
 @import 'tailwindcss/utilities.css' layer(utilities) important;
 
 @theme {
-  --color-primary: #4f39f5;
+  --color-primary: #4338CA;
   --color-light-gray: #f4f4f6;
+  --font-serif: 'Be Vietnam Pro', sans-serif;
 }
 @layer {
   img {
@@ -19,10 +20,10 @@ body,
 }
 
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Be Vietnam Pro', system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  font-size: 14px;
+  font-size: 16px;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -34,7 +35,29 @@ body,
 
 @media (prefers-color-scheme: light) {
   :root {
-    color: #213547;
-    background-color: #fafafb;
+    color: #1C1917;
+    background-color: #FAF9F7;
+  }
+}
+
+.card-course {
+  box-shadow: 0 1px 4px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04);
+  transition: box-shadow 180ms ease-out, transform 180ms ease-out;
+}
+
+.card-course:hover {
+  box-shadow: 0 4px 20px rgba(67,56,202,.12);
+  transform: scale(1.015);
+}
+
+@keyframes card-enter {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .card-enter {
+    animation: card-enter 300ms ease-out both;
+    animation-delay: calc(var(--card-i, 0) * 40ms);
   }
 }

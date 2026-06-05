@@ -1,14 +1,12 @@
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ActionType, ModalForm, ProFormText, ProTable } from '@ant-design/pro-components';
-import { Button, Input, message, Modal, Space, Typography } from 'antd';
+import { Button, Input, message, Modal, Space } from 'antd';
 import { useRef, useState } from 'react';
 
 import { useAlgorithmContext } from '@/common/context/AlgorithmContext';
 import defaultAxios from '@/common/services/defaultAxios';
 import { SortOrder } from 'antd/es/table/interface';
 import { ImportButton } from './UsersSection';
-
-const { Title } = Typography;
 
 type AdminAttributeRow = {
   id: number;
@@ -120,9 +118,10 @@ export function AttributesSection() {
   return (
     <>
       {contextHolder}
-      <Title level={4}>Thuộc tính</Title>
       <ProTable<AdminAttributeRow>
+        className='rounded-lg border border-gray-200 overflow-hidden'
         actionRef={actionRef}
+        headerTitle='Thuộc tính'
         rowKey='id'
         rowSelection={{ selectedRowKeys: selectedKeys, onChange: setSelectedKeys }}
         search={false}
@@ -199,7 +198,7 @@ export function AttributesSection() {
         title='Thêm thuộc tính'
         open={addOpen}
         onOpenChange={setAddOpen}
-        modalProps={{ destroyOnClose: true }}
+        modalProps={{ destroyOnClose: true, width: 480 }}
         onFinish={async (values) => {
           try {
             await confirmRetrain();
@@ -221,7 +220,7 @@ export function AttributesSection() {
         onOpenChange={(open) => {
           if (!open) setEditRecord(null);
         }}
-        modalProps={{ destroyOnClose: true }}
+        modalProps={{ destroyOnClose: true, width: 480 }}
         initialValues={editRecord ?? undefined}
         onFinish={async (values) => {
           try {

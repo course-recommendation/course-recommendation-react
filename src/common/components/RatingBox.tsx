@@ -36,17 +36,17 @@ export default function RatingBox({
   }
 
   return (
-    <div className='flex gap-2'>
+    <div className='flex gap-1.5'>
       {ratingValues.map((ratingValue) => {
+        const active = isHighlighting(ratingValue);
         return (
           <div
             key={ratingValue}
             className={classNames(
-              'bg-gray-100 text-lg font-semibold rounded-xl w-[40px] aspect-square flex justify-center items-center cursor-pointer',
-              {
-                'bg-primary text-white': isHighlighting(ratingValue),
-                'hover:bg-gray-200': !isHighlighting(ratingValue),
-              },
+              'w-8 h-8 rounded-lg flex justify-center items-center cursor-pointer text-sm font-semibold select-none transition-all duration-150',
+              active
+                ? 'bg-indigo-600 text-white shadow-sm'
+                : 'bg-stone-100 text-gray-500 hover:bg-indigo-100 hover:text-indigo-700',
             )}
             onClick={() => handleClick(ratingValue)}
           >

@@ -6,14 +6,12 @@ import {
   ProFormText,
   ProTable,
 } from '@ant-design/pro-components';
-import { Button, Input, message, Modal, Space, Typography } from 'antd';
+import { Button, Input, message, Modal, Space } from 'antd';
 import { useRef, useState } from 'react';
 
 import defaultAxios from '@/common/services/defaultAxios';
 import { SortOrder } from 'antd/es/table/interface';
 import { ImportButton } from './UsersSection';
-
-const { Title } = Typography;
 
 type AdminRatingRow = {
   id: number;
@@ -113,9 +111,10 @@ export function RatingsSection() {
   return (
     <>
       {contextHolder}
-      <Title level={4}>Đánh giá người dùng</Title>
       <ProTable<AdminRatingRow>
+        className='rounded-lg border border-gray-200 overflow-hidden'
         actionRef={actionRef}
+        headerTitle='Đánh giá người dùng'
         rowKey='id'
         rowSelection={{ selectedRowKeys: selectedKeys, onChange: setSelectedKeys }}
         search={false}
@@ -148,7 +147,7 @@ export function RatingsSection() {
         columns={[
           { title: 'STT', valueType: 'index', width: 60 },
           {
-            title: 'Mã người dùng',
+            title: 'ID người dùng',
             dataIndex: 'userId',
             sorter: true,
             filterDropdown: textFilterDropdown('Tìm mã người dùng'),
@@ -214,7 +213,7 @@ export function RatingsSection() {
         title='Thêm đánh giá'
         open={addOpen}
         onOpenChange={setAddOpen}
-        modalProps={{ destroyOnClose: true }}
+        modalProps={{ destroyOnClose: true, width: 480 }}
         onFinish={async (values) => {
           await defaultAxios.post('/admin/ratings', {
             userId: values.userId,
@@ -228,7 +227,7 @@ export function RatingsSection() {
         }}
       >
         <ProFormText name='userId' label='Mã người dùng' rules={[{ required: true }]} />
-        <ProFormText name='courseId' label='ID khóa học' rules={[{ required: true }]} />
+        <ProFormText name='courseId' label='Mã khóa học' rules={[{ required: true }]} />
         <ProFormText name='attributeId' label='ID thuộc tính' rules={[{ required: true }]} />
         <ProFormDigit name='score' label='Điểm' min={1} max={5} rules={[{ required: true }]} />
       </ModalForm>
@@ -239,7 +238,7 @@ export function RatingsSection() {
         onOpenChange={(open) => {
           if (!open) setEditRecord(null);
         }}
-        modalProps={{ destroyOnClose: true }}
+        modalProps={{ destroyOnClose: true, width: 480 }}
         initialValues={editRecord ? { score: editRecord.score } : undefined}
         onFinish={async (values) => {
           await defaultAxios.put(`/admin/ratings/${editRecord!.id}`, { score: values.score });

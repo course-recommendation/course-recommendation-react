@@ -10,7 +10,7 @@ import {
   UserCourseStatus,
 } from '@/common/types/Course.types';
 import { useStatsigClient } from '@statsig/react-bindings';
-import { Card, Divider, Skeleton } from 'antd';
+import { Skeleton } from 'antd';
 import { useState } from 'react';
 import { Link, useParams } from 'react-router';
 import AttributeRating from './AttributeRating';
@@ -24,9 +24,7 @@ export default function CourseDetailPage() {
 
   const { data: courseDetailResponse, isPending: courseDetailPending } = useGet<CourseDetail>(
     `/courses/${courseCode}/detail`,
-    {
-      params: { algorithm } as GetCourseDetailsRequest,
-    },
+    { params: { algorithm } as GetCourseDetailsRequest },
   );
 
   const [userCourseStatusOverride, setUserCourseStatusOverride] = useState<
@@ -40,99 +38,112 @@ export default function CourseDetailPage() {
 
   const { request: rateCourse } = useRequest<void, RateCourseRequest>();
 
+  if (courseDetailPending || attributeValuesPending) {
+    return <Skeleton active paragraph={{ rows: 10 }} />;
+  }
+
+  const courseDetail = courseDetailResponse!.data;
+  const course = courseDetail.course;
+  const attributes = attributeValuesResponse!.data;
+  const userCourseStatus = isUserCourseStatusOverridden
+    ? userCourseStatusOverride
+    : courseDetail.userCourseStatus;
+
   return (
-    <div>
-      {(() => {
-        if (courseDetailPending || attributeValuesPending) {
-          return <Skeleton />;
-        }
+    <div className='max-w-4xl mx-auto'>
+      <Link
+        to='/courses'
+        className='inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-indigo-700 transition-colors font-medium'
+      >
+        ← Quay về danh sách môn học
+      </Link>
 
-        const courseDetail = courseDetailResponse!.data;
-        const course = courseDetail.course;
-        const attributes = attributeValuesResponse!.data;
-        const userCourseStatus = isUserCourseStatusOverridden
-          ? userCourseStatusOverride
-          : courseDetail.userCourseStatus;
+      <div className='mt-6 flex flex-col gap-4'>
+        {/* Hero image */}
+        <div
+          className='rounded-2xl overflow-hidden'
+          style={{ boxShadow: '0 1px 4px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04)' }}
+        >
+          <img src={course.thumbnailUrl} className='w-full object-cover h-56 md:h-80' />
+        </div>
 
-        return (
-          <div>
-            <Link to={'/courses'} className='font-medium text-base md:text-xl'>
-              ← Quay về danh sách môn học
-            </Link>
-            <div className='my-5 md:my-8'></div>
-            <Card
-              variant={'borderless'}
-              className='shadow overflow-hidden'
-              styles={{ body: { padding: 0 } }}
-            >
-              <img
-                src={course.thumbnailUrl}
-                className='w-full object-cover h-[220px] md:h-[300px]'
-              />
-              <div className='py-5 px-4 md:px-10'>
-                <div className='text-xl md:text-2xl font-bold'>{course.name}</div>
-                <div className='my-3'></div>
-                <div className='text-gray-600 whitespace-pre-line'>{course.description}</div>
-                <div className='my-4'></div>
-                <div className='flex flex-col md:flex-row gap-3'>
-                  <CourseStatusButton
-                    type='plan'
-                    marked={userCourseStatus === UserCourseStatus.PLANNED}
-                    onMarkChange={(marked) => {
-                      if (marked) {
-                        client.logEvent('click_planned', undefined, {
-                          algorithm,
-                          courseCode,
-                          page: 'detail',
-                        });
-                      }
-                      setUserCourseStatusOverride(marked ? UserCourseStatus.PLANNED : undefined);
-                      setIsUserCourseStatusOverridden(true);
-                    }}
-                    courseId={course.id}
-                  />
-                  <CourseStatusButton
-                    type='complete'
-                    marked={userCourseStatus === UserCourseStatus.COMPLETED}
-                    onMarkChange={(marked) => {
-                      setUserCourseStatusOverride(marked ? UserCourseStatus.COMPLETED : undefined);
-                      setIsUserCourseStatusOverridden(true);
-                    }}
-                    courseId={course.id}
-                  />
-                </div>
-                <Divider />
-                <div className='rounded-2xl border-2 border-amber-300 bg-amber-50 px-5 py-4'>
-                  <div className='mt-2 text-xl md:text-2xl font-bold text-amber-900'>
-                    Đánh giá môn học
-                  </div>
-                  <div className='mt-2 text-amber-900/80 font-medium'>
-                    Chia sẻ cảm nhận của bạn để hệ thống gợi ý môn học chính xác hơn cho bạn và
-                    những sinh viên khác.
-                  </div>
-                </div>
-                <div className='my-5'></div>
-                <div>
-                  <AttributeRating
-                    attributes={attributes}
-                    attributeIdToRatingScore={courseDetail.userAttributeIdToRatingScore}
-                    onRatingChange={async (attributeId, score) => {
-                      rateCourse({
-                        method: 'PUT',
-                        url: `/courses/${courseDetail.course.id}/rating`,
-                        data: {
-                          attributeId,
-                          score,
-                        },
-                      });
-                    }}
-                  />
-                </div>
-              </div>
-            </Card>
+        {/* Title + description card */}
+        <div
+          className='bg-white rounded-2xl border border-stone-200 px-7 py-6'
+          style={{ boxShadow: '0 1px 4px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.03)' }}
+        >
+          <h1 className='text-2xl md:text-3xl font-semibold text-[#1C1917] leading-snug'>
+            {course.name}
+          </h1>
+          <p className='mt-3 text-gray-500 text-[15px] leading-[1.7] whitespace-pre-line'>
+            {course.description}
+          </p>
+          <div className='mt-5 pt-4 border-t border-stone-100 flex flex-wrap gap-3'>
+            <CourseStatusButton
+              size='large'
+              type='plan'
+              marked={userCourseStatus === UserCourseStatus.PLANNED}
+              onMarkChange={(marked) => {
+                if (marked) {
+                  client.logEvent('click_planned', undefined, {
+                    algorithm,
+                    courseCode,
+                    page: 'detail',
+                  });
+                }
+                setUserCourseStatusOverride(marked ? UserCourseStatus.PLANNED : undefined);
+                setIsUserCourseStatusOverridden(true);
+              }}
+              courseId={course.id}
+            />
+            <CourseStatusButton
+              size='large'
+              type='complete'
+              marked={userCourseStatus === UserCourseStatus.COMPLETED}
+              onMarkChange={(marked) => {
+                setUserCourseStatusOverride(marked ? UserCourseStatus.COMPLETED : undefined);
+                setIsUserCourseStatusOverridden(true);
+              }}
+              courseId={course.id}
+            />
           </div>
-        );
-      })()}
+        </div>
+
+        {/* Rating section */}
+        <div
+          className='bg-white rounded-2xl border border-stone-200 px-7 py-6'
+          style={{ boxShadow: '0 1px 4px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.03)' }}
+        >
+          <div className='mb-1'>
+            <h2
+              className='text-[24px] font-semibold text-[#1C1917] leading-tight'
+              style={{ fontFamily: 'var(--font-serif)' }}
+            >
+              Đánh giá môn học
+            </h2>
+            <div className='mt-2 w-8 h-[3px] rounded-full bg-indigo-700' />
+          </div>
+
+          <p className='mt-4 text-gray-500 text-[15px] leading-[1.7]'>
+            Chia sẻ cảm nhận của bạn để hệ thống gợi ý môn học chính xác hơn cho bạn và những sinh
+            viên khác.
+          </p>
+
+          <div className='mt-6'>
+            <AttributeRating
+              attributes={attributes}
+              attributeIdToRatingScore={courseDetail.userAttributeIdToRatingScore}
+              onRatingChange={async (attributeId, score) => {
+                rateCourse({
+                  method: 'PUT',
+                  url: `/courses/${courseDetail.course.id}/rating`,
+                  data: { attributeId, score },
+                });
+              }}
+            />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

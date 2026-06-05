@@ -16,17 +16,48 @@ import {
   TriRankRecommendationRequest,
   TriRankRecommendationResult,
 } from '@/common/types/TriRank.types';
-import { QuestionOutlined } from '@ant-design/icons';
+import { scoreColor, scoreTrail } from '@/common/utils/scoreColor';
 import { useStatsigClient } from '@statsig/react-bindings';
-import { Button, Empty, Modal, Progress, Skeleton, Spin, Tag, Typography } from 'antd';
+import { Button, Empty, Progress, Skeleton, Spin, Tag } from 'antd';
+import useApp from 'antd/es/app/useApp';
 import { useForm } from 'antd/es/form/Form';
 import { useEffect, useState } from 'react';
 import RecommendationSettingsForm from '../components/RecommendationSettingsForm';
 import RecommendationSettingsSidebar from '../components/RecommendationSettingsSidebar';
 
+function RankBadge({ rank }: { rank: number }) {
+  if (rank === 1) {
+    return (
+      <span className='inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-500 text-white text-xs font-bold tracking-wide shadow-sm'>
+        TOP 1
+      </span>
+    );
+  }
+  if (rank === 2) {
+    return (
+      <span className='inline-flex items-center gap-1 px-3 py-1 rounded-full bg-slate-500 text-white text-xs font-bold tracking-wide shadow-sm'>
+        TOP 2
+      </span>
+    );
+  }
+  if (rank === 3) {
+    return (
+      <span className='inline-flex items-center gap-1 px-3 py-1 rounded-full bg-orange-500 text-white text-xs font-bold tracking-wide shadow-sm'>
+        TOP 3
+      </span>
+    );
+  }
+  return (
+    <span className='inline-flex items-center px-2.5 py-1 rounded-full bg-stone-400 text-white text-xs font-semibold shadow-sm'>
+      #{rank}
+    </span>
+  );
+}
+
 export default function TriRankRecommendation() {
   const { client } = useStatsigClient();
   const algorithm = useAlgorithmContext();
+  const { modal } = useApp();
 
   const [form] = useForm<RecommendationSettingsFormType>();
   const [settingsDrawerOpen, setSettingsDrawerOpen] = useState(false);
@@ -86,7 +117,6 @@ export default function TriRankRecommendation() {
     if (courseCode in courseStatusOverrides) {
       return courseStatusOverrides[courseCode];
     }
-
     return fallbackUserCourseStatus;
   };
 
@@ -153,8 +183,8 @@ export default function TriRankRecommendation() {
   );
 
   return (
-    <div className='flex flex-col md:flex-row md:items-center h-full'>
-      <div className='w-full h-full flex flex-col md:flex-row gap-4 md:gap-8'>
+    <div className='flex flex-col md:flex-row md:items-center md:h-full'>
+      <div className='w-full flex flex-col md:flex-row md:h-full gap-4 md:gap-8'>
         <RecommendationSettingsSidebar
           settingsForm={settingsForm}
           recommendButton={recommendButton}
@@ -162,192 +192,175 @@ export default function TriRankRecommendation() {
           setSettingsDrawerOpen={setSettingsDrawerOpen}
         />
 
-        <div className='h-full flex flex-col overflow-hidden w-full'>
-          <div className='font-bold text-2xl md:text-[26px] shrink-0'>Gợi ý môn học</div>
-          <div className='my-3 shrink-0'></div>
-          <div className='flex-1 min-h-0'>
+        <div className='flex flex-col md:h-full md:overflow-hidden w-full'>
+          {/* Section heading */}
+          <div className='shrink-0'>
+            <div
+              className='font-bold text-[28px] text-[#1C1917] leading-tight'
+              style={{ fontFamily: 'var(--font-serif)' }}
+            >
+              Gợi ý môn học
+            </div>
+            <div className='mt-2 w-8 h-[3px] rounded-full bg-indigo-700'></div>
+          </div>
+
+          <div className='my-4 shrink-0'></div>
+
+          <div className='md:flex-1 md:min-h-0'>
             {(() => {
               if (latestTriRankRecommendationResultPending) {
-                return <Skeleton />;
+                return <Skeleton active paragraph={{ rows: 6 }} />;
               }
 
               if (!recommendationResult) {
                 return (
-                  <div className='flex flex-col h-ful'>
-                    <Spin spinning={getTriRankRecommendationPending} className='h-full'>
-                      <div className='flex items-center justify-center h-full'>
-                        <Empty description='Chưa có kết quả gợi ý nào' />
-                      </div>
-                    </Spin>
-                  </div>
+                  <Spin spinning={getTriRankRecommendationPending} className='h-full'>
+                    <div className='flex items-center justify-center h-48'>
+                      <Empty description='Chưa có kết quả gợi ý nào' />
+                    </div>
+                  </Spin>
                 );
               }
 
               return (
-                <div className='h-full overflow-y-auto overscroll-none'>
+                <div className='md:h-full md:overflow-y-auto overscroll-none'>
                   <Spin
                     spinning={
                       getTriRankRecommendationPending || refetchingLatestTriRankRecommendationResult
                     }
                   >
-                    <div className='flex flex-col gap-5'>
+                    {/* AI badge above list */}
+                    <div className='flex items-center justify-between mb-5'>
+                      <span className='text-sm font-medium text-gray-700'>
+                        {recommendationResult.courseDetails.length} môn học được gợi ý
+                      </span>
+                      {/* <span className='inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#EDE9FE] text-[#7C3AED] text-xs font-semibold tracking-wide'>
+                        ✦ AI-powered
+                      </span> */}
+                    </div>
+
+                    <div className='flex flex-col gap-4'>
                       {recommendationResult.courseDetails.map((courseDetail, index) => {
                         const rank = index + 1;
-                        const isTopRank = rank <= 3;
-                        let rankTagColor: 'gold' | 'geekblue' | 'volcano' | 'blue' = 'blue';
-                        if (rank === 1) {
-                          rankTagColor = 'gold';
-                        } else if (rank === 2) {
-                          rankTagColor = 'geekblue';
-                        } else if (rank === 3) {
-                          rankTagColor = 'volcano';
-                        }
 
                         return (
                           <RecommendedCourseCard
                             key={courseDetail.course.code}
                             courseDetail={courseDetail}
+                            index={index}
+                            explanationScores={(
+                              recommendationResult.itemIdToItemAspects[courseDetail.course.code] ??
+                              []
+                            ).map((a) => ({ label: a.aspect, score: a.score }))}
+                            onSeeFullExplanation={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+
+                              client.logEvent('view_explanation', undefined, {
+                                algorithm,
+                                courseCode: courseDetail.course.code,
+                                rank: String(rank),
+                              });
+
+                              const sortedItemAspects = (
+                                recommendationResult.itemIdToItemAspects[
+                                  courseDetail.course.code
+                                ] ?? []
+                              ).sort((a, b) =>
+                                a.aspect.localeCompare(b.aspect, 'vi', { sensitivity: 'base' }),
+                              );
+
+                              modal.info({
+                                title: (
+                                  <div className='text-xl font-semibold'>Điểm số các tiêu chí</div>
+                                ),
+                                content: (
+                                  <div className='space-y-3'>
+                                    <div className='text-gray-600 text-[15px] leading-[1.7]'>
+                                      Điểm cảm nhận trung bình của sinh viên cho từng tiêu chí.
+                                      Thang điểm từ 1 đến 5.
+                                    </div>
+                                    {sortedItemAspects.map((itemAspect) => (
+                                      <div key={itemAspect.aspect}>
+                                        <div className='flex justify-between items-center mb-1'>
+                                          <span className='text-sm text-gray-700 font-medium'>
+                                            {itemAspect.aspect}
+                                          </span>
+                                          <span
+                                            className='inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold'
+                                            style={{
+                                              background: scoreTrail(itemAspect.score),
+                                              color: scoreColor(itemAspect.score),
+                                            }}
+                                          >
+                                            {itemAspect.score.toFixed(2)} / 5
+                                          </span>
+                                        </div>
+                                        <Progress
+                                          showInfo={false}
+                                          percent={(itemAspect.score / 5) * 100}
+                                          strokeLinecap='round'
+                                          strokeColor={scoreColor(itemAspect.score)}
+                                          trailColor={scoreTrail(itemAspect.score)}
+                                        />
+                                      </div>
+                                    ))}
+                                  </div>
+                                ),
+                                okText: 'Đóng',
+                                maskClosable: true,
+                              });
+                            }}
                             onClick={() => {
                               client.logEvent('see_course_detail', undefined, {
                                 algorithm,
                                 courseCode: courseDetail.course.code,
+                                rank: String(rank),
                               });
                             }}
-                            topLeftBadge={
-                              <Tag
-                                variant={isTopRank ? 'solid' : 'outlined'}
-                                color={rankTagColor}
-                                className='mr-0 rounded-full px-2 font-semibold'
-                              >
-                                {isTopRank ? `TOP ${rank}` : `#${rank}`}
-                              </Tag>
-                            }
+                            topLeftBadge={<RankBadge rank={rank} />}
                             topRightBadge={
                               getEffectiveUserCourseStatus(
                                 courseDetail.course.code,
                                 courseDetail.userCourseStatus,
                               ) === UserCourseStatus.COMPLETED ? (
-                                <Tag variant='solid' color={'green'}>
+                                <Tag variant='solid' color='green'>
                                   Đã hoàn thành
                                 </Tag>
                               ) : undefined
                             }
                             extra={
-                              <div className='w-full'>
-                                <CourseStatusButton
-                                  type={'plan'}
-                                  className='w-full'
-                                  marked={
-                                    getEffectiveUserCourseStatus(
-                                      courseDetail.course.code,
-                                      courseDetail.userCourseStatus,
-                                    ) === UserCourseStatus.PLANNED
-                                  }
-                                  courseId={courseDetail.course.id}
-                                  onMarkChange={(marked) => {
-                                    if (marked) {
-                                      client.logEvent('click_planned', undefined, {
-                                        algorithm,
-                                        courseCode: courseDetail.course.code,
-                                        page: 'recommendation',
-                                      });
-                                    }
-
-                                    setCourseStatusOverrides((prev) => ({
-                                      ...prev,
-                                      [courseDetail.course.code]: marked
-                                        ? UserCourseStatus.PLANNED
-                                        : undefined,
-                                    }));
-                                  }}
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                  }}
-                                />
-                                <div className='my-2'></div>
-                                <Button
-                                  color='primary'
-                                  variant='outlined'
-                                  icon={<QuestionOutlined />}
-                                  className='w-full'
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-
-                                    client.logEvent('view_explanation', undefined, {
+                              <CourseStatusButton
+                                type='plan'
+                                className='w-full'
+                                marked={
+                                  getEffectiveUserCourseStatus(
+                                    courseDetail.course.code,
+                                    courseDetail.userCourseStatus,
+                                  ) === UserCourseStatus.PLANNED
+                                }
+                                courseId={courseDetail.course.id}
+                                onMarkChange={(marked) => {
+                                  if (marked) {
+                                    client.logEvent('click_planned', undefined, {
                                       algorithm,
                                       courseCode: courseDetail.course.code,
+                                      page: 'recommendation',
+                                      rank: String(rank),
                                     });
-
-                                    const sortedItemAspects =
-                                      recommendationResult.itemIdToItemAspects[
-                                        courseDetail.course.code
-                                      ].sort((a, b) =>
-                                        a.aspect.localeCompare(b.aspect, 'vi', {
-                                          sensitivity: 'base',
-                                        }),
-                                      );
-
-                                    Modal.info({
-                                      title: (
-                                        <div className='text-xl font-semibold'>
-                                          Giải thích gợi ý môn học
-                                        </div>
-                                      ),
-                                      content: (
-                                        <div className='space-y-4'>
-                                          <div className='rounded-lg border border-blue-100 bg-blue-50 p-3'>
-                                            <Typography.Text className='block font-medium text-blue-700'>
-                                              Cách đọc kết quả
-                                            </Typography.Text>
-                                            <Typography.Text className='text-gray-700'>
-                                              Mỗi tiêu chí bên dưới thể hiện mức độ ảnh hưởng đến
-                                              gợi ý môn học này.
-                                            </Typography.Text>
-                                            <Typography.Text className='mt-1 block text-xs text-gray-500'>
-                                              Thang điểm: 1 (thấp) → 5 (cao).
-                                            </Typography.Text>
-                                          </div>
-                                          <div className='space-y-3'>
-                                            {sortedItemAspects.map((itemAspect) => {
-                                              return (
-                                                <div
-                                                  key={itemAspect.aspect}
-                                                  className='rounded-lg border border-gray-100 bg-white p-3 shadow-sm'
-                                                >
-                                                  <div className='mb-2 flex items-center justify-between gap-2'>
-                                                    <Typography.Text className='font-medium text-gray-800'>
-                                                      {itemAspect.aspect}
-                                                    </Typography.Text>
-                                                    <Tag
-                                                      className='mr-0 rounded-full px-2'
-                                                      color='blue'
-                                                    >
-                                                      {itemAspect.score.toFixed(2)} / 5
-                                                    </Tag>
-                                                  </div>
-                                                  <Progress
-                                                    showInfo={false}
-                                                    percent={(itemAspect.score / 5) * 100}
-                                                    strokeLinecap='round'
-                                                    strokeColor={'#1677ff'}
-                                                    // trailColor='#f0f5ff'
-                                                  />
-                                                </div>
-                                              );
-                                            })}
-                                          </div>
-                                        </div>
-                                      ),
-                                      okText: 'Đóng',
-                                      maskClosable: true,
-                                    });
-                                  }}
-                                >
-                                  Giải thích
-                                </Button>
-                              </div>
+                                  }
+                                  setCourseStatusOverrides((prev) => ({
+                                    ...prev,
+                                    [courseDetail.course.code]: marked
+                                      ? UserCourseStatus.PLANNED
+                                      : undefined,
+                                  }));
+                                }}
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                }}
+                              />
                             }
                           />
                         );

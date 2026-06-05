@@ -1,0 +1,1 @@
+- Always read docs/design-brief.md before making any UI changes.

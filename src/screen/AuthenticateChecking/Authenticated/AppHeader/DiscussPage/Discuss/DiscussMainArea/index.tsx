@@ -1,6 +1,5 @@
-import useGet from '@/common/hooks/network/useGet';
 import { Algorithm } from '@/common/types/Course.types';
-import { FindPostDetailsRequest, PostDetail } from '@/common/types/Discuss.types';
+import { PostDetail } from '@/common/types/Discuss.types';
 import { Empty, Skeleton } from 'antd';
 import { ReactNode } from 'react';
 import CreatePostCard from './CreatePostCard';
@@ -8,26 +7,19 @@ import PostCard from './PostCard';
 
 type Props = {
   algorithm: Algorithm;
-  courseIds: string[];
+  postDetails: PostDetail[] | undefined;
+  postDetailsPending: boolean;
+  refetchPosts: () => Promise<unknown>;
   filterSection?: ReactNode;
 };
 
-export default function DiscussMainArea({ algorithm, courseIds, filterSection }: Props) {
-  const {
-    data: postDetailsResponse,
-    isPending: postDetailsPending,
-    refetch: refetchPosts,
-  } = useGet<PostDetail[]>(`/posts`, {
-    params: {
-      sort: ['createdAt,desc'],
-      algorithm,
-      courseIdsRequest: {
-        fetchAll: courseIds.length === 0,
-        data: courseIds,
-      },
-    } as FindPostDetailsRequest,
-  });
-
+export default function DiscussMainArea({
+  algorithm,
+  postDetails,
+  postDetailsPending,
+  refetchPosts,
+  filterSection,
+}: Props) {
   return (
     <div className='space-y-4 md:space-y-6'>
       <CreatePostCard
@@ -43,17 +35,15 @@ export default function DiscussMainArea({ algorithm, courseIds, filterSection }:
             return <Skeleton active />;
           }
 
-          const postDetails = postDetailsResponse!.data;
-
-          if (postDetails.length === 0) {
+          if (!postDetails || postDetails.length === 0) {
             return <Empty description='Hiện chưa có bài viết nào về môn học này' />;
           }
 
           return (
             <div className='flex flex-col gap-4 md:gap-5'>
-              {postDetails.map((postDetail) => {
-                return <PostCard key={postDetail.post.id} postDetail={postDetail} />;
-              })}
+              {postDetails.map((postDetail) => (
+                <PostCard key={postDetail.post.id} postDetail={postDetail} />
+              ))}
             </div>
           );
         })()}

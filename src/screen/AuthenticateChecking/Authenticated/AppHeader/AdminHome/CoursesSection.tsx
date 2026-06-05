@@ -1,14 +1,12 @@
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ActionType, ModalForm, ProFormText, ProTable } from '@ant-design/pro-components';
-import { Button, Input, message, Modal, Space, Typography } from 'antd';
+import { Button, Input, message, Modal, Space } from 'antd';
 import { useRef, useState } from 'react';
 
 import defaultAxios from '@/common/services/defaultAxios';
 import { useAlgorithmContext } from '@/common/context/AlgorithmContext';
 import { SortOrder } from 'antd/es/table/interface';
 import { ImportButton } from './UsersSection';
-
-const { Title } = Typography;
 
 type AdminCourseRow = {
   id: number;
@@ -123,9 +121,10 @@ export function CoursesSection() {
   return (
     <>
       {contextHolder}
-      <Title level={4}>Khóa học</Title>
       <ProTable<AdminCourseRow>
+        className='rounded-lg border border-gray-200 overflow-hidden'
         actionRef={actionRef}
+        headerTitle='Khóa học'
         rowKey='id'
         rowSelection={{ selectedRowKeys: selectedKeys, onChange: setSelectedKeys }}
         search={false}
@@ -156,7 +155,7 @@ export function CoursesSection() {
         columns={[
           { title: 'STT', valueType: 'index', width: 60 },
           {
-            title: 'Mã',
+            title: 'ID',
             dataIndex: 'code',
             sorter: true,
             filterDropdown: textFilterDropdown('Tìm mã khóa học'),
@@ -228,7 +227,7 @@ export function CoursesSection() {
         title='Thêm khóa học'
         open={addOpen}
         onOpenChange={setAddOpen}
-        modalProps={{ destroyOnClose: true }}
+        modalProps={{ destroyOnClose: true, width: 480 }}
         onFinish={async (values) => {
           try {
             await confirmRetrain();
@@ -253,7 +252,7 @@ export function CoursesSection() {
         onOpenChange={(open) => {
           if (!open) setEditRecord(null);
         }}
-        modalProps={{ destroyOnClose: true }}
+        modalProps={{ destroyOnClose: true, width: 480 }}
         initialValues={editRecord ?? undefined}
         onFinish={async (values) => {
           await defaultAxios.put(`/admin/courses/${editRecord!.id}`, { ...values, algorithm });

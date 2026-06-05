@@ -22,10 +22,10 @@ export default function PostCommentInput({ onComment }: Props) {
 
   return (
     <div className='flex gap-2 items-center'>
-      <Avatar src={me.avatarUrl} size={{ xs: 32, sm: 36, md: 40 }} className='shrink-0' />
+      <Avatar src={me.avatarUrl} size={32} className='shrink-0' />
       <div className='relative w-full'>
         <Input.TextArea
-          className='w-full rounded-2xl border-slate-200 bg-slate-50/90 pr-12'
+          className='w-full rounded-2xl border-slate-200 bg-slate-50/90 pr-10'
           autoSize={{ minRows: 1, maxRows: 6 }}
           placeholder='Bình luận...'
           value={text}
@@ -40,10 +40,10 @@ export default function PostCommentInput({ onComment }: Props) {
 
         <Button
           type='text'
-          icon={<SendOutlined className='text-sm md:text-base' />}
+          icon={<SendOutlined className='text-sm' />}
           disabled={!text.trim()}
           onClick={handleSubmit}
-          className='absolute bottom-0.5 right-1 flex h-8 w-8 items-center justify-center rounded-full text-indigo-500 enabled:hover:bg-indigo-50 enabled:hover:text-indigo-600 md:right-2'
+          className='absolute bottom-0.5 right-1 flex h-7 w-7 items-center justify-center rounded-full text-indigo-500 enabled:hover:bg-indigo-50 enabled:hover:text-indigo-600'
         />
       </div>
     </div>

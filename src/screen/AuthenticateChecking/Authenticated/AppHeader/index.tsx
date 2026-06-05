@@ -119,7 +119,10 @@ export default function AppHeader() {
 
   return (
     <Layout style={{ height: '100vh' }}>
-      <Header className='bg-white shadow z-10 sticky top-0 px-4 md:px-20'>
+      <Header
+        className='bg-[#FAF9F7] border-b border-stone-200 z-10 sticky top-0 px-4 md:px-20'
+        style={{ boxShadow: 'none' }}
+      >
         <div className='flex items-center justify-between h-full'>
           <div className='flex items-center'>
             <Button
@@ -138,9 +141,13 @@ export default function AppHeader() {
             </Link>
             {!isDoingSurvey && (
               <div className='hidden md:flex ml-8'>
-                <div className='w-[450px]'>
-                  <Menu mode='horizontal' items={headerMenuItems} selectedKeys={[selectedKey]} />
-                </div>
+                <Menu
+                  mode='horizontal'
+                  items={headerMenuItems}
+                  selectedKeys={[selectedKey]}
+                  style={{ background: 'transparent' }}
+                  disabledOverflow
+                />
               </div>
             )}
           </div>

@@ -1,11 +1,9 @@
-import { Button, message, Typography } from 'antd';
+import { Button, Card, message, Typography } from 'antd';
 import { useState } from 'react';
 
 import { useAlgorithmContext } from '@/common/context/AlgorithmContext';
 import defaultAxios from '@/common/services/defaultAxios';
 import { Algorithm } from '@/common/types/Course.types';
-
-const { Title } = Typography;
 
 export function RetrainSection() {
   const algorithm = useAlgorithmContext();
@@ -16,9 +14,9 @@ export function RetrainSection() {
     setFsLoading(true);
     try {
       await defaultAxios.post('/admin/fs/train');
-      message.success('Huấn luyện FS thành công');
+      message.success('Huấn luyện thành công');
     } catch {
-      message.error('Huấn luyện FS thất bại');
+      message.error('Huấn luyện thất bại');
     } finally {
       setFsLoading(false);
     }
@@ -28,32 +26,39 @@ export function RetrainSection() {
     setTriRankLoading(true);
     try {
       await defaultAxios.post('/admin/trirank/train');
-      message.success('Huấn luyện TriRank thành công');
+      message.success('Huấn luyện thành công');
     } catch {
-      message.error('Huấn luyện TriRank thất bại');
+      message.error('Huấn luyện thất bại');
     } finally {
       setTriRankLoading(false);
     }
   };
 
   return (
-    <>
-      <Title level={4}>Huấn luyện mô hình</Title>
-      <Button
-        type='primary'
-        size='large'
-        loading={fsLoading || triRankLoading}
-        onClick={() => {
-          if (algorithm === Algorithm.FS) {
-            handleTrainFs();
-          }
-          if (algorithm === Algorithm.TRI_RANK) {
-            handleTrainTriRank();
-          }
-        }}
-      >
-        Huấn luyện lại hệ thống gợi ý
-      </Button>
-    </>
+    <Card title='Huấn luyện mô hình'>
+      <div className='flex flex-col gap-3'>
+        <Typography.Text type='secondary'>
+          Nếu không kích hoạt thủ công, hệ thống sẽ tự động huấn luyện lại mô hình vào lúc{' '}
+          <Typography.Text strong>00:00 mỗi ngày</Typography.Text>.
+        </Typography.Text>
+        <div>
+          <Button
+            type='primary'
+            size='large'
+            loading={fsLoading || triRankLoading}
+            onClick={() => {
+              if (algorithm === Algorithm.FS) {
+                handleTrainFs();
+              }
+              if (algorithm === Algorithm.TRI_RANK) {
+                handleTrainTriRank();
+              }
+            }}
+          >
+            Huấn luyện lại hệ thống gợi ý
+          </Button>
+        </div>
+      </div>
+    </Card>
   );
 }

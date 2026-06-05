@@ -19,6 +19,7 @@ export type Post = {
   userId: string;
   courseId: string;
   content: string;
+  createdAt?: string;
 };
 
 export type PostComment = {

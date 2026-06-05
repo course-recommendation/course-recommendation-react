@@ -14,26 +14,278 @@ import {
   UserCourseStatus,
 } from '@/common/types/Course.types';
 import {
+  FSCategoryDetail,
   FsItemSentiment,
   FSRecommendationRequest,
   FSRecommendationResult,
   FSRefinedRecommendationRequest,
+  FSTradeoffPair,
   isDirectionUp,
 } from '@/common/types/FS.types';
 import { RecommendationSettingsFormType } from '@/common/types/TriRank.types';
-import {
-  ArrowUpOutlined,
-  ExclamationCircleOutlined,
-  QuestionOutlined,
-  StarFilled,
-} from '@ant-design/icons';
+import { scoreColor, scoreTrail } from '@/common/utils/scoreColor';
+import { ArrowUpOutlined, QuestionOutlined, StarFilled } from '@ant-design/icons';
 import { useStatsigClient } from '@statsig/react-bindings';
-import { Button, Card, Empty, Modal, Skeleton, Space, Spin, Table, Tag, Typography } from 'antd';
+import { Button, Empty, Progress, Skeleton, Space, Spin, Tag, Typography } from 'antd';
 import useApp from 'antd/es/app/useApp';
 import { useForm } from 'antd/es/form/Form';
-import { useEffect, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import RecommendationSettingsForm from '../components/RecommendationSettingsForm';
 import RecommendationSettingsSidebar from '../components/RecommendationSettingsSidebar';
+
+const CARD_SHADOW = '0 1px 4px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04)';
+const PAGE_SIZE = 5;
+
+type CategorySectionProps = {
+  categoryDetail: FSCategoryDetail;
+  catIdx: number;
+  visibleCount: number;
+  onShowMore: (catIdx: number) => void;
+  itemIdToItemSentiments: Record<string, FsItemSentiment[]>;
+  courseStatusOverrides: Record<string, UserCourseStatus | undefined>;
+  onCourseStatusChange: (courseCode: string, status: UserCourseStatus | undefined) => void;
+  onRefinedRecommendation: (itemId: string, category: FSTradeoffPair[]) => Promise<void>;
+  onScrollToTop: () => void;
+  rankOffset: number;
+};
+
+const CategorySection = memo(function CategorySection({
+  categoryDetail,
+  catIdx,
+  visibleCount,
+  onShowMore,
+  itemIdToItemSentiments,
+  courseStatusOverrides,
+  onCourseStatusChange,
+  onRefinedRecommendation,
+  onScrollToTop,
+  rankOffset,
+}: CategorySectionProps) {
+  const { client } = useStatsigClient();
+  const algorithm = useAlgorithmContext();
+  const { modal } = useApp();
+
+  const getExplanationScores = (courseCode: string) =>
+    (itemIdToItemSentiments[courseCode] ?? []).map((s) => ({
+      label: s.attribute,
+      score: s.sentimentScore,
+    }));
+
+  const openFsExplanationModal =
+    (courseDetail: CourseDetail, rank: number) => (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      client.logEvent('view_course_explanation', undefined, {
+        algorithm,
+        courseCode: courseDetail.course.code,
+        rank: String(rank),
+      });
+
+      const sentiments = itemIdToItemSentiments[courseDetail.course.code] ?? [];
+
+      modal.info({
+        title: <div className='text-xl font-semibold'>Điểm số các tiêu chí</div>,
+        content: (
+          <div className='space-y-3'>
+            <div className='text-gray-600 text-[15px] leading-[1.7]'>
+              Điểm cảm nhận trung bình của sinh viên cho từng tiêu chí. Thang điểm từ 1 đến 5.
+            </div>
+            {sentiments.map((s) => (
+              <div key={s.attribute}>
+                <div className='flex justify-between items-center mb-1'>
+                  <span className='text-sm text-gray-700 font-medium'>{s.attribute}</span>
+                  <span
+                    className='inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold'
+                    style={{
+                      background: scoreTrail(s.sentimentScore),
+                      color: scoreColor(s.sentimentScore),
+                    }}
+                  >
+                    {s.sentimentScore.toFixed(2)} / 5
+                  </span>
+                </div>
+                <Progress
+                  showInfo={false}
+                  percent={(s.sentimentScore / 5) * 100}
+                  strokeLinecap='round'
+                  strokeColor={scoreColor(s.sentimentScore)}
+                  trailColor={scoreTrail(s.sentimentScore)}
+                />
+              </div>
+            ))}
+          </div>
+        ),
+        maskClosable: true,
+        okText: 'Đóng',
+      });
+    };
+
+  const getEffectiveStatus = (courseDetail: CourseDetail) => {
+    if (courseDetail.course.code in courseStatusOverrides) {
+      return courseStatusOverrides[courseDetail.course.code];
+    }
+    return courseDetail.userCourseStatus;
+  };
+
+  return (
+    <div className='rounded-xl bg-white border border-stone-200' style={{ boxShadow: CARD_SHADOW }}>
+      {/* Sticky category header — note: no overflow-hidden on parent so sticky works */}
+      <div className='sticky top-0 z-20 rounded-t-xl bg-violet-50 border-b border-violet-200 px-6 py-4'>
+        <Typography.Text strong className='text-[16px] m-0 flex items-center gap-3'>
+          <span className='inline-block w-1.5 h-6 rounded-full bg-indigo-600 shrink-0'></span>
+          <span>
+            {categoryDetail.category.map((tradeoffPair, idx) => {
+              const isUp = isDirectionUp(tradeoffPair.direction);
+              return (
+                <span key={`${tradeoffPair.attribute}-${tradeoffPair.direction}`}>
+                  {idx > 0 && ', '}
+                  {isUp ? (
+                    <TrendingUp className='inline mr-1.5 text-emerald-600' />
+                  ) : (
+                    <TrendingDown className='inline mr-1.5 text-red-500' />
+                  )}
+                  <span className='text-indigo-700'>{tradeoffPair.attribute}</span>
+                  {` ${isUp ? 'tốt hơn' : 'tệ hơn'}`}
+                </span>
+              );
+            })}
+            <span className='text-gray-400 font-normal text-sm ml-2'>
+              ({categoryDetail.courseDetails.length} môn)
+            </span>
+          </span>
+        </Typography.Text>
+      </div>
+
+      {/* Course cards grid */}
+      <div className='flex flex-col gap-3 px-6 py-5'>
+        {categoryDetail.courseDetails.slice(0, visibleCount).map((courseDetail, courseIdx) => {
+          const rank = rankOffset + courseIdx;
+          return (
+            <RecommendedCourseCard
+              key={courseDetail.course.code}
+              courseDetail={courseDetail}
+              index={catIdx * 10 + courseIdx + 1}
+              explanationScores={getExplanationScores(courseDetail.course.code)}
+              onSeeFullExplanation={openFsExplanationModal(courseDetail, rank)}
+              onClick={() => {
+                client.logEvent('see_course_detail', undefined, {
+                  algorithm,
+                  courseCode: courseDetail.course.code,
+                  rank: String(rank),
+                });
+              }}
+              topRightBadge={
+                getEffectiveStatus(courseDetail) === UserCourseStatus.COMPLETED ? (
+                  <Tag variant='solid' color='green'>
+                    Đã hoàn thành
+                  </Tag>
+                ) : undefined
+              }
+              extra={
+                <div className='w-full flex gap-2'>
+                  <CourseStatusButton
+                    type='plan'
+                    className='w-full'
+                    marked={getEffectiveStatus(courseDetail) === UserCourseStatus.PLANNED}
+                    courseId={courseDetail.course.id}
+                    onMarkChange={(marked) => {
+                      if (marked) {
+                        client.logEvent('click_planned', undefined, {
+                          algorithm,
+                          courseCode: courseDetail.course.code,
+                          page: 'recommendation',
+                          rank: String(rank),
+                        });
+                      }
+                      onCourseStatusChange(
+                        courseDetail.course.code,
+                        marked ? UserCourseStatus.PLANNED : undefined,
+                      );
+                    }}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                  />
+                  <div className='my-2'></div>
+                  <Space.Compact className='w-full'>
+                    <Button
+                      icon={<ArrowUpOutlined />}
+                      color='primary'
+                      variant='outlined'
+                      className='w-full'
+                      onClick={async (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        client.logEvent('get_refined_recommendation', undefined, {
+                          algorithm,
+                          courseCode: courseDetail.course.code,
+                          rank: String(rank),
+                        });
+
+                        await onRefinedRecommendation(
+                          courseDetail.course.code,
+                          categoryDetail.category,
+                        );
+
+                        onScrollToTop();
+                      }}
+                    >
+                      Tương tự
+                    </Button>
+                    <Button
+                      color='primary'
+                      variant='outlined'
+                      icon={<QuestionOutlined />}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        modal.info({
+                          title: (
+                            <div className='text-xl font-semibold'>
+                              Gợi ý tương tự hoạt động thế nào?
+                            </div>
+                          ),
+                          content: (
+                            <div className='space-y-3'>
+                              <div className='text-gray-600 text-[15px] leading-[1.7]'>
+                                Khi chọn nút Tương tự, hệ thống sẽ ưu tiên tìm các môn học gần các
+                                môn trong nhóm gợi ý bạn đang xem.
+                              </div>
+                              <div className='rounded-lg border border-indigo-100 bg-indigo-50 px-3 py-2 text-gray-700'>
+                                <div className='font-semibold text-indigo-700 mb-1'>Mẹo</div>
+                                <div>
+                                  Dùng tính năng này khi bạn thích môn đang xem và muốn khám phá các
+                                  lựa chọn có trải nghiệm gần giống.
+                                </div>
+                              </div>
+                              <div className='rounded-lg border border-stone-200 bg-stone-50 px-3 py-2 text-gray-600'>
+                                Kết quả mới sẽ thay thế danh sách hiện tại để bạn tập trung vào nhóm
+                                môn học liên quan nhất.
+                              </div>
+                            </div>
+                          ),
+                          okText: 'Đã hiểu',
+                        });
+                      }}
+                    ></Button>
+                  </Space.Compact>
+                </div>
+              }
+            />
+          );
+        })}
+        {visibleCount < categoryDetail.courseDetails.length && (
+          <Button type='text' className='w-full text-indigo-700' onClick={() => onShowMore(catIdx)}>
+            Xem thêm ({Math.min(PAGE_SIZE, categoryDetail.courseDetails.length - visibleCount)} môn
+            nữa)
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+});
 
 export default function FSRecommendation() {
   const { client } = useStatsigClient();
@@ -82,12 +334,22 @@ export default function FSRecommendation() {
   const { request: getRefinedFSRecommendation, isPending: getRefinedFSRecommendationPending } =
     useRequest<FSRecommendationResult, FSRefinedRecommendationRequest>();
 
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  const scrollToTop = useCallback(() => {
+    scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
   const [recommendationResult, setRecommendationResult] = useState<
     FSRecommendationResult | undefined
   >(undefined);
   const [courseStatusOverrides, setCourseStatusOverrides] = useState<
     Record<string, UserCourseStatus | undefined>
   >({});
+  const [categoryVisibleCount, setCategoryVisibleCount] = useState<Record<number, number>>({});
+
+  const getVisibleCount = (catIdx: number) => categoryVisibleCount[catIdx] ?? PAGE_SIZE;
 
   useEffect(() => {
     if (!latestFSRecommendationResultPending) {
@@ -96,12 +358,8 @@ export default function FSRecommendation() {
     }
   }, [latestFSRecommendationResultPending, latestFSRecommendationResultResponse]);
 
-  const [openPlanningCoursesModal, setOpenPlanningCoursesModal] = useState(false);
-  const [openCompletedCoursesModal, setOpenCompletedCoursesModal] = useState(false);
-
   const handleGetRecommendation = async () => {
     client.logEvent('get_recommendation', undefined, { algorithm });
-
     setSettingsDrawerOpen(false);
 
     const formValues = await form.validateFields();
@@ -126,6 +384,36 @@ export default function FSRecommendation() {
     setRecommendationResult(result);
   };
 
+  const handleShowMore = useCallback((catIdx: number) => {
+    setCategoryVisibleCount((prev) => ({
+      ...prev,
+      [catIdx]: (prev[catIdx] ?? PAGE_SIZE) + PAGE_SIZE,
+    }));
+  }, []);
+
+  const handleCourseStatusChange = useCallback(
+    (courseCode: string, status: UserCourseStatus | undefined) => {
+      setCourseStatusOverrides((prev) => ({ ...prev, [courseCode]: status }));
+    },
+    [],
+  );
+
+  const handleRefinedRecommendation = async (itemId: string, category: FSTradeoffPair[]) => {
+    const result = (
+      await getRefinedFSRecommendation({
+        url: '/fs/recommendation/refined',
+        method: 'post',
+        data: {
+          recommendationId: recommendationResult!.id,
+          itemId,
+          category,
+        },
+      })
+    ).data;
+
+    setRecommendationResult(result);
+  };
+
   const recommendButton = (
     <Button
       className='w-full'
@@ -137,80 +425,69 @@ export default function FSRecommendation() {
     </Button>
   );
 
-  const getCourseNameComponent = (
-    courseDetail: CourseDetail,
+  const getExplanationScores = (
+    courseCode: string,
     itemIdToItemSentiments: Record<string, FsItemSentiment[]>,
-  ) => {
-    return (
-      <div className='flex gap-1 items-center'>
-        <div className='line-clamp-1'>{courseDetail.course.name}</div>
-        <div className='mx-1'></div>
-        <Button
-          color='primary'
-          variant='outlined'
-          size='small'
-          className='p-1'
-          icon={<ExclamationCircleOutlined />}
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
+  ) =>
+    (itemIdToItemSentiments[courseCode] ?? []).map((s) => ({
+      label: s.attribute,
+      score: s.sentimentScore,
+    }));
 
-            client.logEvent('view_course_explanation', undefined, {
-              algorithm,
-              courseCode: courseDetail.course.code,
-            });
+  const openFsExplanationModal =
+    (
+      courseDetail: CourseDetail,
+      itemIdToItemSentiments: Record<string, FsItemSentiment[]>,
+      rank: number,
+    ) =>
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
 
-            const sentimentRows = itemIdToItemSentiments[courseDetail.course.code].map(
-              (fsItemSentiment) => ({
-                key: fsItemSentiment.attribute,
-                attribute: fsItemSentiment.attribute,
-                score: Number(fsItemSentiment.sentimentScore.toFixed(2)),
-              }),
-            );
+      client.logEvent('view_course_explanation', undefined, {
+        algorithm,
+        courseCode: courseDetail.course.code,
+        rank: String(rank),
+      });
 
-            modal.info({
-              title: <div className='text-xl'>Điểm số các tiêu chí</div>,
-              content: (
-                <div>
-                  <div className='text-gray-700'>
-                    Bảng dưới đây hiển thị điểm cảm nhận trung bình của sinh viên cho từng tiêu chí
-                    của môn học này.
-                  </div>
-                  <div className='my-2'></div>
-                  <div className='text-gray-600'>
-                    Thang điểm từ 1 đến 5. Điểm càng cao nghĩa là mức độ cảm nhận tích cực càng lớn.
-                  </div>
-                  <div className='my-3'></div>
-                  <Table
-                    size='small'
-                    pagination={false}
-                    dataSource={sentimentRows}
-                    columns={[
-                      {
-                        title: 'Tiêu chí',
-                        dataIndex: 'attribute',
-                        key: 'attribute',
-                      },
-                      {
-                        title: 'Điểm trung bình',
-                        dataIndex: 'score',
-                        key: 'score',
-                        render: (value: number) => `${value.toFixed(2)} / 5`,
-                      },
-                    ]}
-                  />
+      const sentiments = itemIdToItemSentiments[courseDetail.course.code] ?? [];
+
+      modal.info({
+        title: <div className='text-xl font-semibold'>Điểm số các tiêu chí</div>,
+        content: (
+          <div className='space-y-3'>
+            <div className='text-gray-600 text-[15px] leading-[1.7]'>
+              Điểm cảm nhận trung bình của sinh viên cho từng tiêu chí. Thang điểm từ 1 đến 5.
+            </div>
+            {sentiments.map((s) => (
+              <div key={s.attribute}>
+                <div className='flex justify-between items-center mb-1'>
+                  <span className='text-sm text-gray-700 font-medium'>{s.attribute}</span>
+                  <span
+                    className='inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold'
+                    style={{
+                      background: scoreTrail(s.sentimentScore),
+                      color: scoreColor(s.sentimentScore),
+                    }}
+                  >
+                    {s.sentimentScore.toFixed(2)} / 5
+                  </span>
                 </div>
-              ),
-              maskClosable: true,
-              okText: 'Đóng',
-            });
-          }}
-        >
-          Giải thích
-        </Button>
-      </div>
-    );
-  };
+                <Progress
+                  showInfo={false}
+                  percent={(s.sentimentScore / 5) * 100}
+                  strokeLinecap='round'
+                  strokeColor={scoreColor(s.sentimentScore)}
+                  trailColor={scoreTrail(s.sentimentScore)}
+                />
+              </div>
+            ))}
+          </div>
+        ),
+        maskClosable: true,
+        okText: 'Đóng',
+      });
+    };
 
   const getEffectiveUserCourseStatus = (courseDetail: CourseDetail) => {
     if (courseDetail.course.code in courseStatusOverrides) {
@@ -245,8 +522,8 @@ export default function FSRecommendation() {
   );
 
   return (
-    <div className='flex flex-col md:flex-row md:items-center h-full'>
-      <div className='w-full h-full flex flex-col md:flex-row gap-4 md:gap-8'>
+    <div className='flex flex-col md:flex-row md:items-center md:h-full'>
+      <div className='w-full flex flex-col md:flex-row md:h-full gap-4 md:gap-8'>
         <RecommendationSettingsSidebar
           settingsForm={settingsForm}
           recommendButton={recommendButton}
@@ -254,30 +531,42 @@ export default function FSRecommendation() {
           setSettingsDrawerOpen={setSettingsDrawerOpen}
         />
 
-        <div className='h-full flex flex-col overflow-hidden w-full'>
-          <div className='font-bold text-2xl md:text-[26px] shrink-0'>Gợi ý môn học</div>
-          <div className='my-3 shrink-0'></div>
-          <div className='flex-1 min-h-0'>
+        <div className='flex flex-col md:h-full md:overflow-hidden w-full'>
+          {/* Section heading */}
+          <div className='shrink-0'>
+            <div
+              className='font-bold text-[28px] text-[#1C1917] leading-tight'
+              style={{ fontFamily: 'var(--font-serif)' }}
+            >
+              Gợi ý môn học
+            </div>
+            <div className='mt-2 w-8 h-[3px] rounded-full bg-indigo-700'></div>
+          </div>
+
+          <div className='my-4 shrink-0'></div>
+
+          <div className='md:flex-1 md:min-h-0'>
             {(() => {
               if (latestFSRecommendationResultPending) {
-                return <Skeleton />;
+                return <Skeleton active paragraph={{ rows: 6 }} />;
               }
               if (!recommendationResult) {
                 return (
-                  <div className='flex flex-col h-ful'>
-                    <Spin spinning={getFSRecommendationPending} className='h-full'>
-                      <div className='flex items-center justify-center h-full'>
-                        <Empty description='Chưa có kết quả gợi ý nào' />
-                      </div>
-                    </Spin>
-                  </div>
+                  <Spin spinning={getFSRecommendationPending} className='h-full'>
+                    <div className='flex items-center justify-center h-48'>
+                      <Empty description='Chưa có kết quả gợi ý nào' />
+                    </div>
+                  </Spin>
                 );
               }
 
               const topCourseDetail = recommendationResult.topCourseDetail;
 
               return (
-                <div className='h-full overflow-y-auto overscroll-none'>
+                <div
+                  ref={scrollContainerRef}
+                  className='md:h-full md:overflow-y-auto overscroll-none'
+                >
                   <Spin
                     spinning={
                       getRefinedFSRecommendationPending ||
@@ -285,254 +574,110 @@ export default function FSRecommendation() {
                       refetchingLatestFSRecommendationResult
                     }
                   >
-                    <Card variant='borderless' className='border-2 border-primary'>
-                      <Typography.Text className='flex items-center gap-3'>
-                        <StarFilled className='text-yellow-500 text-3xl' />
-                        <span className='mb-0 text-2xl font-bold'>Môn học phù hợp nhất</span>
-                      </Typography.Text>
-                      <div className='my-3'></div>
-                      <div className='w-full'>
-                        <RecommendedCourseCard
-                          courseDetail={topCourseDetail}
-                          courseName={getCourseNameComponent(
-                            topCourseDetail,
-                            recommendationResult.itemIdToItemSentiments,
-                          )}
-                          onClick={() => {
-                            client.logEvent('see_course_detail', undefined, {
-                              algorithm,
-                              courseCode: topCourseDetail.course.code,
-                            });
-                          }}
-                          topRightBadge={
-                            getEffectiveUserCourseStatus(topCourseDetail) ===
-                            UserCourseStatus.COMPLETED ? (
-                              <Tag variant='solid' color={'green'}>
-                                Đã hoàn thành
-                              </Tag>
-                            ) : undefined
-                          }
-                          extra={
-                            <CourseStatusButton
-                              type={'plan'}
-                              className='w-full'
-                              marked={
-                                getEffectiveUserCourseStatus(topCourseDetail) ===
-                                UserCourseStatus.PLANNED
-                              }
-                              courseId={topCourseDetail.course.id}
-                              onMarkChange={(marked) => {
-                                if (marked) {
-                                  client.logEvent('click_planned', undefined, {
-                                    algorithm,
-                                    courseCode: topCourseDetail.course.code,
-                                    page: 'recommendation',
-                                  });
-                                }
-
-                                setCourseStatusOverrides((prev) => ({
-                                  ...prev,
-                                  [topCourseDetail.course.code]: marked
-                                    ? UserCourseStatus.PLANNED
-                                    : undefined,
-                                }));
-                              }}
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                              }}
-                            />
-                          }
-                        />
+                    {/* Top course — featured section */}
+                    <div
+                      className='relative rounded-xl p-5 bg-indigo-50 border border-indigo-200'
+                      style={{ boxShadow: CARD_SHADOW }}
+                    >
+                      <div className='flex items-start gap-3 mb-5'>
+                        <StarFilled className='text-amber-500 text-xl shrink-0 mt-0.5' />
+                        <div>
+                          <div className='text-[18px] font-semibold text-[#1C1917]'>
+                            Môn học phù hợp nhất
+                          </div>
+                          <div className='text-sm text-gray-500 mt-0.5'>
+                            Kết quả tốt nhất theo tiêu chí của bạn
+                          </div>
+                        </div>
                       </div>
-                    </Card>
+
+                      <RecommendedCourseCard
+                        courseDetail={topCourseDetail}
+                        index={0}
+                        explanationScores={getExplanationScores(
+                          topCourseDetail.course.code,
+                          recommendationResult.itemIdToItemSentiments,
+                        )}
+                        onSeeFullExplanation={openFsExplanationModal(
+                          topCourseDetail,
+                          recommendationResult.itemIdToItemSentiments,
+                          1,
+                        )}
+                        onClick={() => {
+                          client.logEvent('see_course_detail', undefined, {
+                            algorithm,
+                            courseCode: topCourseDetail.course.code,
+                            rank: '1',
+                          });
+                        }}
+                        topRightBadge={
+                          getEffectiveUserCourseStatus(topCourseDetail) ===
+                          UserCourseStatus.COMPLETED ? (
+                            <Tag variant='solid' color='green'>
+                              Đã hoàn thành
+                            </Tag>
+                          ) : undefined
+                        }
+                        extra={
+                          <CourseStatusButton
+                            type='plan'
+                            className='w-full'
+                            marked={
+                              getEffectiveUserCourseStatus(topCourseDetail) ===
+                              UserCourseStatus.PLANNED
+                            }
+                            courseId={topCourseDetail.course.id}
+                            onMarkChange={(marked) => {
+                              if (marked) {
+                                client.logEvent('click_planned', undefined, {
+                                  algorithm,
+                                  courseCode: topCourseDetail.course.code,
+                                  page: 'recommendation',
+                                  rank: '1',
+                                });
+                              }
+                              setCourseStatusOverrides((prev) => ({
+                                ...prev,
+                                [topCourseDetail.course.code]: marked
+                                  ? UserCourseStatus.PLANNED
+                                  : undefined,
+                              }));
+                            }}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                            }}
+                          />
+                        }
+                      />
+                    </div>
+
                     <div className='my-5'></div>
+
+                    {/* Category sections */}
                     <div className='flex flex-col gap-5'>
-                      {recommendationResult.categoryDetails.map((categoryDetail) => {
+                      {recommendationResult.categoryDetails.map((categoryDetail, catIdx) => {
+                        const rankOffset =
+                          2 +
+                          recommendationResult.categoryDetails
+                            .slice(0, catIdx)
+                            .reduce((sum, cat) => sum + cat.courseDetails.length, 0);
                         return (
-                          <Card
-                            variant='borderless'
-                            key={JSON.stringify(categoryDetail)}
-                            styles={{ body: { padding: 0 } }}
-                          >
-                            <div className='sticky top-0 z-20 bg-white px-6 py-4 rounded-t-lg'>
-                              <Typography.Text strong className='text-xl m-0'>
-                                {categoryDetail.category.map((tradeoffPair, idx) => {
-                                  const isUp = isDirectionUp(tradeoffPair.direction);
-
-                                  return (
-                                    <span
-                                      key={`${tradeoffPair.attribute}-${tradeoffPair.direction}`}
-                                    >
-                                      {idx > 0 && ', '}
-
-                                      {/* ICON */}
-                                      {isUp ? (
-                                        <TrendingUp className='inline mr-2 text-green-500' />
-                                      ) : (
-                                        <TrendingDown className='inline mr-2 text-red-500' />
-                                      )}
-
-                                      {/* TEXT */}
-                                      <span className='text-primary'>{tradeoffPair.attribute}</span>
-
-                                      {` ${isUp ? 'tốt hơn' : 'tệ hơn'}`}
-                                    </span>
-                                  );
-                                })}
-
-                                {/* RIGHT PART as inline text */}
-                                <span className='text-gray-500 font-normal ml-2'>
-                                  ({categoryDetail.courseDetails.length} môn)
-                                </span>
-                              </Typography.Text>
-                            </div>
-                            <div className='grid grid-cols-1 md:grid-cols-1 gap-3 px-6 pb-6'>
-                              {categoryDetail.courseDetails
-                                // .slice(0, 10)
-                                .map((courseDetail) => {
-                                  return (
-                                    <RecommendedCourseCard
-                                      key={courseDetail.course.code}
-                                      courseDetail={courseDetail}
-                                      courseName={getCourseNameComponent(
-                                        courseDetail,
-                                        recommendationResult.itemIdToItemSentiments,
-                                      )}
-                                      onClick={() => {
-                                        client.logEvent('see_course_detail', undefined, {
-                                          algorithm,
-                                          courseCode: topCourseDetail.course.code,
-                                        });
-                                      }}
-                                      topRightBadge={
-                                        getEffectiveUserCourseStatus(courseDetail) ===
-                                        UserCourseStatus.COMPLETED ? (
-                                          <Tag variant='solid' color={'green'}>
-                                            Đã hoàn thành
-                                          </Tag>
-                                        ) : undefined
-                                      }
-                                      extra={
-                                        <div className='w-full'>
-                                          <CourseStatusButton
-                                            type={'plan'}
-                                            className='w-full'
-                                            marked={
-                                              getEffectiveUserCourseStatus(courseDetail) ===
-                                              UserCourseStatus.PLANNED
-                                            }
-                                            courseId={courseDetail.course.id}
-                                            onMarkChange={(marked) => {
-                                              if (marked) {
-                                                client.logEvent('click_planned', undefined, {
-                                                  algorithm,
-                                                  courseCode: courseDetail.course.code,
-                                                  page: 'recommendation',
-                                                });
-                                              }
-
-                                              setCourseStatusOverrides((prev) => ({
-                                                ...prev,
-                                                [courseDetail.course.code]: marked
-                                                  ? UserCourseStatus.PLANNED
-                                                  : undefined,
-                                              }));
-                                            }}
-                                            onClick={(e) => {
-                                              e.preventDefault();
-                                              e.stopPropagation();
-                                            }}
-                                          />
-                                          <div className='my-2'></div>
-                                          <div className='flex gap-3'>
-                                            <Space.Compact className='w-full'>
-                                              <Button
-                                                icon={<ArrowUpOutlined />}
-                                                color='primary'
-                                                variant='outlined'
-                                                className='w-full'
-                                                onClick={async (e) => {
-                                                  e.preventDefault();
-                                                  e.stopPropagation();
-
-                                                  client.logEvent(
-                                                    'get_refined_recommendation',
-                                                    undefined,
-                                                    {
-                                                      algorithm,
-                                                      courseCode: courseDetail.course.code,
-                                                    },
-                                                  );
-
-                                                  const result = (
-                                                    await getRefinedFSRecommendation({
-                                                      url: '/fs/recommendation/refined',
-                                                      method: 'post',
-                                                      data: {
-                                                        recommendationId: recommendationResult.id,
-                                                        itemId: courseDetail.course.code,
-                                                        category: categoryDetail.category,
-                                                      },
-                                                    })
-                                                  ).data;
-
-                                                  setRecommendationResult(result);
-                                                }}
-                                              >
-                                                Tương tự
-                                              </Button>
-                                              <Button
-                                                color='primary'
-                                                variant='outlined'
-                                                icon={<QuestionOutlined />}
-                                                onClick={(e) => {
-                                                  e.preventDefault();
-                                                  modal.info({
-                                                    title: (
-                                                      <div className='text-xl font-semibold'>
-                                                        Gợi ý tương tự hoạt động thế nào?
-                                                      </div>
-                                                    ),
-                                                    content: (
-                                                      <div className='space-y-3'>
-                                                        <div className='text-gray-700'>
-                                                          Khi chọn nút Tương tự, hệ thống sẽ ưu tiên
-                                                          tìm các môn học gần các môn trong nhóm gợi
-                                                          ý bạn đang xem.
-                                                        </div>
-
-                                                        <div className='rounded-lg border border-blue-100 bg-blue-50 px-3 py-2 text-gray-700'>
-                                                          <div className='font-semibold text-blue-700'>
-                                                            Mẹo
-                                                          </div>
-                                                          <div>
-                                                            Dùng tính năng này khi bạn thích môn
-                                                            đang xem và muốn khám phá các lựa chọn
-                                                            có trải nghiệm gần giống.
-                                                          </div>
-                                                        </div>
-
-                                                        <div className='rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-gray-700'>
-                                                          Kết quả mới sẽ thay thế danh sách hiện tại
-                                                          để bạn tập trung vào nhóm môn học liên
-                                                          quan nhất.
-                                                        </div>
-                                                      </div>
-                                                    ),
-                                                    okText: 'Đã hiểu',
-                                                  });
-                                                }}
-                                              ></Button>
-                                            </Space.Compact>
-                                          </div>
-                                        </div>
-                                      }
-                                    />
-                                  );
-                                })}
-                            </div>
-                          </Card>
+                          <CategorySection
+                            key={categoryDetail.category
+                              .map((p) => `${p.attribute}:${p.direction}`)
+                              .join('|')}
+                            categoryDetail={categoryDetail}
+                            catIdx={catIdx}
+                            visibleCount={getVisibleCount(catIdx)}
+                            onShowMore={handleShowMore}
+                            itemIdToItemSentiments={recommendationResult.itemIdToItemSentiments}
+                            courseStatusOverrides={courseStatusOverrides}
+                            onCourseStatusChange={handleCourseStatusChange}
+                            onRefinedRecommendation={handleRefinedRecommendation}
+                            onScrollToTop={scrollToTop}
+                            rankOffset={rankOffset}
+                          />
                         );
                       })}
                     </div>
@@ -543,27 +688,6 @@ export default function FSRecommendation() {
           </div>
         </div>
       </div>
-
-      <Modal
-        title='Môn học đã hoàn thành'
-        open={openCompletedCoursesModal}
-        onCancel={() => {
-          setOpenCompletedCoursesModal(false);
-        }}
-        footer={null}
-      >
-        <Empty />
-      </Modal>
-      <Modal
-        title='Môn dự kiến học'
-        open={openPlanningCoursesModal}
-        onCancel={() => {
-          setOpenPlanningCoursesModal(false);
-        }}
-        footer={null}
-      >
-        <Empty />
-      </Modal>
     </div>
   );
 }

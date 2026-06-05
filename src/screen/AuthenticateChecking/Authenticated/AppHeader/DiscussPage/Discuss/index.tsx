@@ -1,10 +1,13 @@
+import useGet from '@/common/hooks/network/useGet';
 import { Algorithm } from '@/common/types/Course.types';
+import { FindPostDetailsRequest, PostDetail } from '@/common/types/Discuss.types';
 import { FilterOutlined } from '@ant-design/icons';
 import { Button, Drawer } from 'antd';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import DiscussFilter from './components/DiscussFilter';
 import DiscussMainArea from './DiscussMainArea';
+import DiscussRightSidebar from './DiscussRightSidebar';
 
 type Props = {
   algorithm: Algorithm;
@@ -17,11 +20,41 @@ export default function Discuss({ algorithm }: Props) {
   const [finalFilteredCourseCodes, setFinalFilteredCourseCodes] = useState<string[]>([]);
   const [openFilterDrawer, setOpenFilterDrawer] = useState(false);
 
+  const {
+    data: postDetailsResponse,
+    isPending: postDetailsPending,
+    refetch: refetchPosts,
+  } = useGet<PostDetail[]>(`/posts`, {
+    params: {
+      sort: ['createdAt,desc'],
+      algorithm,
+      courseIdsRequest: {
+        fetchAll: finalFilteredCourseCodes.length === 0,
+        data: finalFilteredCourseCodes,
+      },
+    } as FindPostDetailsRequest,
+  });
+
+  const topCourses = useMemo(() => {
+    if (!postDetailsResponse) return [];
+    const courseCounts = new Map<
+      string,
+      { course: (typeof postDetailsResponse.data)[0]['course']; count: number }
+    >();
+    postDetailsResponse.data.forEach(({ course }) => {
+      const existing = courseCounts.get(course.code);
+      if (existing) {
+        existing.count++;
+      } else {
+        courseCounts.set(course.code, { course, count: 1 });
+      }
+    });
+    return [...courseCounts.values()].sort((a, b) => b.count - a.count).slice(0, 6);
+  }, [postDetailsResponse]);
+
   const resolveNumberOfFiltersText = () => {
     const filterCount = finalFilteredCourseCodes.length;
-    if (filterCount === 0) {
-      return '';
-    }
+    if (filterCount === 0) return '';
     return ` (${filterCount})`;
   };
 
@@ -37,43 +70,40 @@ export default function Discuss({ algorithm }: Props) {
 
   useEffect(() => {
     if (finalFilteredCourseCodes.length > 0) {
-      setSearchParams(
-        {
-          courseCodes: finalFilteredCourseCodes.join(','),
-        },
-        { replace: true },
-      );
+      setSearchParams({ courseCodes: finalFilteredCourseCodes.join(',') }, { replace: true });
     } else {
       setSearchParams({}, { replace: true });
     }
   }, [finalFilteredCourseCodes, setSearchParams]);
 
   return (
-    <div className='grid grid-cols-1 items-start gap-5 md:grid-cols-[320px_1fr] md:gap-8'>
-      <div className='hidden md:block h-full sticky top-4'>
-        <div>
-          <DiscussFilter
-            algorithm={algorithm}
-            selectedCourseIds={filteredCourseCodes}
-            onSelectedCourseIdsChange={(courseIds) => {
-              setFilteredCourseCodes(courseIds);
-              setFinalFilteredCourseCodes(courseIds);
-            }}
-          />
-        </div>
+    <div className='grid grid-cols-1 items-start gap-5 md:grid-cols-[240px_1fr] lg:grid-cols-[240px_1fr_260px] md:gap-6 lg:gap-8'>
+      {/* Left filter sidebar */}
+      <div className='hidden md:block'>
+        <DiscussFilter
+          algorithm={algorithm}
+          selectedCourseIds={filteredCourseCodes}
+          onSelectedCourseIdsChange={(courseIds) => {
+            setFilteredCourseCodes(courseIds);
+            setFinalFilteredCourseCodes(courseIds);
+          }}
+        />
       </div>
-      <div className='flex-1'>
+
+      {/* Main feed */}
+      <div className='min-w-0'>
         <DiscussMainArea
           algorithm={algorithm}
-          courseIds={finalFilteredCourseCodes}
+          postDetails={postDetailsResponse?.data}
+          postDetailsPending={postDetailsPending}
+          refetchPosts={refetchPosts}
           filterSection={
             <Button
-              className='md:hidden rounded-xl border-0 bg-gradient-to-r from-indigo-500 to-violet-500 text-white shadow-sm hover:!text-white hover:!opacity-95'
+              type='primary'
+              className='md:hidden rounded-xl'
               icon={<FilterOutlined />}
               size='large'
-              onClick={() => {
-                setOpenFilterDrawer(true);
-              }}
+              onClick={() => setOpenFilterDrawer(true)}
             >
               {`Bộ lọc${resolveNumberOfFiltersText()}`}
             </Button>
@@ -81,6 +111,12 @@ export default function Discuss({ algorithm }: Props) {
         />
       </div>
 
+      {/* Right sidebar */}
+      <div className='hidden lg:block'>
+        <DiscussRightSidebar topCourses={topCourses} />
+      </div>
+
+      {/* Mobile filter drawer */}
       <Drawer
         open={openFilterDrawer}
         onClose={() => {
@@ -88,7 +124,7 @@ export default function Discuss({ algorithm }: Props) {
           setFilteredCourseCodes(finalFilteredCourseCodes);
         }}
         placement='bottom'
-        size={'large'}
+        size='large'
         className='md:hidden'
         styles={{ body: { background: '#f9fafb', paddingTop: 12 } }}
         title='Bộ lọc thảo luận'

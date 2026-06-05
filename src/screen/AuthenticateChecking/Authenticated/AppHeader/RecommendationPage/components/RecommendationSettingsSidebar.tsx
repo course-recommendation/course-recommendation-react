@@ -1,4 +1,4 @@
-import { SettingOutlined } from '@ant-design/icons';
+import { SettingOutlined, SlidersOutlined } from '@ant-design/icons';
 import { Button, Card, Drawer } from 'antd';
 import { ReactNode } from 'react';
 
@@ -19,14 +19,29 @@ export default function RecommendationSettingsSidebar({
     <>
       <Card
         variant='borderless'
-        className='hidden md:flex md:w-[400px] flex-col gap-3 md:shrink-0'
+        className='hidden md:flex md:w-[360px] flex-col gap-3 md:shrink-0'
         styles={{
           body: {
             overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
+            padding: '20px',
           },
         }}
       >
-        <div className='flex flex-col h-full gap-5'>
+        {/* Sidebar header */}
+        <div className='shrink-0 mb-4'>
+          <div className='flex items-center gap-2 mb-1'>
+            <SlidersOutlined className='text-indigo-600 text-base' />
+            <span className='text-[17px] font-semibold text-[#1C1917] tracking-tight'>
+              Cài đặt gợi ý
+            </span>
+          </div>
+          <div className='w-8 h-[2px] rounded-full bg-indigo-600 ml-6'></div>
+        </div>
+
+        <div className='flex flex-col h-full gap-4 min-h-0'>
           <div className='flex-1 overflow-auto overscroll-none'>{settingsForm}</div>
           {recommendButton}
         </div>
@@ -43,7 +58,12 @@ export default function RecommendationSettingsSidebar({
       </Button>
 
       <Drawer
-        title='Cài đặt gợi ý'
+        title={
+          <div className='flex items-center gap-2'>
+            <SlidersOutlined className='text-indigo-600' />
+            <span>Cài đặt gợi ý</span>
+          </div>
+        }
         placement='bottom'
         onClose={() => setSettingsDrawerOpen(false)}
         open={settingsDrawerOpen}

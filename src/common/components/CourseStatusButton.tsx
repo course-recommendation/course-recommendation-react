@@ -12,6 +12,7 @@ type Props = {
   className?: string;
   courseId: number;
   onClick?: ButtonProps['onClick'];
+  size?: ButtonProps['size'];
 };
 
 export default function CourseStatusButton({
@@ -21,6 +22,7 @@ export default function CourseStatusButton({
   courseId,
   onClick,
   onMarkChange,
+  size,
 }: Props) {
   const [marked, setMarked] = useState(initialMarked);
   const { request: updateUserCourseStatus } = useRequest<void, UpdateUserCourseStatusRequest>();
@@ -61,6 +63,7 @@ export default function CourseStatusButton({
 
   return (
     <Button
+      size={size}
       icon={marked ? <CheckOutlined /> : <PlusOutlined />}
       color={getColor()}
       variant={getVariant()}

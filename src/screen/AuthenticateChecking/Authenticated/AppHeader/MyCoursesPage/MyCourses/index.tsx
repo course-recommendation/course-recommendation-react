@@ -58,6 +58,16 @@ export default function MyCourses({ algorithm }: Props) {
 
   return (
     <div>
+      <div className='mb-8'>
+        <div
+          className='text-[28px] font-semibold text-[#1C1917] leading-tight'
+          style={{ fontFamily: 'var(--font-serif)' }}
+        >
+          Môn học của tôi
+        </div>
+        <div className='mt-2 w-10 h-[3px] rounded-full bg-indigo-700' />
+      </div>
+
       <MyCoursesSection
         title={
           <span className='flex gap-3'>

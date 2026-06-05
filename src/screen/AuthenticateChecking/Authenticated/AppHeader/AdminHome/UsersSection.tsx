@@ -6,13 +6,11 @@ import {
   ProFormText,
   ProTable,
 } from '@ant-design/pro-components';
-import { Button, Input, message, Modal, Space, Table, Tag, Typography, Upload } from 'antd';
+import { Button, Input, message, Modal, Space, Table, Tag, Upload } from 'antd';
 import { useRef, useState } from 'react';
 
 import defaultAxios from '@/common/services/defaultAxios';
 import { SortOrder } from 'antd/es/table/interface';
-
-const { Title } = Typography;
 
 type AdminUserRow = {
   id: string;
@@ -201,9 +199,10 @@ export function UsersSection() {
   return (
     <>
       {contextHolder}
-      <Title level={4}>Người dùng</Title>
       <ProTable<AdminUserRow>
+        className='rounded-lg border border-gray-200 overflow-hidden'
         actionRef={actionRef}
+        headerTitle='Người dùng'
         rowKey='id'
         rowSelection={{ selectedRowKeys: selectedKeys, onChange: setSelectedKeys }}
         search={false}
@@ -235,6 +234,7 @@ export function UsersSection() {
         }}
         columns={[
           { title: 'STT', valueType: 'index', width: 60 },
+          { title: 'ID', dataIndex: 'id', ellipsis: true, width: 220, copyable: true },
           {
             title: 'Email',
             dataIndex: 'email',
@@ -313,7 +313,7 @@ export function UsersSection() {
         title='Thêm người dùng'
         open={addOpen}
         onOpenChange={setAddOpen}
-        modalProps={{ destroyOnClose: true }}
+        modalProps={{ destroyOnClose: true, width: 480 }}
         onFinish={async (values) => {
           await defaultAxios.post('/admin/users', {
             ...values,
@@ -342,7 +342,7 @@ export function UsersSection() {
         onOpenChange={(open) => {
           if (!open) setEditRecord(null);
         }}
-        modalProps={{ destroyOnClose: true }}
+        modalProps={{ destroyOnClose: true, width: 480 }}
         initialValues={editRecord ? { ...editRecord, role: editRecord.roles?.[0] } : undefined}
         onFinish={async (values) => {
           await defaultAxios.put(`/admin/users/${editRecord!.id}`, {
