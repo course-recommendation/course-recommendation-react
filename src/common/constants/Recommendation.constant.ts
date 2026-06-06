@@ -1,1 +1,1 @@
-export const TRI_RANK_NUMBER_OF_COURSES = 10;
+export const PAGE_SIZE_FOR_ALL_ITEMS = 1_000_000_000;

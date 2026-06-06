@@ -1,5 +1,5 @@
 import RatingBox from '@/common/components/RatingBox';
-import { TRI_RANK_NUMBER_OF_COURSES } from '@/common/constants/Recommendation.constant';
+import { PAGE_SIZE_FOR_ALL_ITEMS } from '@/common/constants/Recommendation.constant';
 import { useAlgorithmContext } from '@/common/context/AlgorithmContext';
 import useGet from '@/common/hooks/network/useGet';
 import useRequest from '@/common/hooks/network/useRequest';
@@ -56,7 +56,6 @@ export default function SurveyPage() {
           method: 'post',
           url: '/tri-rank/recommendation',
           data: {
-            numberOfCourses: TRI_RANK_NUMBER_OF_COURSES,
             attributeToScore: Object.fromEntries(
               attributesResponse.data.map((attribute) => [
                 attribute.value,

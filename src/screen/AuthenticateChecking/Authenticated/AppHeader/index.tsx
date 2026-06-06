@@ -113,7 +113,7 @@ export default function AppHeader() {
         ],
       }}
     >
-      <Avatar className='hover:cursor-pointer' src={me.avatarUrl} size={30} />
+      <Avatar className='hover:cursor-pointer' src={me.avatarUrl} size={36} />
     </Dropdown>
   );
 

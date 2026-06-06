@@ -1,6 +1,6 @@
 import CourseStatusButton from '@/common/components/CourseStatusButton';
 import RecommendedCourseCard from '@/common/components/RecommendedCourseCard';
-import { TRI_RANK_NUMBER_OF_COURSES } from '@/common/constants/Recommendation.constant';
+import { PAGE_SIZE_FOR_ALL_ITEMS } from '@/common/constants/Recommendation.constant';
 import { useShowExplanationContext } from '@/common/context/ShowExplanationContext';
 import useGet from '@/common/hooks/network/useGet';
 import useRequest from '@/common/hooks/network/useRequest';
@@ -18,7 +18,7 @@ import {
   TriRankRecommendationResult,
 } from '@/common/types/TriRank.types';
 import { scoreColor, scoreTrail } from '@/common/utils/scoreColor';
-import { Button, Empty, Progress, Skeleton, Spin, Tag } from 'antd';
+import { Button, Empty, Progress, Select, Skeleton, Spin, Tag } from 'antd';
 import useApp from 'antd/es/app/useApp';
 import { useForm } from 'antd/es/form/Form';
 import { useEffect, useState } from 'react';
@@ -87,6 +87,7 @@ export default function TriRankRecommendation() {
   const [courseStatusOverrides, setCourseStatusOverrides] = useState<
     Record<string, UserCourseStatus | undefined>
   >({});
+  const [displayLimit, setDisplayLimit] = useState(10);
 
   useEffect(() => {
     if (!latestTriRankRecommendationResultPending) {
@@ -116,7 +117,6 @@ export default function TriRankRecommendation() {
         method: 'post',
         url: '/tri-rank/recommendation',
         data: {
-          numberOfCourses: TRI_RANK_NUMBER_OF_COURSES,
           attributeToScore: formValues.attributeToScore,
           filterCoursesOptions: formValues.filterCoursesOptions ?? [],
           customFilteredCourseCodes: formValues.customFilteredCourseCodes ?? [],
@@ -214,18 +214,25 @@ export default function TriRankRecommendation() {
                       getTriRankRecommendationPending || refetchingLatestTriRankRecommendationResult
                     }
                   >
-                    {/* AI badge above list */}
-                    <div className='flex items-center justify-between mb-5'>
-                      <span className='text-sm font-medium text-gray-700'>
-                        {recommendationResult.courseDetails.length} môn học được gợi ý
-                      </span>
-                      {/* <span className='inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#EDE9FE] text-[#7C3AED] text-xs font-semibold tracking-wide'>
-                        ✦ AI-powered
-                      </span> */}
+                    <div className='flex items-center justify-end gap-2 mb-5'>
+                      <span className='text-sm font-medium text-gray-700'>Hiển thị</span>
+                      <Select<number>
+                        size='small'
+                        value={displayLimit}
+                        onChange={(val) => setDisplayLimit(val)}
+                        options={[
+                          { label: '10', value: 10 },
+                          { label: '20', value: 20 },
+                          { label: '50', value: 50 },
+                          { label: 'Tất cả', value: Number.MAX_SAFE_INTEGER },
+                        ]}
+                        style={{ width: 90 }}
+                      />
+                      <span className='text-sm text-gray-500'>môn học</span>
                     </div>
 
                     <div className='flex flex-col gap-4'>
-                      {recommendationResult.courseDetails.map((courseDetail, index) => {
+                      {recommendationResult.courseDetails.slice(0, displayLimit).map((courseDetail, index) => {
                         const rank = index + 1;
 
                         return (

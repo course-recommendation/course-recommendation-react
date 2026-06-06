@@ -2,7 +2,6 @@ import { Attribute, Course, CourseDetail } from './Course.types';
 import { FilterCoursesOption } from './Recommendation.types';
 
 export type TriRankRecommendationRequest = {
-  numberOfCourses?: number;
   attributeToScore: Record<string, number>;
   filterCoursesOptions: FilterCoursesOption[];
   customFilteredCourseCodes: string[];

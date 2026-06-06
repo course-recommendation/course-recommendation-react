@@ -280,8 +280,7 @@ const CategorySection = memo(function CategorySection({
         })}
         {visibleCount < categoryDetail.courseDetails.length && (
           <Button type='text' className='w-full text-indigo-700' onClick={() => onShowMore(catIdx)}>
-            Xem thêm ({Math.min(PAGE_SIZE, categoryDetail.courseDetails.length - visibleCount)} môn
-            nữa)
+            Xem tất cả ({categoryDetail.courseDetails.length - visibleCount} môn nữa)
           </Button>
         )}
       </div>
@@ -389,7 +388,7 @@ export default function FSRecommendation() {
   const handleShowMore = useCallback((catIdx: number) => {
     setCategoryVisibleCount((prev) => ({
       ...prev,
-      [catIdx]: (prev[catIdx] ?? PAGE_SIZE) + PAGE_SIZE,
+      [catIdx]: Infinity,
     }));
   }, []);
 
