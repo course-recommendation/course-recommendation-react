@@ -1,5 +1,4 @@
 import RatingBox from '@/common/components/RatingBox';
-import { useAlgorithmContext } from '@/common/context/AlgorithmContext';
 import { Attribute, Course } from '@/common/types/Course.types';
 import { FilterCoursesOption } from '@/common/types/Recommendation.types';
 import { RecommendationSettingsFormType } from '@/common/types/TriRank.types';
@@ -11,7 +10,7 @@ import {
   ProFormItem,
   ProFormSelect,
 } from '@ant-design/pro-components';
-import { useStatsigClient } from '@statsig/react-bindings';
+import { useLogEvent } from '@/common/hooks/useLogEvent';
 import useApp from 'antd/es/app/useApp';
 import { FormInstance } from 'antd/es/form';
 
@@ -49,8 +48,7 @@ export default function RecommendationSettingsForm({
   initialCustomFilteredCourseCodes,
 }: Props) {
   const { modal } = useApp();
-  const algorithm = useAlgorithmContext();
-  const { client } = useStatsigClient();
+  const logEvent = useLogEvent();
 
   return (
     <ProForm<RecommendationSettingsFormType>
@@ -111,8 +109,7 @@ export default function RecommendationSettingsForm({
                 <AttributeRow
                   label={attribute.value}
                   onChange={(value) => {
-                    client.logEvent('adjust_preference', value, {
-                      algorithm,
+                    logEvent('adjust_preference', value, {
                       attribute: attribute.value,
                     });
                   }}
@@ -162,7 +159,7 @@ export default function RecommendationSettingsForm({
           fieldProps={{
             className: 'w-full',
             onChange: () => {
-              client.logEvent('click_filter_courses_option', undefined, { algorithm });
+              logEvent('click_filter_courses_option');
             },
           }}
           options={[

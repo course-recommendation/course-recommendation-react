@@ -3,14 +3,15 @@ import { useAlgorithmContext } from '@/common/context/AlgorithmContext';
 import useGet from '@/common/hooks/network/useGet';
 import useRequest from '@/common/hooks/network/useRequest';
 import { useAttributeValues } from '@/common/hooks/useAttributeValues';
+import { useLogEvent } from '@/common/hooks/useLogEvent';
 import {
   CourseDetail,
   GetCourseDetailsRequest,
   RateCourseRequest,
   UserCourseStatus,
 } from '@/common/types/Course.types';
-import { useStatsigClient } from '@statsig/react-bindings';
-import { Skeleton } from 'antd';
+import { ArrowRightOutlined } from '@ant-design/icons';
+import { Button, Skeleton } from 'antd';
 import { useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router';
 import AttributeRating from './AttributeRating';
@@ -20,7 +21,7 @@ export default function CourseDetailPage() {
   const [searchParams] = useSearchParams();
   const rank = searchParams.get('rank') ?? undefined;
   const algorithm = useAlgorithmContext();
-  const { client } = useStatsigClient();
+  const logEvent = useLogEvent();
 
   const courseCode = courseCodeOpt!;
 
@@ -80,37 +81,49 @@ export default function CourseDetailPage() {
           <p className='mt-3 text-gray-500 text-[15px] leading-[1.7] whitespace-pre-line'>
             {course.description}
           </p>
-          <div className='mt-5 pt-4 border-t border-stone-100 flex flex-wrap gap-3'>
-            <CourseStatusButton
-              size='large'
-              type='plan'
-              marked={userCourseStatus === UserCourseStatus.PLANNED}
-              onMarkChange={(marked) => {
-                if (marked) {
-                  client.logEvent('click_planned', undefined, {
-                    algorithm,
-                    courseCode,
-                    page: 'detail',
-                    ...(rank != null && { rank }),
-                  });
-                }
-                setUserCourseStatusOverride(marked ? UserCourseStatus.PLANNED : undefined);
-                setIsUserCourseStatusOverridden(true);
-              }}
-              courseId={course.id}
-            />
-            <CourseStatusButton
-              size='large'
-              type='complete'
-              marked={userCourseStatus === UserCourseStatus.COMPLETED}
-              onMarkChange={(marked) => {
-                setUserCourseStatusOverride(marked ? UserCourseStatus.COMPLETED : undefined);
-                setIsUserCourseStatusOverridden(true);
-              }}
-              courseId={course.id}
-            />
+          <div className='mt-5 pt-4 border-t border-stone-100 flex flex-wrap gap-3 items-center justify-between'>
+            <div className='flex flex-wrap gap-3'>
+              <CourseStatusButton
+                size='large'
+                type='plan'
+                marked={userCourseStatus === UserCourseStatus.PLANNED}
+                onMarkChange={(marked) => {
+                  if (marked) {
+                    logEvent('click_planned', undefined, {
+                      courseCode,
+                      page: 'detail',
+                      ...(rank != null && { rank }),
+                    });
+                  }
+                  setUserCourseStatusOverride(marked ? UserCourseStatus.PLANNED : undefined);
+                  setIsUserCourseStatusOverridden(true);
+                }}
+                courseId={course.id}
+              />
+              <CourseStatusButton
+                size='large'
+                type='complete'
+                marked={userCourseStatus === UserCourseStatus.COMPLETED}
+                onMarkChange={(marked) => {
+                  setUserCourseStatusOverride(marked ? UserCourseStatus.COMPLETED : undefined);
+                  setIsUserCourseStatusOverridden(true);
+                }}
+                courseId={course.id}
+              />
+            </div>
+            <Link to={`/discuss?courseCodes=${courseCode}`}>
+              <Button
+                size='large'
+                color='primary'
+                variant='link'
+                iconPlacement='end'
+                icon={<ArrowRightOutlined />}
+              >
+                Xem thảo luận
+              </Button>
+            </Link>
           </div>
-      </div>
+        </div>
 
         {/* Rating section */}
         <div

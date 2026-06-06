@@ -38,12 +38,17 @@ export default function RecommendedCourseCard({
   onSeeFullExplanation,
 }: Props) {
   const hasExplanation = explanationScores && explanationScores.length > 0;
-  const visibleScores = explanationScores?.slice(0, PAGE_SIZE) ?? [];
-  const hiddenCount = (explanationScores?.length ?? 0) - visibleScores.length;
+  const sortedScores = explanationScores?.slice().sort((a, b) => a.label.localeCompare(b.label, 'vi', { sensitivity: 'base' })) ?? [];
+  const visibleScores = sortedScores.slice(0, PAGE_SIZE);
+  const hiddenCount = sortedScores.length - visibleScores.length;
 
   return (
     <Link
-      to={rank != null ? `/courses/${courseDetail.course.code}?rank=${rank}` : `/courses/${courseDetail.course.code}`}
+      to={
+        rank != null
+          ? `/courses/${courseDetail.course.code}?rank=${rank}`
+          : `/courses/${courseDetail.course.code}`
+      }
       className='block'
       onClick={(e) => {
         onClick?.(e);
@@ -54,7 +59,7 @@ export default function RecommendedCourseCard({
         className='card-course card-enter relative overflow-hidden group bg-white border border-stone-200 shadow-sm hover:border-indigo-200 hover:shadow-md transition-all duration-200'
         style={{ '--card-i': index ?? 0 } as React.CSSProperties}
       >
-        {topLeftBadge && <div className='absolute top-3 left-3 z-10'>{topLeftBadge}</div>}
+        {topLeftBadge}
 
         {/* Row 1: thumbnail + course info */}
         <div className='flex flex-col md:flex-row items-center gap-4 md:gap-5'>

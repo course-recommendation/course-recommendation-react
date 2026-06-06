@@ -1,10 +1,10 @@
 import CourseStatusButton from '@/common/components/CourseStatusButton';
 import RecommendedCourseCard from '@/common/components/RecommendedCourseCard';
 import { TRI_RANK_NUMBER_OF_COURSES } from '@/common/constants/Recommendation.constant';
-import { useAlgorithmContext } from '@/common/context/AlgorithmContext';
 import { useShowExplanationContext } from '@/common/context/ShowExplanationContext';
 import useGet from '@/common/hooks/network/useGet';
 import useRequest from '@/common/hooks/network/useRequest';
+import { useLogEvent } from '@/common/hooks/useLogEvent';
 import {
   Algorithm,
   Attribute,
@@ -18,7 +18,6 @@ import {
   TriRankRecommendationResult,
 } from '@/common/types/TriRank.types';
 import { scoreColor, scoreTrail } from '@/common/utils/scoreColor';
-import { useStatsigClient } from '@statsig/react-bindings';
 import { Button, Empty, Progress, Skeleton, Spin, Tag } from 'antd';
 import useApp from 'antd/es/app/useApp';
 import { useForm } from 'antd/es/form/Form';
@@ -27,37 +26,21 @@ import RecommendationSettingsForm from '../components/RecommendationSettingsForm
 import RecommendationSettingsSidebar from '../components/RecommendationSettingsSidebar';
 
 function RankBadge({ rank }: { rank: number }) {
-  if (rank === 1) {
-    return (
-      <span className='inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-500 text-white text-xs font-bold tracking-wide shadow-sm'>
-        TOP 1
-      </span>
-    );
-  }
-  if (rank === 2) {
-    return (
-      <span className='inline-flex items-center gap-1 px-3 py-1 rounded-full bg-slate-500 text-white text-xs font-bold tracking-wide shadow-sm'>
-        TOP 2
-      </span>
-    );
-  }
-  if (rank === 3) {
-    return (
-      <span className='inline-flex items-center gap-1 px-3 py-1 rounded-full bg-orange-500 text-white text-xs font-bold tracking-wide shadow-sm'>
-        TOP 3
-      </span>
-    );
-  }
+  const bg =
+    rank === 1 ? '#f59e0b' : rank === 2 ? '#94a3b8' : rank === 3 ? '#ea580c' : '#a8a29e';
+  const label = rank <= 3 ? `TOP ${rank}` : `#${rank}`;
   return (
-    <span className='inline-flex items-center px-2.5 py-1 rounded-full bg-stone-400 text-white text-xs font-semibold shadow-sm'>
-      #{rank}
-    </span>
+    <div
+      className='absolute -left-8 top-5 w-28 py-1 -rotate-45 text-center text-[11px] font-bold tracking-widest text-white shadow-md pointer-events-none select-none z-10'
+      style={{ backgroundColor: bg }}
+    >
+      {label}
+    </div>
   );
 }
 
 export default function TriRankRecommendation() {
-  const { client } = useStatsigClient();
-  const algorithm = useAlgorithmContext();
+  const logEvent = useLogEvent();
   const showExplanation = useShowExplanationContext();
   const { modal } = useApp();
 
@@ -123,7 +106,7 @@ export default function TriRankRecommendation() {
   };
 
   const handleGetRecommendation = async () => {
-    client.logEvent('get_recommendation', undefined, { algorithm });
+    logEvent('get_recommendation');
     setSettingsDrawerOpen(false);
 
     const formValues = await form.validateFields();
@@ -251,72 +234,83 @@ export default function TriRankRecommendation() {
                             courseDetail={courseDetail}
                             index={index}
                             rank={rank}
-                            explanationScores={showExplanation ? (
-                              recommendationResult.itemIdToItemAspects[courseDetail.course.code] ??
-                              []
-                            ).map((a) => ({ label: a.aspect, score: a.score })) : undefined}
-                            onSeeFullExplanation={showExplanation ? (e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
+                            explanationScores={
+                              showExplanation
+                                ? (
+                                    recommendationResult.itemIdToItemAspects[
+                                      courseDetail.course.code
+                                    ] ?? []
+                                  ).map((a) => ({ label: a.aspect, score: a.score }))
+                                : undefined
+                            }
+                            onSeeFullExplanation={
+                              showExplanation
+                                ? (e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
 
-                              client.logEvent('view_explanation', undefined, {
-                                algorithm,
-                                courseCode: courseDetail.course.code,
-                                rank: String(rank),
-                              });
+                                    logEvent('view_course_explanation', undefined, {
+                                      courseCode: courseDetail.course.code,
+                                      rank: String(rank),
+                                    });
 
-                              const sortedItemAspects = (
-                                recommendationResult.itemIdToItemAspects[
-                                  courseDetail.course.code
-                                ] ?? []
-                              ).sort((a, b) =>
-                                a.aspect.localeCompare(b.aspect, 'vi', { sensitivity: 'base' }),
-                              );
+                                    const sortedItemAspects = (
+                                      recommendationResult.itemIdToItemAspects[
+                                        courseDetail.course.code
+                                      ] ?? []
+                                    ).sort((a, b) =>
+                                      a.aspect.localeCompare(b.aspect, 'vi', {
+                                        sensitivity: 'base',
+                                      }),
+                                    );
 
-                              modal.info({
-                                title: (
-                                  <div className='text-xl font-semibold'>Điểm số các tiêu chí</div>
-                                ),
-                                content: (
-                                  <div className='space-y-3'>
-                                    <div className='text-gray-600 text-[15px] leading-[1.7]'>
-                                      Điểm cảm nhận trung bình của sinh viên cho từng tiêu chí.
-                                      Thang điểm từ 1 đến 5.
-                                    </div>
-                                    {sortedItemAspects.map((itemAspect) => (
-                                      <div key={itemAspect.aspect}>
-                                        <div className='flex justify-between items-center mb-1'>
-                                          <span className='text-sm text-gray-700 font-medium'>
-                                            {itemAspect.aspect}
-                                          </span>
-                                          <span
-                                            className='inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold'
-                                            style={{
-                                              background: scoreTrail(itemAspect.score),
-                                              color: scoreColor(itemAspect.score),
-                                            }}
-                                          >
-                                            {itemAspect.score.toFixed(2)} / 5
-                                          </span>
+                                    modal.info({
+                                      title: (
+                                        <div className='text-xl font-semibold'>
+                                          Điểm số các tiêu chí
                                         </div>
-                                        <Progress
-                                          showInfo={false}
-                                          percent={(itemAspect.score / 5) * 100}
-                                          strokeLinecap='round'
-                                          strokeColor={scoreColor(itemAspect.score)}
-                                          trailColor={scoreTrail(itemAspect.score)}
-                                        />
-                                      </div>
-                                    ))}
-                                  </div>
-                                ),
-                                okText: 'Đóng',
-                                maskClosable: true,
-                              });
-                            } : undefined}
+                                      ),
+                                      content: (
+                                        <div className='space-y-3'>
+                                          <div className='text-gray-600 text-[15px] leading-[1.7]'>
+                                            Điểm cảm nhận trung bình của sinh viên cho từng tiêu
+                                            chí. Thang điểm từ 1 đến 5.
+                                          </div>
+                                          {sortedItemAspects.map((itemAspect) => (
+                                            <div key={itemAspect.aspect}>
+                                              <div className='flex justify-between items-center mb-1'>
+                                                <span className='text-sm text-gray-700 font-medium'>
+                                                  {itemAspect.aspect}
+                                                </span>
+                                                <span
+                                                  className='inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold'
+                                                  style={{
+                                                    background: scoreTrail(itemAspect.score),
+                                                    color: scoreColor(itemAspect.score),
+                                                  }}
+                                                >
+                                                  {itemAspect.score.toFixed(2)} / 5
+                                                </span>
+                                              </div>
+                                              <Progress
+                                                showInfo={false}
+                                                percent={(itemAspect.score / 5) * 100}
+                                                strokeLinecap='round'
+                                                strokeColor={scoreColor(itemAspect.score)}
+                                                trailColor={scoreTrail(itemAspect.score)}
+                                              />
+                                            </div>
+                                          ))}
+                                        </div>
+                                      ),
+                                      okText: 'Đóng',
+                                      maskClosable: true,
+                                    });
+                                  }
+                                : undefined
+                            }
                             onClick={() => {
-                              client.logEvent('see_course_detail', undefined, {
-                                algorithm,
+                              logEvent('see_course_detail', undefined, {
                                 courseCode: courseDetail.course.code,
                                 rank: String(rank),
                               });
@@ -345,8 +339,7 @@ export default function TriRankRecommendation() {
                                 courseId={courseDetail.course.id}
                                 onMarkChange={(marked) => {
                                   if (marked) {
-                                    client.logEvent('click_planned', undefined, {
-                                      algorithm,
+                                    logEvent('click_planned', undefined, {
                                       courseCode: courseDetail.course.code,
                                       page: 'recommendation',
                                       rank: String(rank),

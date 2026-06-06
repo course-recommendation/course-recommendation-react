@@ -3,7 +3,7 @@ import useRequest from '@/common/hooks/network/useRequest';
 import { Algorithm, Course, GetCoursesRequest } from '@/common/types/Course.types';
 import { CreatePostRequest } from '@/common/types/Discuss.types';
 import { useMeContext } from '@/screen/AuthenticateChecking/Authenticated/context/MeContext';
-import { EditOutlined, PictureOutlined, SmileOutlined } from '@ant-design/icons';
+import { MessageOutlined, TeamOutlined, TrophyOutlined } from '@ant-design/icons';
 import { ProForm, ProFormSelect, ProFormTextArea } from '@ant-design/pro-components';
 import { Avatar, Button, Modal, Skeleton, Typography } from 'antd';
 import { useForm } from 'antd/es/form/Form';
@@ -56,33 +56,22 @@ export default function CreatePostCard({ afterPost, algorithm }: Props) {
           {/* Divider */}
           <div className='mt-4 border-t border-slate-100' />
 
-          {/* Action buttons */}
-          <div className='flex items-center justify-between mt-3'>
-            <div className='flex gap-1'>
-              <button
-                onClick={() => setOpenModal(true)}
-                className='flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-500 hover:bg-indigo-50 hover:text-indigo-600 transition-colors'
-              >
-                <PictureOutlined className='text-green-500' />
-                Ảnh / Video
-              </button>
-              <button
-                onClick={() => setOpenModal(true)}
-                className='flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-500 hover:bg-indigo-50 hover:text-indigo-600 transition-colors'
-              >
-                <SmileOutlined className='text-yellow-500' />
-                Cảm xúc
-              </button>
+          {/* Stats row */}
+          <div className='flex items-center justify-around mt-3'>
+            <div className='flex items-center gap-1.5 text-xs text-slate-400'>
+              <MessageOutlined className='text-indigo-400' />
+              Thảo luận về môn học
             </div>
-            <Button
-              type='primary'
-              size='small'
-              icon={<EditOutlined />}
-              onClick={() => setOpenModal(true)}
-              className='rounded-full text-xs font-semibold px-4'
-            >
-              Viết bài
-            </Button>
+            <div className='w-px h-4 bg-slate-100' />
+            <div className='flex items-center gap-1.5 text-xs text-slate-400'>
+              <TeamOutlined className='text-indigo-400' />
+              Chia sẻ kinh nghiệm
+            </div>
+            <div className='w-px h-4 bg-slate-100' />
+            <div className='flex items-center gap-1.5 text-xs text-slate-400'>
+              <TrophyOutlined className='text-indigo-400' />
+              Đánh giá khóa học
+            </div>
           </div>
         </div>
       </div>

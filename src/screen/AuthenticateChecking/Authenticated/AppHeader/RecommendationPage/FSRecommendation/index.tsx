@@ -2,10 +2,10 @@ import TrendingDown from '@/assets/icons/TrendingDown';
 import TrendingUp from '@/assets/icons/TrendingUp';
 import CourseStatusButton from '@/common/components/CourseStatusButton';
 import RecommendedCourseCard from '@/common/components/RecommendedCourseCard';
-import { useAlgorithmContext } from '@/common/context/AlgorithmContext';
 import { useShowExplanationContext } from '@/common/context/ShowExplanationContext';
 import useGet from '@/common/hooks/network/useGet';
 import useRequest from '@/common/hooks/network/useRequest';
+import { useLogEvent } from '@/common/hooks/useLogEvent';
 import {
   Algorithm,
   Attribute,
@@ -26,7 +26,6 @@ import {
 import { RecommendationSettingsFormType } from '@/common/types/TriRank.types';
 import { scoreColor, scoreTrail } from '@/common/utils/scoreColor';
 import { ArrowUpOutlined, QuestionOutlined, StarFilled } from '@ant-design/icons';
-import { useStatsigClient } from '@statsig/react-bindings';
 import { Button, Empty, Progress, Skeleton, Space, Spin, Tag, Typography } from 'antd';
 import useApp from 'antd/es/app/useApp';
 import { useForm } from 'antd/es/form/Form';
@@ -64,8 +63,7 @@ const CategorySection = memo(function CategorySection({
   rankOffset,
   showExplanation,
 }: CategorySectionProps) {
-  const { client } = useStatsigClient();
-  const algorithm = useAlgorithmContext();
+  const logEvent = useLogEvent();
   const { modal } = useApp();
 
   const getExplanationScores = (courseCode: string) =>
@@ -79,8 +77,7 @@ const CategorySection = memo(function CategorySection({
       e.preventDefault();
       e.stopPropagation();
 
-      client.logEvent('view_course_explanation', undefined, {
-        algorithm,
+      logEvent('view_course_explanation', undefined, {
         courseCode: courseDetail.course.code,
         rank: String(rank),
       });
@@ -170,11 +167,14 @@ const CategorySection = memo(function CategorySection({
               courseDetail={courseDetail}
               index={catIdx * 10 + courseIdx + 1}
               rank={rank}
-              explanationScores={showExplanation ? getExplanationScores(courseDetail.course.code) : undefined}
-              onSeeFullExplanation={showExplanation ? openFsExplanationModal(courseDetail, rank) : undefined}
+              explanationScores={
+                showExplanation ? getExplanationScores(courseDetail.course.code) : undefined
+              }
+              onSeeFullExplanation={
+                showExplanation ? openFsExplanationModal(courseDetail, rank) : undefined
+              }
               onClick={() => {
-                client.logEvent('see_course_detail', undefined, {
-                  algorithm,
+                logEvent('see_course_detail', undefined, {
                   courseCode: courseDetail.course.code,
                   rank: String(rank),
                 });
@@ -195,8 +195,7 @@ const CategorySection = memo(function CategorySection({
                     courseId={courseDetail.course.id}
                     onMarkChange={(marked) => {
                       if (marked) {
-                        client.logEvent('click_planned', undefined, {
-                          algorithm,
+                        logEvent('click_planned', undefined, {
                           courseCode: courseDetail.course.code,
                           page: 'recommendation',
                           rank: String(rank),
@@ -223,8 +222,7 @@ const CategorySection = memo(function CategorySection({
                         e.preventDefault();
                         e.stopPropagation();
 
-                        client.logEvent('get_refined_recommendation', undefined, {
-                          algorithm,
+                        logEvent('get_refined_recommendation', undefined, {
                           courseCode: courseDetail.course.code,
                           rank: String(rank),
                         });
@@ -292,8 +290,7 @@ const CategorySection = memo(function CategorySection({
 });
 
 export default function FSRecommendation() {
-  const { client } = useStatsigClient();
-  const algorithm = useAlgorithmContext();
+  const logEvent = useLogEvent();
   const showExplanation = useShowExplanationContext();
   const { modal } = useApp();
 
@@ -364,7 +361,7 @@ export default function FSRecommendation() {
   }, [latestFSRecommendationResultPending, latestFSRecommendationResultResponse]);
 
   const handleGetRecommendation = async () => {
-    client.logEvent('get_recommendation', undefined, { algorithm });
+    logEvent('get_recommendation');
     setSettingsDrawerOpen(false);
 
     const formValues = await form.validateFields();
@@ -449,8 +446,7 @@ export default function FSRecommendation() {
       e.preventDefault();
       e.stopPropagation();
 
-      client.logEvent('view_course_explanation', undefined, {
-        algorithm,
+      logEvent('view_course_explanation', undefined, {
         courseCode: courseDetail.course.code,
         rank: String(rank),
       });
@@ -595,8 +591,7 @@ export default function FSRecommendation() {
                               index={index}
                               rank={rank}
                               onClick={() => {
-                                client.logEvent('see_course_detail', undefined, {
-                                  algorithm,
+                                logEvent('see_course_detail', undefined, {
                                   courseCode: courseDetail.course.code,
                                   rank: String(rank),
                                 });
@@ -620,8 +615,7 @@ export default function FSRecommendation() {
                                   courseId={courseDetail.course.id}
                                   onMarkChange={(marked) => {
                                     if (marked) {
-                                      client.logEvent('click_planned', undefined, {
-                                        algorithm,
+                                      logEvent('click_planned', undefined, {
                                         courseCode: courseDetail.course.code,
                                         page: 'recommendation',
                                         rank: String(rank),
@@ -690,8 +684,7 @@ export default function FSRecommendation() {
                           1,
                         )}
                         onClick={() => {
-                          client.logEvent('see_course_detail', undefined, {
-                            algorithm,
+                          logEvent('see_course_detail', undefined, {
                             courseCode: topCourseDetail.course.code,
                             rank: '1',
                           });
@@ -715,8 +708,7 @@ export default function FSRecommendation() {
                             courseId={topCourseDetail.course.id}
                             onMarkChange={(marked) => {
                               if (marked) {
-                                client.logEvent('click_planned', undefined, {
-                                  algorithm,
+                                logEvent('click_planned', undefined, {
                                   courseCode: topCourseDetail.course.code,
                                   page: 'recommendation',
                                   rank: '1',

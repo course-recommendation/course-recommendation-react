@@ -70,7 +70,7 @@ export default function LoginPage() {
           </div>
           <h1 className='text-[28px] font-semibold text-[#1C1917] text-center'>Đăng nhập</h1>
           <p className='text-gray-500 text-sm mt-1 text-center'>
-            Chào mừng trở lại — hệ thống đang chờ bạn.
+            Khám phá các khóa học phù hợp với bạn.
           </p>
         </div>
 
