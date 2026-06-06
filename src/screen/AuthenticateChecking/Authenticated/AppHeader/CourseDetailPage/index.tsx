@@ -12,11 +12,13 @@ import {
 import { useStatsigClient } from '@statsig/react-bindings';
 import { Skeleton } from 'antd';
 import { useState } from 'react';
-import { Link, useParams } from 'react-router';
+import { Link, useParams, useSearchParams } from 'react-router';
 import AttributeRating from './AttributeRating';
 
 export default function CourseDetailPage() {
   const { courseCode: courseCodeOpt } = useParams();
+  const [searchParams] = useSearchParams();
+  const rank = searchParams.get('rank') ?? undefined;
   const algorithm = useAlgorithmContext();
   const { client } = useStatsigClient();
 
@@ -89,6 +91,7 @@ export default function CourseDetailPage() {
                     algorithm,
                     courseCode,
                     page: 'detail',
+                    ...(rank != null && { rank }),
                   });
                 }
                 setUserCourseStatusOverride(marked ? UserCourseStatus.PLANNED : undefined);
@@ -107,7 +110,7 @@ export default function CourseDetailPage() {
               courseId={course.id}
             />
           </div>
-        </div>
+      </div>
 
         {/* Rating section */}
         <div

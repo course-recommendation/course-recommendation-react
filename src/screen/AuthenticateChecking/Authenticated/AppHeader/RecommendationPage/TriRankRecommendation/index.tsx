@@ -2,6 +2,7 @@ import CourseStatusButton from '@/common/components/CourseStatusButton';
 import RecommendedCourseCard from '@/common/components/RecommendedCourseCard';
 import { TRI_RANK_NUMBER_OF_COURSES } from '@/common/constants/Recommendation.constant';
 import { useAlgorithmContext } from '@/common/context/AlgorithmContext';
+import { useShowExplanationContext } from '@/common/context/ShowExplanationContext';
 import useGet from '@/common/hooks/network/useGet';
 import useRequest from '@/common/hooks/network/useRequest';
 import {
@@ -57,6 +58,7 @@ function RankBadge({ rank }: { rank: number }) {
 export default function TriRankRecommendation() {
   const { client } = useStatsigClient();
   const algorithm = useAlgorithmContext();
+  const showExplanation = useShowExplanationContext();
   const { modal } = useApp();
 
   const [form] = useForm<RecommendationSettingsFormType>();
@@ -248,11 +250,12 @@ export default function TriRankRecommendation() {
                             key={courseDetail.course.code}
                             courseDetail={courseDetail}
                             index={index}
-                            explanationScores={(
+                            rank={rank}
+                            explanationScores={showExplanation ? (
                               recommendationResult.itemIdToItemAspects[courseDetail.course.code] ??
                               []
-                            ).map((a) => ({ label: a.aspect, score: a.score }))}
-                            onSeeFullExplanation={(e) => {
+                            ).map((a) => ({ label: a.aspect, score: a.score })) : undefined}
+                            onSeeFullExplanation={showExplanation ? (e) => {
                               e.preventDefault();
                               e.stopPropagation();
 
@@ -310,7 +313,7 @@ export default function TriRankRecommendation() {
                                 okText: 'Đóng',
                                 maskClosable: true,
                               });
-                            }}
+                            } : undefined}
                             onClick={() => {
                               client.logEvent('see_course_detail', undefined, {
                                 algorithm,

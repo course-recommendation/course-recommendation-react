@@ -16,6 +16,7 @@ type Props = {
   topLeftBadge?: ReactNode;
   topRightBadge?: ReactNode;
   index?: number;
+  rank?: number;
   onClick?: (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => void;
   explanationScores?: ExplanationScore[];
   onSeeFullExplanation?: (e: React.MouseEvent) => void;
@@ -31,6 +32,7 @@ export default function RecommendedCourseCard({
   topLeftBadge,
   topRightBadge,
   index,
+  rank,
   onClick,
   explanationScores,
   onSeeFullExplanation,
@@ -41,7 +43,7 @@ export default function RecommendedCourseCard({
 
   return (
     <Link
-      to={`/courses/${courseDetail.course.code}`}
+      to={rank != null ? `/courses/${courseDetail.course.code}?rank=${rank}` : `/courses/${courseDetail.course.code}`}
       className='block'
       onClick={(e) => {
         onClick?.(e);

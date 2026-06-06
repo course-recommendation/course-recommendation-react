@@ -1,3 +1,4 @@
+import { ShowExplanationContext } from '@/common/context/ShowExplanationContext';
 import { StatsigProvider, useClientAsyncInit } from '@statsig/react-bindings';
 import { Spin } from 'antd';
 import { Outlet, useOutletContext } from 'react-router';
@@ -17,7 +18,9 @@ export default function AuthenticatedStatsig() {
   return (
     <StatsigProvider client={client} loadingComponent={<Spin fullscreen />}>
       <MeContext value={{ me, isFirstLogin, isAdmin }}>
-        <Outlet />
+        <ShowExplanationContext value={me.showExplanation ?? true}>
+          <Outlet />
+        </ShowExplanationContext>
       </MeContext>
     </StatsigProvider>
   );

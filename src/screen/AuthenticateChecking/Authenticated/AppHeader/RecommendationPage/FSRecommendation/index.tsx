@@ -3,6 +3,7 @@ import TrendingUp from '@/assets/icons/TrendingUp';
 import CourseStatusButton from '@/common/components/CourseStatusButton';
 import RecommendedCourseCard from '@/common/components/RecommendedCourseCard';
 import { useAlgorithmContext } from '@/common/context/AlgorithmContext';
+import { useShowExplanationContext } from '@/common/context/ShowExplanationContext';
 import useGet from '@/common/hooks/network/useGet';
 import useRequest from '@/common/hooks/network/useRequest';
 import {
@@ -47,6 +48,7 @@ type CategorySectionProps = {
   onRefinedRecommendation: (itemId: string, category: FSTradeoffPair[]) => Promise<void>;
   onScrollToTop: () => void;
   rankOffset: number;
+  showExplanation: boolean;
 };
 
 const CategorySection = memo(function CategorySection({
@@ -60,6 +62,7 @@ const CategorySection = memo(function CategorySection({
   onRefinedRecommendation,
   onScrollToTop,
   rankOffset,
+  showExplanation,
 }: CategorySectionProps) {
   const { client } = useStatsigClient();
   const algorithm = useAlgorithmContext();
@@ -166,8 +169,9 @@ const CategorySection = memo(function CategorySection({
               key={courseDetail.course.code}
               courseDetail={courseDetail}
               index={catIdx * 10 + courseIdx + 1}
-              explanationScores={getExplanationScores(courseDetail.course.code)}
-              onSeeFullExplanation={openFsExplanationModal(courseDetail, rank)}
+              rank={rank}
+              explanationScores={showExplanation ? getExplanationScores(courseDetail.course.code) : undefined}
+              onSeeFullExplanation={showExplanation ? openFsExplanationModal(courseDetail, rank) : undefined}
               onClick={() => {
                 client.logEvent('see_course_detail', undefined, {
                   algorithm,
@@ -290,6 +294,7 @@ const CategorySection = memo(function CategorySection({
 export default function FSRecommendation() {
   const { client } = useStatsigClient();
   const algorithm = useAlgorithmContext();
+  const showExplanation = useShowExplanationContext();
   const { modal } = useApp();
 
   const { data: allCoursesResponse } = useGet<Course[]>(`/courses`, {
@@ -562,6 +567,86 @@ export default function FSRecommendation() {
 
               const topCourseDetail = recommendationResult.topCourseDetail;
 
+              if (!showExplanation) {
+                const flatCourseDetails = [
+                  topCourseDetail,
+                  ...recommendationResult.categoryDetails.flatMap((cd) => cd.courseDetails),
+                ];
+
+                return (
+                  <div
+                    ref={scrollContainerRef}
+                    className='md:h-full md:overflow-y-auto overscroll-none'
+                  >
+                    <Spin
+                      spinning={
+                        getRefinedFSRecommendationPending ||
+                        getFSRecommendationPending ||
+                        refetchingLatestFSRecommendationResult
+                      }
+                    >
+                      <div className='flex flex-col gap-4'>
+                        {flatCourseDetails.map((courseDetail, index) => {
+                          const rank = index + 1;
+                          return (
+                            <RecommendedCourseCard
+                              key={courseDetail.course.code}
+                              courseDetail={courseDetail}
+                              index={index}
+                              rank={rank}
+                              onClick={() => {
+                                client.logEvent('see_course_detail', undefined, {
+                                  algorithm,
+                                  courseCode: courseDetail.course.code,
+                                  rank: String(rank),
+                                });
+                              }}
+                              topRightBadge={
+                                getEffectiveUserCourseStatus(courseDetail) ===
+                                UserCourseStatus.COMPLETED ? (
+                                  <Tag variant='solid' color='green'>
+                                    Đã hoàn thành
+                                  </Tag>
+                                ) : undefined
+                              }
+                              extra={
+                                <CourseStatusButton
+                                  type='plan'
+                                  className='w-full'
+                                  marked={
+                                    getEffectiveUserCourseStatus(courseDetail) ===
+                                    UserCourseStatus.PLANNED
+                                  }
+                                  courseId={courseDetail.course.id}
+                                  onMarkChange={(marked) => {
+                                    if (marked) {
+                                      client.logEvent('click_planned', undefined, {
+                                        algorithm,
+                                        courseCode: courseDetail.course.code,
+                                        page: 'recommendation',
+                                        rank: String(rank),
+                                      });
+                                    }
+                                    handleCourseStatusChange(
+                                      courseDetail.course.code,
+                                      marked ? UserCourseStatus.PLANNED : undefined,
+                                    );
+                                  }}
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                  }}
+                                />
+                              }
+                            />
+                          );
+                        })}
+                      </div>
+                    </Spin>
+                  </div>
+                );
+              }
+
               return (
                 <div
                   ref={scrollContainerRef}
@@ -594,6 +679,7 @@ export default function FSRecommendation() {
                       <RecommendedCourseCard
                         courseDetail={topCourseDetail}
                         index={0}
+                        rank={1}
                         explanationScores={getExplanationScores(
                           topCourseDetail.course.code,
                           recommendationResult.itemIdToItemSentiments,
@@ -677,6 +763,7 @@ export default function FSRecommendation() {
                             onRefinedRecommendation={handleRefinedRecommendation}
                             onScrollToTop={scrollToTop}
                             rankOffset={rankOffset}
+                            showExplanation={showExplanation}
                           />
                         );
                       })}

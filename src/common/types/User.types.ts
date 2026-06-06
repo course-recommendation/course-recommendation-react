@@ -3,6 +3,7 @@ export type User = {
   email: string;
   fullName: string;
   avatarUrl?: string;
+  showExplanation?: boolean;
 };
 
 export function getUserFullName(user: User) {
