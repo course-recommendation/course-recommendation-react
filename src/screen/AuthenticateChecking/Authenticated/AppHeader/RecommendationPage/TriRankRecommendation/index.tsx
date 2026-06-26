@@ -1,6 +1,5 @@
 import CourseStatusButton from '@/common/components/CourseStatusButton';
 import RecommendedCourseCard from '@/common/components/RecommendedCourseCard';
-import { PAGE_SIZE_FOR_ALL_ITEMS } from '@/common/constants/Recommendation.constant';
 import { useShowExplanationContext } from '@/common/context/ShowExplanationContext';
 import useGet from '@/common/hooks/network/useGet';
 import useRequest from '@/common/hooks/network/useRequest';
@@ -17,17 +16,14 @@ import {
   TriRankRecommendationRequest,
   TriRankRecommendationResult,
 } from '@/common/types/TriRank.types';
-import { scoreColor, scoreTrail } from '@/common/utils/scoreColor';
-import { Button, Empty, Progress, Select, Skeleton, Spin, Tag } from 'antd';
-import useApp from 'antd/es/app/useApp';
+import { Button, Empty, Select, Skeleton, Spin, Tag } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import { useEffect, useState } from 'react';
 import RecommendationSettingsForm from '../components/RecommendationSettingsForm';
 import RecommendationSettingsSidebar from '../components/RecommendationSettingsSidebar';
 
 function RankBadge({ rank }: { rank: number }) {
-  const bg =
-    rank === 1 ? '#f59e0b' : rank === 2 ? '#94a3b8' : rank === 3 ? '#ea580c' : '#a8a29e';
+  const bg = rank === 1 ? '#f59e0b' : rank === 2 ? '#94a3b8' : rank === 3 ? '#ea580c' : '#a8a29e';
   const label = rank <= 3 ? `TOP ${rank}` : `#${rank}`;
   return (
     <div
@@ -42,7 +38,6 @@ function RankBadge({ rank }: { rank: number }) {
 export default function TriRankRecommendation() {
   const logEvent = useLogEvent();
   const showExplanation = useShowExplanationContext();
-  const { modal } = useApp();
 
   const [form] = useForm<RecommendationSettingsFormType>();
   const [settingsDrawerOpen, setSettingsDrawerOpen] = useState(false);
@@ -178,20 +173,17 @@ export default function TriRankRecommendation() {
         />
 
         <div className='flex flex-col md:h-full md:overflow-hidden w-full'>
-          {/* Section heading */}
-          <div className='shrink-0'>
-            <div
-              className='font-bold text-[28px] text-[#1C1917] leading-tight'
-              style={{ fontFamily: 'var(--font-serif)' }}
-            >
-              Gợi ý môn học
-            </div>
-            <div className='mt-2 w-8 h-[3px] rounded-full bg-indigo-700'></div>
-          </div>
+          <div className='md:flex-1 md:min-h-0 md:overflow-y-auto overscroll-none'>
+            {/*<div className='mb-4'>*/}
+            {/*  <div*/}
+            {/*    className='font-bold text-[28px] text-[#1C1917] leading-tight'*/}
+            {/*    style={{ fontFamily: 'var(--font-serif)' }}*/}
+            {/*  >*/}
+            {/*    Gợi ý môn học*/}
+            {/*  </div>*/}
+            {/*  <div className='mt-2 w-8 h-[3px] rounded-full bg-indigo-700'></div>*/}
+            {/*</div>*/}
 
-          <div className='my-4 shrink-0'></div>
-
-          <div className='md:flex-1 md:min-h-0'>
             {(() => {
               if (latestTriRankRecommendationResultPending) {
                 return <Skeleton active paragraph={{ rows: 6 }} />;
@@ -208,31 +200,32 @@ export default function TriRankRecommendation() {
               }
 
               return (
-                <div className='md:h-full md:overflow-y-auto overscroll-none'>
-                  <Spin
-                    spinning={
-                      getTriRankRecommendationPending || refetchingLatestTriRankRecommendationResult
-                    }
-                  >
-                    <div className='flex items-center justify-end gap-2 mb-5'>
-                      <span className='text-sm font-medium text-gray-700'>Hiển thị</span>
-                      <Select<number>
-                        size='small'
-                        value={displayLimit}
-                        onChange={(val) => setDisplayLimit(val)}
-                        options={[
-                          { label: '10', value: 10 },
-                          { label: '20', value: 20 },
-                          { label: '50', value: 50 },
-                          { label: 'Tất cả', value: Number.MAX_SAFE_INTEGER },
-                        ]}
-                        style={{ width: 90 }}
-                      />
-                      <span className='text-sm text-gray-500'>môn học</span>
-                    </div>
+                <Spin
+                  spinning={
+                    getTriRankRecommendationPending || refetchingLatestTriRankRecommendationResult
+                  }
+                >
+                  <div className='flex items-center justify-end gap-2 mb-5'>
+                    <span className='text-sm font-medium text-gray-700'>Hiển thị</span>
+                    <Select<number>
+                      size='small'
+                      value={displayLimit}
+                      onChange={(val) => setDisplayLimit(val)}
+                      options={[
+                        { label: '10', value: 10 },
+                        { label: '20', value: 20 },
+                        { label: '50', value: 50 },
+                        { label: 'Tất cả', value: Number.MAX_SAFE_INTEGER },
+                      ]}
+                      style={{ width: 90 }}
+                    />
+                    <span className='text-sm text-gray-500'>môn học</span>
+                  </div>
 
-                    <div className='flex flex-col gap-4'>
-                      {recommendationResult.courseDetails.slice(0, displayLimit).map((courseDetail, index) => {
+                  <div className='flex flex-col gap-4'>
+                    {recommendationResult.courseDetails
+                      .slice(0, displayLimit)
+                      .map((courseDetail, index) => {
                         const rank = index + 1;
 
                         return (
@@ -248,72 +241,6 @@ export default function TriRankRecommendation() {
                                       courseDetail.course.code
                                     ] ?? []
                                   ).map((a) => ({ label: a.aspect, score: a.score }))
-                                : undefined
-                            }
-                            onSeeFullExplanation={
-                              showExplanation
-                                ? (e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-
-                                    logEvent('view_course_explanation', undefined, {
-                                      courseCode: courseDetail.course.code,
-                                      rank: String(rank),
-                                    });
-
-                                    const sortedItemAspects = (
-                                      recommendationResult.itemIdToItemAspects[
-                                        courseDetail.course.code
-                                      ] ?? []
-                                    ).sort((a, b) =>
-                                      a.aspect.localeCompare(b.aspect, 'vi', {
-                                        sensitivity: 'base',
-                                      }),
-                                    );
-
-                                    modal.info({
-                                      title: (
-                                        <div className='text-xl font-semibold'>
-                                          Điểm số các tiêu chí
-                                        </div>
-                                      ),
-                                      content: (
-                                        <div className='space-y-3'>
-                                          <div className='text-gray-600 text-[15px] leading-[1.7]'>
-                                            Điểm cảm nhận trung bình của sinh viên cho từng tiêu
-                                            chí. Thang điểm từ 1 đến 5.
-                                          </div>
-                                          {sortedItemAspects.map((itemAspect) => (
-                                            <div key={itemAspect.aspect}>
-                                              <div className='flex justify-between items-center mb-1'>
-                                                <span className='text-sm text-gray-700 font-medium'>
-                                                  {itemAspect.aspect}
-                                                </span>
-                                                <span
-                                                  className='inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold'
-                                                  style={{
-                                                    background: scoreTrail(itemAspect.score),
-                                                    color: scoreColor(itemAspect.score),
-                                                  }}
-                                                >
-                                                  {itemAspect.score.toFixed(2)} / 5
-                                                </span>
-                                              </div>
-                                              <Progress
-                                                showInfo={false}
-                                                percent={(itemAspect.score / 5) * 100}
-                                                strokeLinecap='round'
-                                                strokeColor={scoreColor(itemAspect.score)}
-                                                trailColor={scoreTrail(itemAspect.score)}
-                                              />
-                                            </div>
-                                          ))}
-                                        </div>
-                                      ),
-                                      okText: 'Đóng',
-                                      maskClosable: true,
-                                    });
-                                  }
                                 : undefined
                             }
                             onClick={() => {
@@ -368,9 +295,8 @@ export default function TriRankRecommendation() {
                           />
                         );
                       })}
-                    </div>
-                  </Spin>
-                </div>
+                  </div>
+                </Spin>
               );
             })()}
           </div>

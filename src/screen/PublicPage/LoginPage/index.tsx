@@ -7,7 +7,6 @@ import { ProForm, ProFormText } from '@ant-design/pro-components';
 import { Button } from 'antd';
 import useApp from 'antd/es/app/useApp';
 import { useForm } from 'antd/es/form/Form';
-import { Link } from 'react-router';
 
 type LoginFormType = {
   email: string;
@@ -105,12 +104,12 @@ export default function LoginPage() {
             Đăng nhập
           </Button>
 
-          <div className='mt-5 text-center text-sm text-gray-500'>
-            Chưa có tài khoản?{' '}
-            <Link to='/public-path/register' className='text-indigo-700 font-medium'>
-              Đăng ký ngay
-            </Link>
-          </div>
+          {/*<div className='mt-5 text-center text-sm text-gray-500'>*/}
+          {/*  Chưa có tài khoản?{' '}*/}
+          {/*  <Link to='/public-path/register' className='text-indigo-700 font-medium'>*/}
+          {/*    Đăng ký ngay*/}
+          {/*  </Link>*/}
+          {/*</div>*/}
         </div>
       </div>
     </div>

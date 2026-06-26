@@ -1,4 +1,11 @@
-import { DeleteOutlined, EditOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons';
+import {
+  DeleteOutlined,
+  DownloadOutlined,
+  EditOutlined,
+  PlusOutlined,
+  TeamOutlined,
+  UploadOutlined,
+} from '@ant-design/icons';
 import {
   ActionType,
   ModalForm,
@@ -11,6 +18,7 @@ import { useRef, useState } from 'react';
 
 import defaultAxios from '@/common/services/defaultAxios';
 import { SortOrder } from 'antd/es/table/interface';
+import * as XLSX from 'xlsx';
 
 type AdminUserRow = {
   id: string;
@@ -43,13 +51,23 @@ export function ImportButton({
   url,
   onSuccess,
   formatColumns,
+  exampleFileName = 'example',
 }: {
   url: string;
   onSuccess: () => void;
   formatColumns: ExcelColumn[];
+  exampleFileName?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
+
+  const handleDownloadExample = () => {
+    const headers = formatColumns.map((c) => c.label);
+    const ws = XLSX.utils.aoa_to_sheet([headers]);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+    XLSX.writeFile(wb, `${exampleFileName}.xlsx`);
+  };
 
   return (
     <>
@@ -84,7 +102,10 @@ export function ImportButton({
             { title: 'Ghi chú', dataIndex: 'note' },
           ]}
         />
-        <div style={{ marginTop: 16, textAlign: 'right' }}>
+        <div style={{ marginTop: 16, display: 'flex', justifyContent: 'space-between' }}>
+          <Button icon={<DownloadOutlined />} onClick={handleDownloadExample}>
+            Tải file mẫu
+          </Button>
           <Upload
             accept='.xlsx'
             showUploadList={false}
@@ -202,7 +223,7 @@ export function UsersSection() {
       <ProTable<AdminUserRow>
         className='rounded-lg border border-gray-200 overflow-hidden'
         actionRef={actionRef}
-        headerTitle='Người dùng'
+        headerTitle={<span className='flex items-center gap-2 text-lg font-semibold'><TeamOutlined className='text-emerald-600' />Người dùng</span>}
         rowKey='id'
         rowSelection={{ selectedRowKeys: selectedKeys, onChange: setSelectedKeys }}
         search={false}
@@ -234,7 +255,6 @@ export function UsersSection() {
         }}
         columns={[
           { title: 'STT', valueType: 'index', width: 60 },
-          { title: 'ID', dataIndex: 'id', ellipsis: true, width: 220, copyable: true },
           {
             title: 'Email',
             dataIndex: 'email',
@@ -289,6 +309,7 @@ export function UsersSection() {
             key='import'
             url='/admin/users/import'
             onSuccess={() => actionRef.current?.reload()}
+            exampleFileName='mau-nguoi-dung'
             formatColumns={[
               { col: 'A', label: 'Email', required: true },
               { col: 'B', label: 'Họ và tên' },

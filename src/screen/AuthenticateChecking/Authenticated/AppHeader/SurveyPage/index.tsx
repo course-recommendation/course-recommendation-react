@@ -1,5 +1,4 @@
 import RatingBox from '@/common/components/RatingBox';
-import { PAGE_SIZE_FOR_ALL_ITEMS } from '@/common/constants/Recommendation.constant';
 import { useAlgorithmContext } from '@/common/context/AlgorithmContext';
 import useGet from '@/common/hooks/network/useGet';
 import useRequest from '@/common/hooks/network/useRequest';
@@ -91,17 +90,13 @@ export default function SurveyPage() {
           Khảo sát sở thích môn học
         </h1>
         <div className='mt-2 w-8 h-[3px] rounded-full bg-indigo-700' />
-        <p className='mt-4 text-gray-500 text-[15px] leading-[1.7]'>
-          Trước khi xem gợi ý, hãy cho hệ thống biết mức độ bạn mong muốn ở từng tiêu chí. Khảo sát
-          này chỉ mất khoảng 1 phút và giúp kết quả gợi ý sát với nhu cầu của bạn hơn.
-        </p>
       </div>
 
       {/* Info callout */}
       <div className='mb-6 rounded-xl border border-indigo-200 bg-indigo-50 px-5 py-4'>
         <p className='text-indigo-800 text-[14px] leading-[1.7]'>
-          Thang điểm từ 1 đến 5: điểm càng cao nghĩa là bạn càng ưu tiên tiêu chí đó có cảm nhận
-          tích cực hơn trong môn học được gợi ý.
+          Thang điểm từ 1 đến 5: điểm số càng cao nghĩa là bạn muốn tiêu chí đó có cảm nhận tích cực
+          hơn. Bạn có thể điều chỉnh các chỉ số này sau.
         </p>
       </div>
 
@@ -110,22 +105,27 @@ export default function SurveyPage() {
         <Skeleton active paragraph={{ rows: 6 }} />
       ) : (
         <div className='flex flex-col gap-4'>
-          {attributesResponse?.data.map((attribute) => (
-            <div
-              key={attribute.id}
-              className='bg-[#FAF9F7] rounded-xl border border-stone-200 px-5 py-4'
-              style={{ boxShadow: '0 1px 4px rgba(0,0,0,.04)' }}
-            >
-              <div className='text-[15px] font-semibold text-[#1C1917] mb-3'>{attribute.value}</div>
-              <RatingBox
-                highlightSmallerValues
-                value={attributeToScore[attribute.value] ?? 3}
-                onChange={(score) =>
-                  setAttributeToScore((prev) => ({ ...prev, [attribute.value]: score }))
-                }
-              />
-            </div>
-          ))}
+          {attributesResponse?.data
+            .slice()
+            .sort((a, b) => a.value.localeCompare(b.value, 'vi', { sensitivity: 'base' }))
+            .map((attribute) => (
+              <div
+                key={attribute.id}
+                className='bg-[#FAF9F7] rounded-xl border border-stone-200 px-5 py-4'
+                style={{ boxShadow: '0 1px 4px rgba(0,0,0,.04)' }}
+              >
+                <div className='text-[15px] font-semibold text-[#1C1917] mb-3'>
+                  {attribute.value}
+                </div>
+                <RatingBox
+                  highlightSmallerValues
+                  value={attributeToScore[attribute.value] ?? 3}
+                  onChange={(score) =>
+                    setAttributeToScore((prev) => ({ ...prev, [attribute.value]: score }))
+                  }
+                />
+              </div>
+            ))}
         </div>
       )}
 

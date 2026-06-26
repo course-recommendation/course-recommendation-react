@@ -1,4 +1,4 @@
-import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
+import { BookOutlined, DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ActionType, ModalForm, ProFormText, ProTable } from '@ant-design/pro-components';
 import { Button, Input, message, Modal, Space } from 'antd';
 import { useRef, useState } from 'react';
@@ -124,7 +124,7 @@ export function CoursesSection() {
       <ProTable<AdminCourseRow>
         className='rounded-lg border border-gray-200 overflow-hidden'
         actionRef={actionRef}
-        headerTitle='Khóa học'
+        headerTitle={<span className='flex items-center gap-2 text-lg font-semibold'><BookOutlined className='text-indigo-600' />Khóa học</span>}
         rowKey='id'
         rowSelection={{ selectedRowKeys: selectedKeys, onChange: setSelectedKeys }}
         search={false}
@@ -204,6 +204,7 @@ export function CoursesSection() {
             key='import'
             url='/admin/courses/import'
             onSuccess={() => actionRef.current?.reload()}
+            exampleFileName='mau-khoa-hoc'
             formatColumns={[
               { col: 'A', label: 'Mã khóa học', required: true },
               { col: 'B', label: 'Tên khóa học', required: true },

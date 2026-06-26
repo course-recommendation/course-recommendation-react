@@ -16,9 +16,9 @@ export default function DiscussRightSidebar({ topCourses }: Props) {
   return (
     <div className='flex flex-col gap-4 sticky top-4'>
       {/* Most discussed */}
-      <div className='rounded-2xl border border-slate-200/80 bg-white shadow-sm overflow-hidden'>
-        <div className='px-4 py-3 border-b border-slate-100'>
-          <Typography.Text strong className='text-slate-800 text-sm'>
+      <div className='rounded-xl border border-[#E8E5E0] bg-white shadow-sm overflow-hidden'>
+        <div className='px-4 py-3 border-b border-[#E8E5E0]'>
+          <Typography.Text strong className='text-[#1C1917] text-sm'>
             Môn học thảo luận nhiều
           </Typography.Text>
         </div>
@@ -46,11 +46,11 @@ export default function DiscussRightSidebar({ topCourses }: Props) {
       </div>
 
       {/* Tips */}
-      <div className='rounded-2xl border border-indigo-100 bg-indigo-50/60 px-4 py-4'>
-        <Typography.Text strong className='text-indigo-800 text-sm block mb-1'>
+      <div className='rounded-xl border border-[#E8E5E0] bg-white shadow-sm px-4 py-4'>
+        <Typography.Text strong className='text-[#1C1917] text-sm block mb-1'>
           Mẹo thảo luận
         </Typography.Text>
-        <ul className='space-y-1.5 text-xs text-indigo-700 leading-relaxed list-none m-0 p-0'>
+        <ul className='space-y-1.5 text-xs text-slate-500 leading-relaxed list-none m-0 p-0'>
           <li>• Chia sẻ kinh nghiệm thực tế của bạn</li>
           <li>• Hỏi cụ thể để nhận câu trả lời hữu ích hơn</li>
           <li>• Tôn trọng ý kiến của người khác</li>

@@ -1,8 +1,8 @@
 import RatingBox from '@/common/components/RatingBox';
+import { useLogEvent } from '@/common/hooks/useLogEvent';
 import { Attribute, Course } from '@/common/types/Course.types';
 import { FilterCoursesOption } from '@/common/types/Recommendation.types';
 import { RecommendationSettingsFormType } from '@/common/types/TriRank.types';
-import { QuestionCircleOutlined } from '@ant-design/icons';
 import {
   ProForm,
   ProFormCheckbox,
@@ -10,9 +10,8 @@ import {
   ProFormItem,
   ProFormSelect,
 } from '@ant-design/pro-components';
-import { useLogEvent } from '@/common/hooks/useLogEvent';
-import useApp from 'antd/es/app/useApp';
 import { FormInstance } from 'antd/es/form';
+import { useEffect, useRef } from 'react';
 
 type Props = {
   form: FormInstance<RecommendationSettingsFormType>;
@@ -23,18 +22,16 @@ type Props = {
   initialCustomFilteredCourseCodes: string[];
 };
 
-function SectionHeading({ title, onHelp }: { title: string; onHelp: () => void }) {
+function SectionHeading({ title, description }: { title: string; description?: string }) {
   return (
-    <div className='flex items-center gap-2.5 mb-4'>
-      <span className='inline-block w-1 h-5 rounded-full bg-indigo-600 shrink-0'></span>
-      <span className='text-[15px] font-semibold text-[#1C1917] tracking-tight'>{title}</span>
-      <button
-        type='button'
-        onClick={onHelp}
-        className='ml-auto text-gray-400 hover:text-indigo-600 transition-colors duration-150 leading-none'
-      >
-        <QuestionCircleOutlined />
-      </button>
+    <div className='mb-4'>
+      <div className='flex items-center gap-2.5'>
+        <span className='inline-block w-1 h-5 rounded-full bg-indigo-600 shrink-0'></span>
+        <span className='text-[15px] font-semibold text-[#1C1917] tracking-tight'>{title}</span>
+      </div>
+      {description && (
+        <p className='mt-1.5 ml-[18px] text-[13px] text-gray-500 leading-relaxed'>{description}</p>
+      )}
     </div>
   );
 }
@@ -47,7 +44,6 @@ export default function RecommendationSettingsForm({
   initialFilterCoursesOptions,
   initialCustomFilteredCourseCodes,
 }: Props) {
-  const { modal } = useApp();
   const logEvent = useLogEvent();
 
   return (
@@ -68,34 +64,8 @@ export default function RecommendationSettingsForm({
       {/* Criteria section */}
       <div>
         <SectionHeading
-          title='Tùy chỉnh tiêu chí'
-          onHelp={() => {
-            modal.info({
-              title: <div className='text-xl font-semibold'>Hướng dẫn tùy chỉnh tiêu chí</div>,
-              content: (
-                <div className='space-y-3'>
-                  <div className='text-gray-700'>
-                    Bạn đang thiết lập mức độ mong muốn cho từng tiêu chí của môn học. Hệ thống sẽ
-                    ưu tiên gợi ý các môn có điểm cảm nhận gần với các mức bạn chọn.
-                  </div>
-                  <div className='rounded-lg border border-blue-100 bg-blue-50 px-3 py-2 text-gray-700'>
-                    <span className='font-semibold text-blue-700'>Cách hiểu nhanh:</span> Chỉ số
-                    càng cao nghĩa là bạn muốn tiêu chí đó có cảm nhận tích cực hơn.
-                  </div>
-                  <div className='rounded-lg border border-gray-200 bg-gray-50 px-3 py-2'>
-                    <div className='font-semibold text-gray-800 mb-1'>Ví dụ</div>
-                    <div className='text-gray-700'>
-                      Nếu bạn tăng chỉ số <span className='font-semibold'>"Bài tập về nhà"</span>,
-                      hệ thống sẽ ưu tiên các môn mà sinh viên đánh giá tích cực hơn ở khía cạnh bài
-                      tập về nhà (điều này có nghĩa là bài tập có thể dễ hơn, hoặc khối lượng ít
-                      hơn,...).
-                    </div>
-                  </div>
-                </div>
-              ),
-              okText: 'Đã hiểu',
-            });
-          }}
+          title='Điều chỉnh các tiêu chí'
+          description='Điểm số càng cao nghĩa là bạn muốn tiêu chí đó có cảm nhận tích cực hơn.'
         />
         <div className='flex flex-col gap-1'>
           {attributes
@@ -126,31 +96,7 @@ export default function RecommendationSettingsForm({
       <div>
         <SectionHeading
           title='Lọc môn học'
-          onHelp={() => {
-            modal.info({
-              title: <div className='text-xl font-semibold'>Hướng dẫn lọc môn học</div>,
-              content: (
-                <div className='space-y-3'>
-                  <div className='text-gray-700'>
-                    Phần này giúp bạn loại bỏ các môn không muốn xuất hiện trong kết quả gợi ý để
-                    danh sách phù hợp hơn với nhu cầu hiện tại.
-                  </div>
-                  <div className='rounded-lg border border-blue-100 bg-blue-50 px-3 py-2 text-gray-700'>
-                    <div className='font-semibold text-blue-700'>Cách dùng nhanh</div>
-                    <div>
-                      Chọn một hoặc nhiều tùy chọn bên dưới. Hệ thống sẽ tự động loại các môn tương
-                      ứng trước khi tính toán gợi ý.
-                    </div>
-                  </div>
-                  <div className='rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-gray-700'>
-                    Nếu chọn <span className='font-semibold'>Loại các môn tùy ý</span>, bạn có thể
-                    chọn chính xác các mã môn muốn loại ở danh sách bên dưới.
-                  </div>
-                </div>
-              ),
-              okText: 'Đã hiểu',
-            });
-          }}
+          description='Loại bỏ các môn bạn không muốn xuất hiện trong kết quả gợi ý.'
         />
         <ProFormCheckbox.Group
           noStyle
@@ -164,15 +110,15 @@ export default function RecommendationSettingsForm({
           }}
           options={[
             {
-              label: <span className='text-sm text-gray-700'>Loại các môn đang dự kiến học</span>,
+              label: <span className='text-sm text-gray-700'>Lọc các môn đã lưu</span>,
               value: FilterCoursesOption.PLANNING,
             },
             {
-              label: <span className='text-sm text-gray-700'>Loại các môn đã hoàn thành</span>,
+              label: <span className='text-sm text-gray-700'>Lọc các môn đã hoàn thành</span>,
               value: FilterCoursesOption.COMPLETED,
             },
             {
-              label: <span className='text-sm text-gray-700'>Loại các môn tùy ý</span>,
+              label: <span className='text-sm text-gray-700'>Tùy chỉnh</span>,
               value: FilterCoursesOption.CUSTOM,
             },
           ]}
@@ -182,23 +128,31 @@ export default function RecommendationSettingsForm({
             const filterCoursesOptions = _filterCoursesOptions as FilterCoursesOption[] | undefined;
             if (!filterCoursesOptions?.includes(FilterCoursesOption.CUSTOM)) return null;
 
-            return (
-              <div className='mt-3'>
-                <ProFormSelect
-                  name={'customFilteredCourseCodes'}
-                  label={
-                    <span className='text-sm font-medium text-gray-700'>Chọn các môn cần loại</span>
-                  }
-                  mode='multiple'
-                  showSearch
-                  options={allCourses.map((course) => ({ label: course.name, value: course.code }))}
-                />
-              </div>
-            );
+            return <CustomFilterSelect allCourses={allCourses} />;
           }}
         </ProFormDependency>
       </div>
     </ProForm>
+  );
+}
+
+function CustomFilterSelect({ allCourses }: { allCourses: Course[] }) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    ref.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, []);
+
+  return (
+    <div className='mt-3' ref={ref}>
+      <ProFormSelect
+        name={'customFilteredCourseCodes'}
+        label={<span className='text-sm font-medium text-gray-700'>Chọn các môn cần lọc</span>}
+        mode='multiple'
+        showSearch
+        options={allCourses.map((course) => ({ label: course.name, value: course.code }))}
+      />
+    </div>
   );
 }
 

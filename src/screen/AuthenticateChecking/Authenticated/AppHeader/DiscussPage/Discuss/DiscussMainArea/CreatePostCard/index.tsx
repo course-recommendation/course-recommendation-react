@@ -33,20 +33,16 @@ export default function CreatePostCard({ afterPost, algorithm }: Props) {
 
   return (
     <>
-      <div className='relative overflow-hidden rounded-2xl border border-indigo-100 bg-white shadow-md shadow-indigo-50/60'>
-        {/* Accent stripe */}
-        <div className='absolute inset-x-0 top-0 h-[3px] bg-indigo-700' />
-
+      <div
+        className='rounded-xl border border-[#E8E5E0] bg-white'
+        style={{ boxShadow: '0 1px 4px rgba(0,0,0,.04), 0 4px 16px rgba(0,0,0,.02)' }}
+      >
         <div className='px-5 pt-5 pb-4'>
           {/* Prompt row */}
           <div className='flex gap-3 items-center'>
-            <Avatar
-              src={me.avatarUrl}
-              size={40}
-              className='shrink-0 ring-2 ring-indigo-100 ring-offset-1'
-            />
+            <Avatar src={me.avatarUrl} size={40} className='shrink-0' />
             <button
-              className='flex-1 h-11 rounded-full border border-slate-200 bg-slate-50 px-5 text-left text-slate-400 text-sm hover:border-indigo-300 hover:bg-indigo-50/40 hover:text-slate-500 transition-all cursor-pointer shadow-inner shadow-slate-100/80'
+              className='flex-1 h-11 rounded-full border border-[#E8E5E0] bg-slate-50 px-5 text-left text-slate-400 text-sm hover:border-indigo-300 hover:text-slate-500 transition-all cursor-pointer'
               onClick={() => setOpenModal(true)}
             >
               Chia sẻ điều gì đó về môn học...
@@ -54,7 +50,7 @@ export default function CreatePostCard({ afterPost, algorithm }: Props) {
           </div>
 
           {/* Divider */}
-          <div className='mt-4 border-t border-slate-100' />
+          <div className='mt-4 border-t border-[#E8E5E0]' />
 
           {/* Stats row */}
           <div className='flex items-center justify-around mt-3'>

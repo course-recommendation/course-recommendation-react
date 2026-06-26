@@ -1,9 +1,9 @@
-import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, PlusOutlined, StarOutlined } from '@ant-design/icons';
 import {
   ActionType,
   ModalForm,
   ProFormDigit,
-  ProFormText,
+  ProFormSelect,
   ProTable,
 } from '@ant-design/pro-components';
 import { Button, Input, message, Modal, Space } from 'antd';
@@ -15,7 +15,7 @@ import { ImportButton } from './UsersSection';
 
 type AdminRatingRow = {
   id: number;
-  userId: string;
+  userEmail: string;
   courseId: number;
   courseCode: string;
   attributeId: number;
@@ -114,7 +114,7 @@ export function RatingsSection() {
       <ProTable<AdminRatingRow>
         className='rounded-lg border border-gray-200 overflow-hidden'
         actionRef={actionRef}
-        headerTitle='Đánh giá người dùng'
+        headerTitle={<span className='flex items-center gap-2 text-lg font-semibold'><StarOutlined className='text-amber-600' />Đánh giá người dùng</span>}
         rowKey='id'
         rowSelection={{ selectedRowKeys: selectedKeys, onChange: setSelectedKeys }}
         search={false}
@@ -125,7 +125,7 @@ export function RatingsSection() {
           showTotal: (total) => `Tổng ${total} bản ghi`,
         }}
         request={async (params, sort, filter) => {
-          const userId = (filter?.['userId'] as string[])?.[0];
+          const userEmail = (filter?.['userEmail'] as string[])?.[0];
           const courseCode = (filter?.['courseCode'] as string[])?.[0];
           const attributeName = (filter?.['attributeName'] as string[])?.[0];
           const resp = await defaultAxios.get('/admin/ratings', {
@@ -133,7 +133,7 @@ export function RatingsSection() {
               page: (params.current ?? 1) - 1,
               size: params.pageSize ?? 10,
               sort: buildSortParam(sort),
-              userId: userId || undefined,
+              userEmail: userEmail || undefined,
               courseCode: courseCode || undefined,
               attributeName: attributeName || undefined,
             },
@@ -147,10 +147,10 @@ export function RatingsSection() {
         columns={[
           { title: 'STT', valueType: 'index', width: 60 },
           {
-            title: 'ID người dùng',
-            dataIndex: 'userId',
+            title: 'Email người dùng',
+            dataIndex: 'userEmail',
             sorter: true,
-            filterDropdown: textFilterDropdown('Tìm mã người dùng'),
+            filterDropdown: textFilterDropdown('Tìm email người dùng'),
             onFilter: () => true,
           },
           {
@@ -190,8 +190,9 @@ export function RatingsSection() {
             key='import'
             url='/admin/ratings/import'
             onSuccess={() => actionRef.current?.reload()}
+            exampleFileName='mau-danh-gia'
             formatColumns={[
-              { col: 'A', label: 'Mã người dùng', required: true },
+              { col: 'A', label: 'Email người dùng', required: true },
               { col: 'B', label: 'Mã khóa học', required: true },
               { col: 'C', label: 'Tên thuộc tính', required: true },
               { col: 'D', label: 'Điểm', required: true, note: 'Số nguyên từ 1 đến 5' },
@@ -216,9 +217,9 @@ export function RatingsSection() {
         modalProps={{ destroyOnClose: true, width: 480 }}
         onFinish={async (values) => {
           await defaultAxios.post('/admin/ratings', {
-            userId: values.userId,
+            userEmail: values.userEmail,
             courseId: Number(values.courseId),
-            attributeId: Number(values.attributeId),
+            attributeName: values.attributeName,
             score: values.score,
           });
           message.success('Thêm thành công');
@@ -226,9 +227,51 @@ export function RatingsSection() {
           return true;
         }}
       >
-        <ProFormText name='userId' label='Mã người dùng' rules={[{ required: true }]} />
-        <ProFormText name='courseId' label='Mã khóa học' rules={[{ required: true }]} />
-        <ProFormText name='attributeId' label='ID thuộc tính' rules={[{ required: true }]} />
+        <ProFormSelect
+          name='userEmail'
+          label='Email người dùng'
+          rules={[{ required: true }]}
+          showSearch
+          request={async () => {
+            const resp = await defaultAxios.get('/admin/users', {
+              params: { page: 0, size: 10000 },
+            });
+            return (resp.data.data.content as { email: string }[]).map((u) => ({
+              label: u.email,
+              value: u.email,
+            }));
+          }}
+        />
+        <ProFormSelect
+          name='courseId'
+          label='Mã khóa học'
+          rules={[{ required: true }]}
+          showSearch
+          request={async () => {
+            const resp = await defaultAxios.get('/admin/courses', {
+              params: { page: 0, size: 10000 },
+            });
+            return (resp.data.data.content as { id: number; code: string }[]).map((c) => ({
+              label: c.code,
+              value: c.id,
+            }));
+          }}
+        />
+        <ProFormSelect
+          name='attributeName'
+          label='Tên thuộc tính'
+          rules={[{ required: true }]}
+          showSearch
+          request={async () => {
+            const resp = await defaultAxios.get('/admin/attributes', {
+              params: { page: 0, size: 10000 },
+            });
+            return (resp.data.data.content as { value: string }[]).map((a) => ({
+              label: a.value,
+              value: a.value,
+            }));
+          }}
+        />
         <ProFormDigit name='score' label='Điểm' min={1} max={5} rules={[{ required: true }]} />
       </ModalForm>
 

@@ -18,11 +18,6 @@ export default defineConfig({
     },
   },
   server: {
-    allowedHosts: [
-      'fs.hcmus.courserecom.site',
-      'tr.hcmus.courserecom.site',
-      'fs.hcmut.courserecom.site',
-      'tr.hcmut.courserecom.site',
-    ],
+    allowedHosts: true,
   },
 });

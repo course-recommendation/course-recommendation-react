@@ -1,4 +1,4 @@
-import { CheckOutlined, PlusOutlined } from '@ant-design/icons';
+import { CheckOutlined, PlusOutlined, SaveFilled, SaveOutlined } from '@ant-design/icons';
 import { Button, ButtonProps } from 'antd';
 import classNames from 'classnames';
 import { useEffect, useState } from 'react';
@@ -33,7 +33,7 @@ export default function CourseStatusButton({
 
   const getButtonLabel = () => {
     if (type === 'plan') {
-      return marked ? 'Đang dự kiến học' : 'Dự kiến học';
+      return marked ? 'Đã lưu' : 'Lưu môn học';
     }
     if (type === 'complete') {
       return marked ? 'Đã hoàn thành' : 'Hoàn thành';
@@ -61,10 +61,17 @@ export default function CourseStatusButton({
     return undefined;
   };
 
+  const getIcon = () => {
+    if (type === 'plan') {
+      return marked ? <SaveFilled /> : <SaveOutlined />;
+    }
+    return marked ? <CheckOutlined /> : <PlusOutlined />;
+  };
+
   return (
     <Button
       size={size}
-      icon={marked ? <CheckOutlined /> : <PlusOutlined />}
+      icon={getIcon()}
       color={getColor()}
       variant={getVariant()}
       className={classNames(className)}

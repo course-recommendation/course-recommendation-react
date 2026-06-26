@@ -1,19 +1,21 @@
 import useGet from '@/common/hooks/network/useGet';
 import useRequest from '@/common/hooks/network/useRequest';
+import RatingPopoverCard from '@/common/components/RatingPopoverCard';
 import {
   CreatePostCommentRequest,
   PostCommentDetail,
   PostDetail,
 } from '@/common/types/Discuss.types';
+import { Algorithm } from '@/common/types/Course.types';
 import { getUserFullName } from '@/common/types/User.types';
-import { LikeOutlined, MessageOutlined, ShareAltOutlined } from '@ant-design/icons';
-import { Avatar, Button, Skeleton, Typography } from 'antd';
+import { Avatar, Empty, Popover, Skeleton, Spin, Typography } from 'antd';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import 'dayjs/locale/vi';
 import { useState } from 'react';
 import { Link } from 'react-router';
-import PostCommentSection from './PostCommentSection';
+import PostCommentInput from './PostCommentSection/PostCommentInput';
+import PostCommentItem from './PostCommentSection/PostCommentItem';
 
 dayjs.extend(relativeTime);
 dayjs.locale('vi');
@@ -21,42 +23,76 @@ dayjs.locale('vi');
 type Props = {
   postDetail: PostDetail;
   isNew?: boolean;
+  algorithm: Algorithm;
 };
 
-function LazyCommentSection({ postId }: { postId: number }) {
+function InlineComments({ postId }: { postId: number }) {
   const {
     data: postCommentDetailsResponse,
-    isPending: postCommentDetailsPending,
-    refetch: refetchPostCommentDetails,
+    isPending,
+    refetch,
   } = useGet<PostCommentDetail[]>(`/posts/${postId}/comments`);
 
   const { request: comment } = useRequest<void, CreatePostCommentRequest>();
   const [commenting, setCommenting] = useState(false);
+  const [expanded, setExpanded] = useState(false);
 
-  if (postCommentDetailsPending) {
-    return <Skeleton active paragraph={{ rows: 2 }} />;
+  const handleComment = async (text: string) => {
+    setCommenting(true);
+    await comment({
+      method: 'post',
+      url: `/posts/${postId}/comments`,
+      data: { content: text },
+    });
+    await refetch();
+    setCommenting(false);
+  };
+
+  if (isPending) {
+    return (
+      <div className='mt-3'>
+        <Skeleton active paragraph={{ rows: 2 }} title={false} />
+      </div>
+    );
   }
 
+  const comments = postCommentDetailsResponse!.data;
+  const visibleComments = expanded ? comments : comments.slice(0, 3);
+
   return (
-    <PostCommentSection
-      postCommentDetails={postCommentDetailsResponse!.data}
-      commenting={commenting}
-      onComment={async (text) => {
-        setCommenting(true);
-        await comment({
-          method: 'post',
-          url: `/posts/${postId}/comments`,
-          data: { content: text },
-        });
-        await refetchPostCommentDetails();
-        setCommenting(false);
-      }}
-    />
+    <div className='mt-3'>
+      {comments.length === 0 && !commenting ? (
+        <Empty description='Chưa có bình luận nào' className='py-2' />
+      ) : (
+        <div
+          className={`flex flex-col gap-2${expanded ? ' max-h-[360px] overflow-y-auto pr-1' : ''}`}
+        >
+          {commenting && <Spin className='flex justify-center' />}
+          {visibleComments.map((c) => (
+            <PostCommentItem key={c.postComment.id} postCommentDetail={c} />
+          ))}
+        </div>
+      )}
+
+      {comments.length > 3 && !expanded && (
+        <button
+          onClick={() => setExpanded(true)}
+          className='mt-3 flex w-full cursor-pointer items-center gap-3 text-sm font-medium text-slate-400 hover:text-indigo-600 transition-colors'
+        >
+          <span className='h-px flex-1 bg-slate-200' />
+          {`Xem tất cả ${comments.length} bình luận`}
+          <span className='h-px flex-1 bg-slate-200' />
+        </button>
+      )}
+
+      <div className='mt-3'>
+        <PostCommentInput onComment={handleComment} />
+      </div>
+    </div>
   );
 }
 
-export default function PostCard({ postDetail, isNew }: Props) {
-  const [showComments, setShowComments] = useState(false);
+export default function PostCard({ postDetail, isNew, algorithm }: Props) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const content = postDetail.post.content;
@@ -82,11 +118,24 @@ export default function PostCard({ postDetail, isNew }: Props) {
             )}
           </div>
         </div>
-        <Link to={`/courses/${postDetail.course.code}`} className='max-w-[45%]'>
-          <span className='block truncate rounded-full bg-indigo-50 border border-indigo-100 px-3 py-1 text-xs text-indigo-700 font-medium hover:bg-indigo-100 transition-colors'>
-            {postDetail.course.name}
-          </span>
-        </Link>
+        <Popover
+          trigger='hover'
+          placement='bottomRight'
+          overlayInnerStyle={{ background: 'white' }}
+          content={
+            <RatingPopoverCard
+              courseId={postDetail.course.id}
+              courseCode={postDetail.course.code}
+              algorithm={algorithm}
+            />
+          }
+        >
+          <Link to={`/courses/${postDetail.course.code}`} className='max-w-[45%]'>
+            <span className='block truncate rounded-full bg-indigo-50 border border-indigo-100 px-3 py-1 text-xs text-indigo-700 font-medium hover:bg-indigo-100 transition-colors'>
+              {postDetail.course.name}
+            </span>
+          </Link>
+        </Popover>
       </div>
 
       {/* Body */}
@@ -109,41 +158,7 @@ export default function PostCard({ postDetail, isNew }: Props) {
       {/* Divider */}
       <div className='mt-4 border-t border-[#E8E5E0]' />
 
-      {/* Reactions row */}
-      <div className='mt-1 flex gap-0.5'>
-        <Button
-          type='text'
-          icon={<LikeOutlined />}
-          className='text-slate-500 hover:!text-slate-700 hover:!bg-slate-50 rounded-lg text-sm font-normal'
-          size='small'
-        >
-          Thích
-        </Button>
-        <Button
-          type='text'
-          icon={<MessageOutlined />}
-          onClick={() => setShowComments((v) => !v)}
-          className={`rounded-lg text-sm font-normal ${showComments ? '!text-indigo-600 !bg-indigo-50' : 'text-slate-500 hover:!text-slate-700 hover:!bg-slate-50'}`}
-          size='small'
-        >
-          Bình luận
-        </Button>
-        <Button
-          type='text'
-          icon={<ShareAltOutlined />}
-          className='text-slate-500 hover:!text-slate-700 hover:!bg-slate-50 rounded-lg text-sm font-normal'
-          size='small'
-        >
-          Chia sẻ
-        </Button>
-      </div>
-
-      {/* Comments — lazy loaded */}
-      {showComments && (
-        <div className='mt-3 border-t border-[#E8E5E0] pt-3'>
-          <LazyCommentSection postId={postDetail.post.id} />
-        </div>
-      )}
+      <InlineComments postId={postDetail.post.id} />
     </div>
   );
 }

@@ -54,12 +54,12 @@ export default function CourseDetailPage() {
 
   return (
     <div className='max-w-4xl mx-auto'>
-      <Link
+      {/* <Link
         to='/courses'
         className='inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-indigo-700 transition-colors font-medium'
       >
         ← Quay về danh sách môn học
-      </Link>
+      </Link> */}
 
       <div className='mt-6 flex flex-col gap-4'>
         {/* Hero image */}

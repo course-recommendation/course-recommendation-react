@@ -3,11 +3,10 @@ import { Algorithm } from '@/common/types/Course.types';
 import { FindPostDetailsRequest, PostDetail } from '@/common/types/Discuss.types';
 import { FilterOutlined } from '@ant-design/icons';
 import { Button, Drawer } from 'antd';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import DiscussFilter from './components/DiscussFilter';
 import DiscussMainArea from './DiscussMainArea';
-import DiscussRightSidebar from './DiscussRightSidebar';
 
 type Props = {
   algorithm: Algorithm;
@@ -35,23 +34,6 @@ export default function Discuss({ algorithm }: Props) {
     } as FindPostDetailsRequest,
   });
 
-  const topCourses = useMemo(() => {
-    if (!postDetailsResponse) return [];
-    const courseCounts = new Map<
-      string,
-      { course: (typeof postDetailsResponse.data)[0]['course']; count: number }
-    >();
-    postDetailsResponse.data.forEach(({ course }) => {
-      const existing = courseCounts.get(course.code);
-      if (existing) {
-        existing.count++;
-      } else {
-        courseCounts.set(course.code, { course, count: 1 });
-      }
-    });
-    return [...courseCounts.values()].sort((a, b) => b.count - a.count).slice(0, 6);
-  }, [postDetailsResponse]);
-
   const resolveNumberOfFiltersText = () => {
     const filterCount = finalFilteredCourseCodes.length;
     if (filterCount === 0) return '';
@@ -77,21 +59,9 @@ export default function Discuss({ algorithm }: Props) {
   }, [finalFilteredCourseCodes, setSearchParams]);
 
   return (
-    <div className='grid grid-cols-1 items-start gap-5 md:grid-cols-[240px_1fr] lg:grid-cols-[240px_1fr_260px] md:gap-6 lg:gap-8'>
-      {/* Left filter sidebar */}
-      <div className='hidden md:block'>
-        <DiscussFilter
-          algorithm={algorithm}
-          selectedCourseIds={filteredCourseCodes}
-          onSelectedCourseIdsChange={(courseIds) => {
-            setFilteredCourseCodes(courseIds);
-            setFinalFilteredCourseCodes(courseIds);
-          }}
-        />
-      </div>
-
+    <div className='grid grid-cols-1 gap-5 md:grid-cols-[4fr_2fr] md:gap-6'>
       {/* Main feed */}
-      <div className='min-w-0'>
+      <div className='min-w-0 self-start'>
         <DiscussMainArea
           algorithm={algorithm}
           postDetails={postDetailsResponse?.data}
@@ -111,9 +81,16 @@ export default function Discuss({ algorithm }: Props) {
         />
       </div>
 
-      {/* Right sidebar */}
-      <div className='hidden lg:block'>
-        <DiscussRightSidebar topCourses={topCourses} />
+      {/* Filter sidebar */}
+      <div className='hidden md:block'>
+        <DiscussFilter
+          algorithm={algorithm}
+          selectedCourseIds={filteredCourseCodes}
+          onSelectedCourseIdsChange={(courseIds) => {
+            setFilteredCourseCodes(courseIds);
+            setFinalFilteredCourseCodes(courseIds);
+          }}
+        />
       </div>
 
       {/* Mobile filter drawer */}

@@ -1,7 +1,14 @@
 import BookIcon from '@/assets/icons/BookIcon';
 import { LocalStorageKey } from '@/common/constants/LocalStorageKey';
 import useGet from '@/common/hooks/network/useGet';
-import { MenuOutlined } from '@ant-design/icons';
+import {
+  BulbOutlined,
+  CommentOutlined,
+  FolderOutlined,
+  HomeOutlined,
+  MenuOutlined,
+  ReadOutlined,
+} from '@ant-design/icons';
 import {
   Avatar,
   Button,
@@ -49,24 +56,29 @@ export default function AppHeader() {
     ? [
         {
           key: PathKey.ADMIN,
+          icon: <HomeOutlined style={{ color: '#3B82F6' }} />,
           label: <Link to={'/admin'}>Trang chủ</Link>,
         },
       ]
     : [
         {
           key: PathKey.RECOMMENDATION,
+          icon: <BulbOutlined style={{ color: '#F59E0B' }} />,
           label: <Link to={'/'}>Gợi ý môn học</Link>,
         },
         {
           key: PathKey.COURSES,
+          icon: <ReadOutlined style={{ color: '#3B82F6' }} />,
           label: <Link to={'/courses'}>Môn học</Link>,
         },
         {
           key: PathKey.DISCUSS,
+          icon: <CommentOutlined style={{ color: '#22C55E' }} />,
           label: <Link to={'/discuss'}>Thảo luận</Link>,
         },
         {
           key: PathKey.MY_COURSES,
+          icon: <FolderOutlined style={{ color: '#A855F7' }} />,
           label: <Link to={'/my-courses'}>Môn học của tôi</Link>,
         },
       ];

@@ -34,7 +34,7 @@ export default function RecommendationSettingsSidebar({
         <div className='shrink-0 mb-4'>
           <div className='flex items-center gap-2 mb-1'>
             <SlidersOutlined className='text-indigo-600 text-base' />
-            <span className='text-[17px] font-semibold text-[#1C1917] tracking-tight'>
+            <span className='text-[20px] font-semibold text-[#1C1917] tracking-tight'>
               Cài đặt gợi ý
             </span>
           </div>

@@ -25,7 +25,7 @@ export default function PostCommentInput({ onComment }: Props) {
       <Avatar src={me.avatarUrl} size={32} className='shrink-0' />
       <div className='relative w-full'>
         <Input.TextArea
-          className='w-full rounded-2xl border-slate-200 bg-slate-50/90 pr-10'
+          className='w-full pr-10'
           autoSize={{ minRows: 1, maxRows: 6 }}
           placeholder='Bình luận...'
           value={text}

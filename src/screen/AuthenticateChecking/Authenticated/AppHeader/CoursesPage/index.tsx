@@ -36,15 +36,15 @@ export default function CoursesPage() {
   return (
     <div>
       <div className='flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8'>
-        <div>
-          <h1
-            className='text-[28px] font-semibold text-[#1C1917] leading-tight'
-            style={{ fontFamily: 'var(--font-serif)' }}
-          >
-            Môn học
-          </h1>
-          <div className='mt-2 w-8 h-[3px] rounded-full bg-indigo-700' />
-        </div>
+        {/*<div>*/}
+        {/*  <h1*/}
+        {/*    className='text-[28px] font-semibold text-[#1C1917] leading-tight'*/}
+        {/*    style={{ fontFamily: 'var(--font-serif)' }}*/}
+        {/*  >*/}
+        {/*    Môn học*/}
+        {/*  </h1>*/}
+        {/*  <div className='mt-2 w-8 h-[3px] rounded-full bg-indigo-700' />*/}
+        {/*</div>*/}
 
         {/* Search bar */}
         <div

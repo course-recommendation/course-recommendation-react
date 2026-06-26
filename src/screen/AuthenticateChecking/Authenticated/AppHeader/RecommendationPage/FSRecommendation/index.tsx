@@ -24,9 +24,8 @@ import {
   isDirectionUp,
 } from '@/common/types/FS.types';
 import { RecommendationSettingsFormType } from '@/common/types/TriRank.types';
-import { scoreColor, scoreTrail } from '@/common/utils/scoreColor';
 import { ArrowUpOutlined, QuestionOutlined, StarFilled } from '@ant-design/icons';
-import { Button, Empty, Progress, Skeleton, Space, Spin, Tag, Typography } from 'antd';
+import { Button, Empty, Skeleton, Space, Spin, Tag, Typography } from 'antd';
 import useApp from 'antd/es/app/useApp';
 import { useForm } from 'antd/es/form/Form';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
@@ -71,55 +70,6 @@ const CategorySection = memo(function CategorySection({
       label: s.attribute,
       score: s.sentimentScore,
     }));
-
-  const openFsExplanationModal =
-    (courseDetail: CourseDetail, rank: number) => (e: React.MouseEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-
-      logEvent('view_course_explanation', undefined, {
-        courseCode: courseDetail.course.code,
-        rank: String(rank),
-      });
-
-      const sentiments = itemIdToItemSentiments[courseDetail.course.code] ?? [];
-
-      modal.info({
-        title: <div className='text-xl font-semibold'>Điểm số các tiêu chí</div>,
-        content: (
-          <div className='space-y-3'>
-            <div className='text-gray-600 text-[15px] leading-[1.7]'>
-              Điểm cảm nhận trung bình của sinh viên cho từng tiêu chí. Thang điểm từ 1 đến 5.
-            </div>
-            {sentiments.map((s) => (
-              <div key={s.attribute}>
-                <div className='flex justify-between items-center mb-1'>
-                  <span className='text-sm text-gray-700 font-medium'>{s.attribute}</span>
-                  <span
-                    className='inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold'
-                    style={{
-                      background: scoreTrail(s.sentimentScore),
-                      color: scoreColor(s.sentimentScore),
-                    }}
-                  >
-                    {s.sentimentScore.toFixed(2)} / 5
-                  </span>
-                </div>
-                <Progress
-                  showInfo={false}
-                  percent={(s.sentimentScore / 5) * 100}
-                  strokeLinecap='round'
-                  strokeColor={scoreColor(s.sentimentScore)}
-                  trailColor={scoreTrail(s.sentimentScore)}
-                />
-              </div>
-            ))}
-          </div>
-        ),
-        maskClosable: true,
-        okText: 'Đóng',
-      });
-    };
 
   const getEffectiveStatus = (courseDetail: CourseDetail) => {
     if (courseDetail.course.code in courseStatusOverrides) {
@@ -170,9 +120,6 @@ const CategorySection = memo(function CategorySection({
               explanationScores={
                 showExplanation ? getExplanationScores(courseDetail.course.code) : undefined
               }
-              onSeeFullExplanation={
-                showExplanation ? openFsExplanationModal(courseDetail, rank) : undefined
-              }
               onClick={() => {
                 logEvent('see_course_detail', undefined, {
                   courseCode: courseDetail.course.code,
@@ -187,7 +134,7 @@ const CategorySection = memo(function CategorySection({
                 ) : undefined
               }
               extra={
-                <div className='w-full flex gap-2'>
+                <div className='w-full flex flex-col sm:flex-row gap-2'>
                   <CourseStatusButton
                     type='plan'
                     className='w-full'
@@ -211,7 +158,6 @@ const CategorySection = memo(function CategorySection({
                       e.stopPropagation();
                     }}
                   />
-                  <div className='my-2'></div>
                   <Space.Compact className='w-full'>
                     <Button
                       icon={<ArrowUpOutlined />}
@@ -250,25 +196,13 @@ const CategorySection = memo(function CategorySection({
                             </div>
                           ),
                           content: (
-                            <div className='space-y-3'>
-                              <div className='text-gray-600 text-[15px] leading-[1.7]'>
-                                Khi chọn nút Tương tự, hệ thống sẽ ưu tiên tìm các môn học gần các
-                                môn trong nhóm gợi ý bạn đang xem.
-                              </div>
-                              <div className='rounded-lg border border-indigo-100 bg-indigo-50 px-3 py-2 text-gray-700'>
-                                <div className='font-semibold text-indigo-700 mb-1'>Mẹo</div>
-                                <div>
-                                  Dùng tính năng này khi bạn thích môn đang xem và muốn khám phá các
-                                  lựa chọn có trải nghiệm gần giống.
-                                </div>
-                              </div>
-                              <div className='rounded-lg border border-stone-200 bg-stone-50 px-3 py-2 text-gray-600'>
-                                Kết quả mới sẽ thay thế danh sách hiện tại để bạn tập trung vào nhóm
-                                môn học liên quan nhất.
-                              </div>
+                            <div className='text-gray-600 text-[15px] leading-[1.7]'>
+                              Tìm các môn có trải nghiệm gần giống với nhóm gợi ý bạn đang xem. Kết
+                              quả mới sẽ thay thế danh sách hiện tại.
                             </div>
                           ),
                           okText: 'Đã hiểu',
+                          maskClosable: true,
                         });
                       }}
                     ></Button>
@@ -291,7 +225,6 @@ const CategorySection = memo(function CategorySection({
 export default function FSRecommendation() {
   const logEvent = useLogEvent();
   const showExplanation = useShowExplanationContext();
-  const { modal } = useApp();
 
   const { data: allCoursesResponse } = useGet<Course[]>(`/courses`, {
     params: {
@@ -435,60 +368,6 @@ export default function FSRecommendation() {
       score: s.sentimentScore,
     }));
 
-  const openFsExplanationModal =
-    (
-      courseDetail: CourseDetail,
-      itemIdToItemSentiments: Record<string, FsItemSentiment[]>,
-      rank: number,
-    ) =>
-    (e: React.MouseEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-
-      logEvent('view_course_explanation', undefined, {
-        courseCode: courseDetail.course.code,
-        rank: String(rank),
-      });
-
-      const sentiments = itemIdToItemSentiments[courseDetail.course.code] ?? [];
-
-      modal.info({
-        title: <div className='text-xl font-semibold'>Điểm số các tiêu chí</div>,
-        content: (
-          <div className='space-y-3'>
-            <div className='text-gray-600 text-[15px] leading-[1.7]'>
-              Điểm cảm nhận trung bình của sinh viên cho từng tiêu chí. Thang điểm từ 1 đến 5.
-            </div>
-            {sentiments.map((s) => (
-              <div key={s.attribute}>
-                <div className='flex justify-between items-center mb-1'>
-                  <span className='text-sm text-gray-700 font-medium'>{s.attribute}</span>
-                  <span
-                    className='inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold'
-                    style={{
-                      background: scoreTrail(s.sentimentScore),
-                      color: scoreColor(s.sentimentScore),
-                    }}
-                  >
-                    {s.sentimentScore.toFixed(2)} / 5
-                  </span>
-                </div>
-                <Progress
-                  showInfo={false}
-                  percent={(s.sentimentScore / 5) * 100}
-                  strokeLinecap='round'
-                  strokeColor={scoreColor(s.sentimentScore)}
-                  trailColor={scoreTrail(s.sentimentScore)}
-                />
-              </div>
-            ))}
-          </div>
-        ),
-        maskClosable: true,
-        okText: 'Đóng',
-      });
-    };
-
   const getEffectiveUserCourseStatus = (courseDetail: CourseDetail) => {
     if (courseDetail.course.code in courseStatusOverrides) {
       return courseStatusOverrides[courseDetail.course.code];
@@ -532,20 +411,20 @@ export default function FSRecommendation() {
         />
 
         <div className='flex flex-col md:h-full md:overflow-hidden w-full'>
-          {/* Section heading */}
-          <div className='shrink-0'>
-            <div
-              className='font-bold text-[28px] text-[#1C1917] leading-tight'
-              style={{ fontFamily: 'var(--font-serif)' }}
-            >
-              Gợi ý môn học
-            </div>
-            <div className='mt-2 w-8 h-[3px] rounded-full bg-indigo-700'></div>
-          </div>
+          <div
+            ref={scrollContainerRef}
+            className='md:flex-1 md:min-h-0 md:overflow-y-auto overscroll-none'
+          >
+            {/*<div className='mb-4'>*/}
+            {/*  <div*/}
+            {/*    className='font-bold text-[28px] text-[#1C1917] leading-tight'*/}
+            {/*    style={{ fontFamily: 'var(--font-serif)' }}*/}
+            {/*  >*/}
+            {/*    Gợi ý môn học*/}
+            {/*  </div>*/}
+            {/*  <div className='mt-2 w-8 h-[3px] rounded-full bg-indigo-700'></div>*/}
+            {/*</div>*/}
 
-          <div className='my-4 shrink-0'></div>
-
-          <div className='md:flex-1 md:min-h-0'>
             {(() => {
               if (latestFSRecommendationResultPending) {
                 return <Skeleton active paragraph={{ rows: 6 }} />;
@@ -569,82 +448,6 @@ export default function FSRecommendation() {
                 ];
 
                 return (
-                  <div
-                    ref={scrollContainerRef}
-                    className='md:h-full md:overflow-y-auto overscroll-none'
-                  >
-                    <Spin
-                      spinning={
-                        getRefinedFSRecommendationPending ||
-                        getFSRecommendationPending ||
-                        refetchingLatestFSRecommendationResult
-                      }
-                    >
-                      <div className='flex flex-col gap-4'>
-                        {flatCourseDetails.map((courseDetail, index) => {
-                          const rank = index + 1;
-                          return (
-                            <RecommendedCourseCard
-                              key={courseDetail.course.code}
-                              courseDetail={courseDetail}
-                              index={index}
-                              rank={rank}
-                              onClick={() => {
-                                logEvent('see_course_detail', undefined, {
-                                  courseCode: courseDetail.course.code,
-                                  rank: String(rank),
-                                });
-                              }}
-                              topRightBadge={
-                                getEffectiveUserCourseStatus(courseDetail) ===
-                                UserCourseStatus.COMPLETED ? (
-                                  <Tag variant='solid' color='green'>
-                                    Đã hoàn thành
-                                  </Tag>
-                                ) : undefined
-                              }
-                              extra={
-                                <CourseStatusButton
-                                  type='plan'
-                                  className='w-full'
-                                  marked={
-                                    getEffectiveUserCourseStatus(courseDetail) ===
-                                    UserCourseStatus.PLANNED
-                                  }
-                                  courseId={courseDetail.course.id}
-                                  onMarkChange={(marked) => {
-                                    if (marked) {
-                                      logEvent('click_planned', undefined, {
-                                        courseCode: courseDetail.course.code,
-                                        page: 'recommendation',
-                                        rank: String(rank),
-                                      });
-                                    }
-                                    handleCourseStatusChange(
-                                      courseDetail.course.code,
-                                      marked ? UserCourseStatus.PLANNED : undefined,
-                                    );
-                                  }}
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                  }}
-                                />
-                              }
-                            />
-                          );
-                        })}
-                      </div>
-                    </Spin>
-                  </div>
-                );
-              }
-
-              return (
-                <div
-                  ref={scrollContainerRef}
-                  className='md:h-full md:overflow-y-auto overscroll-none'
-                >
                   <Spin
                     spinning={
                       getRefinedFSRecommendationPending ||
@@ -652,115 +455,176 @@ export default function FSRecommendation() {
                       refetchingLatestFSRecommendationResult
                     }
                   >
-                    {/* Top course — featured section */}
-                    <div
-                      className='relative rounded-xl p-5 bg-indigo-50 border border-indigo-200'
-                      style={{ boxShadow: CARD_SHADOW }}
-                    >
-                      <div className='flex items-start gap-3 mb-5'>
-                        <StarFilled className='text-amber-500 text-xl shrink-0 mt-0.5' />
-                        <div>
-                          <div className='text-[18px] font-semibold text-[#1C1917]'>
-                            Môn học phù hợp nhất
-                          </div>
-                          <div className='text-sm text-gray-500 mt-0.5'>
-                            Kết quả tốt nhất theo tiêu chí của bạn
-                          </div>
-                        </div>
-                      </div>
-
-                      <RecommendedCourseCard
-                        courseDetail={topCourseDetail}
-                        index={0}
-                        rank={1}
-                        explanationScores={getExplanationScores(
-                          topCourseDetail.course.code,
-                          recommendationResult.itemIdToItemSentiments,
-                        )}
-                        onSeeFullExplanation={openFsExplanationModal(
-                          topCourseDetail,
-                          recommendationResult.itemIdToItemSentiments,
-                          1,
-                        )}
-                        onClick={() => {
-                          logEvent('see_course_detail', undefined, {
-                            courseCode: topCourseDetail.course.code,
-                            rank: '1',
-                          });
-                        }}
-                        topRightBadge={
-                          getEffectiveUserCourseStatus(topCourseDetail) ===
-                          UserCourseStatus.COMPLETED ? (
-                            <Tag variant='solid' color='green'>
-                              Đã hoàn thành
-                            </Tag>
-                          ) : undefined
-                        }
-                        extra={
-                          <CourseStatusButton
-                            type='plan'
-                            className='w-full'
-                            marked={
-                              getEffectiveUserCourseStatus(topCourseDetail) ===
-                              UserCourseStatus.PLANNED
-                            }
-                            courseId={topCourseDetail.course.id}
-                            onMarkChange={(marked) => {
-                              if (marked) {
-                                logEvent('click_planned', undefined, {
-                                  courseCode: topCourseDetail.course.code,
-                                  page: 'recommendation',
-                                  rank: '1',
-                                });
-                              }
-                              setCourseStatusOverrides((prev) => ({
-                                ...prev,
-                                [topCourseDetail.course.code]: marked
-                                  ? UserCourseStatus.PLANNED
-                                  : undefined,
-                              }));
-                            }}
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                            }}
-                          />
-                        }
-                      />
-                    </div>
-
-                    <div className='my-5'></div>
-
-                    {/* Category sections */}
-                    <div className='flex flex-col gap-5'>
-                      {recommendationResult.categoryDetails.map((categoryDetail, catIdx) => {
-                        const rankOffset =
-                          2 +
-                          recommendationResult.categoryDetails
-                            .slice(0, catIdx)
-                            .reduce((sum, cat) => sum + cat.courseDetails.length, 0);
+                    <div className='flex flex-col gap-4'>
+                      {flatCourseDetails.map((courseDetail, index) => {
+                        const rank = index + 1;
                         return (
-                          <CategorySection
-                            key={categoryDetail.category
-                              .map((p) => `${p.attribute}:${p.direction}`)
-                              .join('|')}
-                            categoryDetail={categoryDetail}
-                            catIdx={catIdx}
-                            visibleCount={getVisibleCount(catIdx)}
-                            onShowMore={handleShowMore}
-                            itemIdToItemSentiments={recommendationResult.itemIdToItemSentiments}
-                            courseStatusOverrides={courseStatusOverrides}
-                            onCourseStatusChange={handleCourseStatusChange}
-                            onRefinedRecommendation={handleRefinedRecommendation}
-                            onScrollToTop={scrollToTop}
-                            rankOffset={rankOffset}
-                            showExplanation={showExplanation}
+                          <RecommendedCourseCard
+                            key={courseDetail.course.code}
+                            courseDetail={courseDetail}
+                            index={index}
+                            rank={rank}
+                            onClick={() => {
+                              logEvent('see_course_detail', undefined, {
+                                courseCode: courseDetail.course.code,
+                                rank: String(rank),
+                              });
+                            }}
+                            topRightBadge={
+                              getEffectiveUserCourseStatus(courseDetail) ===
+                              UserCourseStatus.COMPLETED ? (
+                                <Tag variant='solid' color='green'>
+                                  Đã hoàn thành
+                                </Tag>
+                              ) : undefined
+                            }
+                            extra={
+                              <CourseStatusButton
+                                type='plan'
+                                className='w-full'
+                                marked={
+                                  getEffectiveUserCourseStatus(courseDetail) ===
+                                  UserCourseStatus.PLANNED
+                                }
+                                courseId={courseDetail.course.id}
+                                onMarkChange={(marked) => {
+                                  if (marked) {
+                                    logEvent('click_planned', undefined, {
+                                      courseCode: courseDetail.course.code,
+                                      page: 'recommendation',
+                                      rank: String(rank),
+                                    });
+                                  }
+                                  handleCourseStatusChange(
+                                    courseDetail.course.code,
+                                    marked ? UserCourseStatus.PLANNED : undefined,
+                                  );
+                                }}
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                }}
+                              />
+                            }
                           />
                         );
                       })}
                     </div>
                   </Spin>
-                </div>
+                );
+              }
+
+              return (
+                <Spin
+                  spinning={
+                    getRefinedFSRecommendationPending ||
+                    getFSRecommendationPending ||
+                    refetchingLatestFSRecommendationResult
+                  }
+                >
+                  {/* Top course — featured section */}
+                  <div
+                    className='relative rounded-xl p-5 bg-indigo-50 border border-indigo-200'
+                    style={{ boxShadow: CARD_SHADOW }}
+                  >
+                    <div className='flex items-start gap-3 mb-5'>
+                      <StarFilled className='text-amber-500 text-xl shrink-0 mt-0.5' />
+                      <div>
+                        <div className='text-[18px] font-semibold text-[#1C1917]'>
+                          Môn học phù hợp nhất
+                        </div>
+                        <div className='text-sm text-gray-500 mt-0.5'>
+                          Kết quả tốt nhất theo tiêu chí của bạn
+                        </div>
+                      </div>
+                    </div>
+
+                    <RecommendedCourseCard
+                      courseDetail={topCourseDetail}
+                      index={0}
+                      rank={1}
+                      explanationScores={getExplanationScores(
+                        topCourseDetail.course.code,
+                        recommendationResult.itemIdToItemSentiments,
+                      )}
+                      onClick={() => {
+                        logEvent('see_course_detail', undefined, {
+                          courseCode: topCourseDetail.course.code,
+                          rank: '1',
+                        });
+                      }}
+                      topRightBadge={
+                        getEffectiveUserCourseStatus(topCourseDetail) ===
+                        UserCourseStatus.COMPLETED ? (
+                          <Tag variant='solid' color='green'>
+                            Đã hoàn thành
+                          </Tag>
+                        ) : undefined
+                      }
+                      extra={
+                        <CourseStatusButton
+                          type='plan'
+                          className='w-full'
+                          marked={
+                            getEffectiveUserCourseStatus(topCourseDetail) ===
+                            UserCourseStatus.PLANNED
+                          }
+                          courseId={topCourseDetail.course.id}
+                          onMarkChange={(marked) => {
+                            if (marked) {
+                              logEvent('click_planned', undefined, {
+                                courseCode: topCourseDetail.course.code,
+                                page: 'recommendation',
+                                rank: '1',
+                              });
+                            }
+                            setCourseStatusOverrides((prev) => ({
+                              ...prev,
+                              [topCourseDetail.course.code]: marked
+                                ? UserCourseStatus.PLANNED
+                                : undefined,
+                            }));
+                          }}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                          }}
+                        />
+                      }
+                    />
+                  </div>
+
+                  <div className='my-5'></div>
+
+                  {/* Category sections */}
+                  <div className='flex flex-col gap-5'>
+                    {recommendationResult.categoryDetails.map((categoryDetail, catIdx) => {
+                      const rankOffset =
+                        2 +
+                        recommendationResult.categoryDetails
+                          .slice(0, catIdx)
+                          .reduce((sum, cat) => sum + cat.courseDetails.length, 0);
+                      return (
+                        <CategorySection
+                          key={categoryDetail.category
+                            .map((p) => `${p.attribute}:${p.direction}`)
+                            .join('|')}
+                          categoryDetail={categoryDetail}
+                          catIdx={catIdx}
+                          visibleCount={getVisibleCount(catIdx)}
+                          onShowMore={handleShowMore}
+                          itemIdToItemSentiments={recommendationResult.itemIdToItemSentiments}
+                          courseStatusOverrides={courseStatusOverrides}
+                          onCourseStatusChange={handleCourseStatusChange}
+                          onRefinedRecommendation={handleRefinedRecommendation}
+                          onScrollToTop={scrollToTop}
+                          rankOffset={rankOffset}
+                          showExplanation={showExplanation}
+                        />
+                      );
+                    })}
+                  </div>
+                </Spin>
               );
             })()}
           </div>

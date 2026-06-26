@@ -45,7 +45,7 @@ export default function RatingBox({
             className={classNames(
               'w-8 h-8 rounded-lg flex justify-center items-center cursor-pointer text-sm font-semibold select-none transition-all duration-150',
               active
-                ? 'bg-indigo-600 text-white shadow-sm'
+                ? 'bg-primary text-white shadow-sm'
                 : 'bg-stone-100 text-gray-500 hover:bg-indigo-100 hover:text-indigo-700',
             )}
             onClick={() => handleClick(ratingValue)}

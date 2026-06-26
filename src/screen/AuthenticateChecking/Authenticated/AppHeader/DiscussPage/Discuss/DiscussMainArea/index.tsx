@@ -42,7 +42,7 @@ export default function DiscussMainArea({
           return (
             <div className='flex flex-col gap-4 md:gap-5'>
               {postDetails.map((postDetail) => (
-                <PostCard key={postDetail.post.id} postDetail={postDetail} />
+                <PostCard key={postDetail.post.id} postDetail={postDetail} algorithm={algorithm} />
               ))}
             </div>
           );

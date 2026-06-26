@@ -1,4 +1,4 @@
-import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, PlusOutlined, TagsOutlined } from '@ant-design/icons';
 import { ActionType, ModalForm, ProFormText, ProTable } from '@ant-design/pro-components';
 import { Button, Input, message, Modal, Space } from 'antd';
 import { useRef, useState } from 'react';
@@ -121,7 +121,7 @@ export function AttributesSection() {
       <ProTable<AdminAttributeRow>
         className='rounded-lg border border-gray-200 overflow-hidden'
         actionRef={actionRef}
-        headerTitle='Thuộc tính'
+        headerTitle={<span className='flex items-center gap-2 text-lg font-semibold'><TagsOutlined className='text-violet-600' />Thuộc tính</span>}
         rowKey='id'
         rowSelection={{ selectedRowKeys: selectedKeys, onChange: setSelectedKeys }}
         search={false}
@@ -180,6 +180,7 @@ export function AttributesSection() {
             key='import'
             url='/admin/attributes/import'
             onSuccess={() => actionRef.current?.reload()}
+            exampleFileName='mau-thuoc-tinh'
             formatColumns={[{ col: 'A', label: 'Tên thuộc tính', required: true }]}
           />,
           <Button

@@ -1,24 +1,28 @@
-import { CourseDetail } from '@/common/types/Course.types';
+import RatingPopoverCard from '@/common/components/RatingPopoverCard';
+import { Algorithm, CourseDetail } from '@/common/types/Course.types';
+import { RestResponse } from '@/common/types/Network.ts';
+import { DownOutlined, EditOutlined } from '@ant-design/icons';
 import { ProForm, ProFormSelect } from '@ant-design/pro-components';
-import { Button, Card, Modal, Skeleton, Spin, Table } from 'antd';
+import { Button, Card, Modal, Popover, Skeleton, Spin, Table } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import type { ColumnsType } from 'antd/es/table';
 import { ReactNode, useState } from 'react';
 import { Link } from 'react-router';
-import { RestResponse } from '../../../../../../common/types/Network';
 
 export type UpdateMyCoursesFormType = {
   courseIds: number[];
 };
 
 type Props = {
-  title: ReactNode;
+  title?: ReactNode;
   allCourseDetailsResponse?: RestResponse<CourseDetail[]>;
   allCourseDetailsPending: boolean;
   courseDetailsResponse?: RestResponse<CourseDetail[]>;
   courseDetailsPending: boolean;
   onOk: (courseIds: number[]) => Promise<void>;
   refetching: boolean;
+  showRatingColumn?: boolean;
+  algorithm?: Algorithm;
 };
 
 const columns: ColumnsType<CourseDetail> = [
@@ -58,28 +62,57 @@ export default function MyCoursesSection({
   courseDetailsResponse,
   onOk,
   refetching,
+  showRatingColumn,
+  algorithm,
 }: Props) {
   const [form] = useForm<UpdateMyCoursesFormType>();
   const [openModal, setOpenModal] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
 
+  const ratingColumn: ColumnsType<CourseDetail>[number] = {
+    title: 'Đánh giá',
+    key: 'rating',
+    width: 110,
+    render: (_: unknown, record: CourseDetail) => (
+      <Popover
+        trigger='hover'
+        placement='bottomRight'
+        overlayInnerStyle={{ background: 'white' }}
+        content={
+          <RatingPopoverCard
+            courseId={record.course.id}
+            courseCode={record.course.code}
+            algorithm={algorithm!}
+          />
+        }
+      >
+        <Button type='link' size='small' iconPlacement='end' icon={<DownOutlined />}>
+          Đánh giá
+        </Button>
+      </Popover>
+    ),
+  };
+
   return (
     <Spin spinning={refetching}>
       <Card>
         <div className='flex flex-col sm:flex-row sm:justify-between sm:items-end gap-3 mb-6'>
-          <div>
-            <div
-              className='text-[22px] font-semibold text-[#1C1917] leading-tight'
-              style={{ fontFamily: 'var(--font-serif)' }}
-            >
-              {title}
+          {title && (
+            <div>
+              <div
+                className='text-[22px] font-semibold text-[#1C1917] leading-tight'
+                style={{ fontFamily: 'var(--font-serif)' }}
+              >
+                {title}
+              </div>
+              <div className='mt-2 w-8 h-[3px] rounded-full bg-indigo-700' />
             </div>
-            <div className='mt-2 w-8 h-[3px] rounded-full bg-indigo-700' />
-          </div>
+          )}
           <Button
             type='primary'
             size='middle'
-            className='w-full sm:w-auto shrink-0'
+            icon={<EditOutlined />}
+            className='w-full sm:w-auto sm:ml-auto shrink-0'
             onClick={() => {
               form.setFieldsValue({
                 courseIds: courseDetailsResponse?.data.map((x) => x.course.id) ?? [],
@@ -87,7 +120,7 @@ export default function MyCoursesSection({
               setOpenModal(true);
             }}
           >
-            Cập nhật
+            Cập nhật danh sách
           </Button>
         </div>
 
@@ -98,7 +131,7 @@ export default function MyCoursesSection({
 
           return (
             <Table<CourseDetail>
-              columns={columns}
+              columns={showRatingColumn ? [...columns, ratingColumn] : columns}
               dataSource={courseDetails}
               rowKey={(r) => r.course.id}
               scroll={{ x: 600 }}

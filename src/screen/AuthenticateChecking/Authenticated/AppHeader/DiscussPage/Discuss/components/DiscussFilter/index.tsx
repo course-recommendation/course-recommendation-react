@@ -45,17 +45,17 @@ export default function DiscussFilter({
   };
 
   return (
-    <div className='sticky top-4 overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-md shadow-slate-100'>
+    <div className='sticky top-0 overflow-hidden rounded-xl border border-[#E8E5E0] bg-white shadow-sm'>
       {/* Header */}
-      <div className='flex items-center gap-2 px-4 py-3.5 bg-indigo-50 border-b border-indigo-100'>
-        <FilterOutlined className='text-indigo-500 text-sm' />
-        <Typography.Text strong className='text-slate-800 text-sm flex-1'>
-          Bộ lọc môn học
+      <div className='flex items-center gap-2 px-4 py-3.5 border-b border-[#E8E5E0]'>
+        <FilterOutlined className='text-indigo-500 text-lg' />
+        <Typography.Text strong className='text-[#1C1917] flex-1 text-base'>
+          Bộ lọc bài viết
         </Typography.Text>
         {selectedCourseIds.length > 0 && (
           <button
             onClick={() => onSelectedCourseIdsChange([])}
-            className='text-xs text-slate-400 hover:text-red-500 transition-colors font-medium'
+            className='text-xs text-slate-400 hover:text-slate-600 transition-colors font-medium'
           >
             Xóa tất cả
           </button>
@@ -64,8 +64,8 @@ export default function DiscussFilter({
 
       {/* Selected tags strip */}
       {selectedCourses.length > 0 && (
-        <div className='px-3 py-2.5 border-b border-slate-100 bg-indigo-50/40'>
-          <p className='text-[10px] font-semibold uppercase tracking-wider text-indigo-400 mb-1.5'>
+        <div className='px-3 py-2.5 border-b border-[#E8E5E0] bg-slate-50'>
+          <p className='text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1.5'>
             Đang lọc ({selectedCourses.length})
           </p>
           <div className='flex flex-wrap gap-1.5'>
@@ -75,7 +75,7 @@ export default function DiscussFilter({
                 closable
                 onClose={() => removeSelected(course.code)}
                 closeIcon={<CloseOutlined className='text-[10px]' />}
-                className='rounded-full border-indigo-200 bg-indigo-100 text-indigo-700 text-xs font-medium px-2 py-0.5 flex items-center gap-1 m-0'
+                className='rounded-full border-indigo-100 bg-indigo-50 text-indigo-700 text-xs font-medium px-2 py-0.5 flex items-center gap-1 m-0'
               >
                 {course.name}
               </Tag>
@@ -85,16 +85,13 @@ export default function DiscussFilter({
       )}
 
       {/* Search */}
-      <div className='px-3 py-2 border-b border-slate-100'>
+      <div className='px-3 py-2 border-b border-[#E8E5E0]'>
         <Input
           value={input}
           onChange={(e) => setInput(e.target.value)}
           allowClear
-          prefix={<SearchOutlined className='text-slate-400 text-xs' />}
+          prefix={<SearchOutlined />}
           placeholder='Tìm môn học...'
-          variant='borderless'
-          className='bg-slate-50 rounded-lg text-sm'
-          size='small'
         />
       </div>
 
@@ -115,8 +112,8 @@ export default function DiscussFilter({
                 onClick={() => toggleCourse(course.code)}
                 className={`w-full text-left px-4 py-2 text-sm transition-all border-l-[3px] flex items-center justify-between group ${
                   isSelected
-                    ? 'border-indigo-500 bg-indigo-50/80 text-indigo-700 font-medium'
-                    : 'border-transparent text-slate-600 hover:bg-slate-50 hover:border-slate-300 hover:text-slate-800'
+                    ? 'border-indigo-500 bg-indigo-50 text-indigo-700 font-medium'
+                    : 'border-transparent text-slate-600 hover:bg-slate-50 hover:border-[#E8E5E0] hover:text-slate-800'
                 }`}
               >
                 <span className='leading-snug'>{course.name}</span>
