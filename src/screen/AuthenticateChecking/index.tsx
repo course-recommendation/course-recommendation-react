@@ -12,7 +12,12 @@ export default function AuthenticateChecking() {
 
   useEffect(() => {
     if (user === null) {
-      navigate('/public-path/login');
+      const destination = window.location.pathname + window.location.search;
+      const loginPath =
+        destination !== '/' && destination !== '/public-path/login'
+          ? `/public-path/login?redirect=${encodeURIComponent(destination)}`
+          : '/public-path/login';
+      navigate(loginPath);
       return;
     }
 

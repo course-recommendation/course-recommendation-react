@@ -1,4 +1,4 @@
-import { DeleteOutlined, EditOutlined, PlusOutlined, StarOutlined } from '@ant-design/icons';
+import { CheckOutlined, CopyOutlined, DeleteOutlined, EditOutlined, LinkOutlined, PlusOutlined, StarOutlined } from '@ant-design/icons';
 import {
   ActionType,
   ModalForm,
@@ -70,12 +70,32 @@ function textFilterDropdown(placeholder: string) {
   );
 }
 
+const surveyLink = `${window.location.origin}/course-rating`;
+
 export function RatingsSection() {
   const [modal, contextHolder] = Modal.useModal();
   const actionRef = useRef<ActionType>(null);
   const [selectedKeys, setSelectedKeys] = useState<React.Key[]>([]);
   const [addOpen, setAddOpen] = useState(false);
   const [editRecord, setEditRecord] = useState<AdminRatingRow | null>(null);
+  const [collectOpen, setCollectOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(surveyLink);
+    } else {
+      const el = document.createElement('textarea');
+      el.value = surveyLink;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+    }
+    setCopied(true);
+    message.success('Đã sao chép đường dẫn');
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const handleDelete = (id: number) =>
     modal.confirm({
@@ -114,7 +134,7 @@ export function RatingsSection() {
       <ProTable<AdminRatingRow>
         className='rounded-lg border border-gray-200 overflow-hidden'
         actionRef={actionRef}
-        headerTitle={<span className='flex items-center gap-2 text-lg font-semibold'><StarOutlined className='text-amber-600' />Đánh giá người dùng</span>}
+        headerTitle={<span className='flex items-center gap-2 text-lg font-semibold'><StarOutlined className='text-amber-600' />Đánh giá của người dùng</span>}
         rowKey='id'
         rowSelection={{ selectedRowKeys: selectedKeys, onChange: setSelectedKeys }}
         search={false}
@@ -183,6 +203,9 @@ export function RatingsSection() {
           },
         ]}
         toolBarRender={() => [
+          <Button key='collect' icon={<LinkOutlined />} onClick={() => setCollectOpen(true)}>
+            Thu thập dữ liệu
+          </Button>,
           <Button key='add' type='primary' icon={<PlusOutlined />} onClick={() => setAddOpen(true)}>
             Thêm mới
           </Button>,
@@ -293,6 +316,36 @@ export function RatingsSection() {
       >
         <ProFormDigit name='score' label='Điểm' min={1} max={5} rules={[{ required: true }]} />
       </ModalForm>
+
+      <Modal
+        title='Thu thập dữ liệu đánh giá'
+        open={collectOpen}
+        onCancel={() => setCollectOpen(false)}
+        footer={
+          <Button type='primary' onClick={() => setCollectOpen(false)}>
+            Đóng
+          </Button>
+        }
+        width={560}
+      >
+        <div className='py-2 flex flex-col gap-4'>
+          <p className='text-gray-600 text-[14px] leading-[1.7]'>
+            Gửi đường dẫn dưới đây đến người dùng để họ điền khảo sát đánh giá môn học. Dữ liệu
+            đánh giá sẽ được lưu lại và xuất hiện trong bảng bên dưới, giúp cải thiện độ chính xác
+            của hệ thống gợi ý.
+          </p>
+          <div className='flex items-center gap-2 rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-2'>
+            <span className='flex-1 text-indigo-700 text-sm font-mono break-all'>{surveyLink}</span>
+            <Button
+              type='text'
+              size='small'
+              icon={copied ? <CheckOutlined className='text-green-600' /> : <CopyOutlined className='text-indigo-500' />}
+              onClick={handleCopy}
+              className='shrink-0'
+            />
+          </div>
+        </div>
+      </Modal>
     </>
   );
 }

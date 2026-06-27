@@ -6,6 +6,7 @@ import Authenticated from './screen/AuthenticateChecking/Authenticated';
 import AppHeader from './screen/AuthenticateChecking/Authenticated/AppHeader';
 import AdminHome from './screen/AuthenticateChecking/Authenticated/AppHeader/AdminHome';
 import CourseDetailPage from './screen/AuthenticateChecking/Authenticated/AppHeader/CourseDetailPage';
+import CourseRatingPage from './screen/AuthenticateChecking/Authenticated/AppHeader/CourseRatingPage';
 import CoursesPage from './screen/AuthenticateChecking/Authenticated/AppHeader/CoursesPage';
 import DiscussPage from './screen/AuthenticateChecking/Authenticated/AppHeader/DiscussPage';
 import MyCoursesPage from './screen/AuthenticateChecking/Authenticated/AppHeader/MyCoursesPage';
@@ -61,6 +62,10 @@ export const router = createBrowserRouter([
                       {
                         path: '/survey',
                         element: <SurveyPage />,
+                      },
+                      {
+                        path: '/course-rating',
+                        element: <CourseRatingPage />,
                       },
                       {
                         path: '/discuss',

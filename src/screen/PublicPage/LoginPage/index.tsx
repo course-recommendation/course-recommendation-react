@@ -42,7 +42,8 @@ export default function LoginPage() {
       ).data;
 
       localStorage.setItem(LocalStorageKey.ACCESS_TOKEN, loginResponse.accessToken);
-      window.location.href = '/';
+      const params = new URLSearchParams(window.location.search);
+      window.location.href = params.get('redirect') ?? '/';
     } catch (error) {
       if (error instanceof RestError) {
         if (error.errorCode === GlobalErrorCode.EMAIL_NOT_FOUND) {
