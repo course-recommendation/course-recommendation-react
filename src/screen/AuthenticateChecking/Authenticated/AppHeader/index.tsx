@@ -1,4 +1,5 @@
 import BookIcon from '@/assets/icons/BookIcon';
+import NotFoundPage from '@/common/components/NotFoundPage';
 import { LocalStorageKey } from '@/common/constants/LocalStorageKey';
 import useGet from '@/common/hooks/network/useGet';
 import {
@@ -35,9 +36,9 @@ const PathKey = {
 
 export default function AppHeader() {
   const { pathname } = useLocation();
-  const { me, isFirstLogin, isAdmin } = useMeContext();
+  const { me, isAdmin } = useMeContext();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const isDoingSurvey = isFirstLogin || pathname === '/survey' || pathname === '/course-rating';
+  const isDoingSurvey = pathname === '/survey' || pathname === '/course-rating';
 
   const { data: tenantReadyResponse } = useGet<boolean>('/admin/tenant-ready');
   const tenantReady = tenantReadyResponse?.data;
@@ -200,10 +201,12 @@ export default function AppHeader() {
       </Header>
 
       <div className='flex-1 min-h-0 overflow-auto overscroll-y-none px-4 py-6 md:px-20 md:py-10'>
-        {!isAdmin && tenantReady === false ? (
+        {isAdminPage && !isAdmin ? (
+          <NotFoundPage />
+        ) : !isAdmin && tenantReady === false && pathname !== '/course-rating' ? (
           <Result
             status='warning'
-            title='Dữ liệu chưa sẵn sàng cho hệ thống này này'
+            title='Hệ thống chưa sẵn sàng để sử dụng'
             subTitle='Vui lòng chờ quản trị viên cập nhật hệ thống'
           />
         ) : (

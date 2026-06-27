@@ -29,28 +29,15 @@ export default function Authenticated() {
 
     const isAdmin = isAdminResponse!.data;
 
-    // Admins should be redirected to /admin and do not go through survey
+    // Admins should be redirected to /admin
     if (isAdmin) {
       if (pathname !== '/admin') {
         navigate('/admin', { replace: true });
       }
       return;
     }
-
-    const isFirstLogin = isFirstLoginResponse!.data;
-    const isSurveyPage = pathname === '/survey';
-
-    if (isFirstLogin && !isSurveyPage) {
-      navigate('/survey', { replace: true });
-      return;
-    }
-
-    if (!isFirstLogin && isSurveyPage) {
-      navigate('/', { replace: true });
-    }
   }, [
     firstLoginPending,
-    isFirstLoginResponse,
     mePending,
     navigate,
     pathname,

@@ -3,6 +3,7 @@ import { AttributesSection } from './AttributesSection';
 import { CoursesSection } from './CoursesSection';
 import { RatingsSection } from './RatingsSection';
 import { RetrainSection } from './RetrainSection';
+import { SystemStatusSection } from './SystemStatusSection';
 import { UsersSection } from './UsersSection';
 
 export default function AdminHome() {
@@ -20,6 +21,7 @@ export default function AdminHome() {
         </div>
       </div>
       <div className='space-y-6 p-8'>
+        <SystemStatusSection />
         <CoursesSection />
         <AttributesSection />
         <UsersSection />

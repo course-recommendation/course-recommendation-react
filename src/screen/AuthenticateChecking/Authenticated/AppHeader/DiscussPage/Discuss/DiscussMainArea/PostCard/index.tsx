@@ -118,24 +118,29 @@ export default function PostCard({ postDetail, isNew, algorithm }: Props) {
             )}
           </div>
         </div>
-        <Popover
-          trigger='hover'
-          placement='bottomRight'
-          overlayInnerStyle={{ background: 'white' }}
-          content={
-            <RatingPopoverCard
-              courseId={postDetail.course.id}
-              courseCode={postDetail.course.code}
-              algorithm={algorithm}
-            />
-          }
-        >
-          <Link to={`/courses/${postDetail.course.code}`} className='max-w-[45%]'>
+        <div className='flex items-center gap-1.5 max-w-[45%]'>
+          <Link to={`/courses/${postDetail.course.code}`} className='min-w-0'>
             <span className='block truncate rounded-full bg-indigo-50 border border-indigo-100 px-3 py-1 text-xs text-indigo-700 font-medium hover:bg-indigo-100 transition-colors'>
               {postDetail.course.name}
             </span>
           </Link>
-        </Popover>
+          <Popover
+            trigger='hover'
+            placement='bottomRight'
+            overlayInnerStyle={{ background: 'white' }}
+            content={
+              <RatingPopoverCard
+                courseId={postDetail.course.id}
+                courseCode={postDetail.course.code}
+                algorithm={algorithm}
+              />
+            }
+          >
+            <span className='shrink-0 inline-flex items-center rounded-full bg-yellow-50 border border-yellow-200 px-1.5 py-1 text-xs font-medium text-yellow-400 cursor-default hover:bg-yellow-100 transition-colors'>
+              ★
+            </span>
+          </Popover>
+        </div>
       </div>
 
       {/* Body */}

@@ -1,4 +1,5 @@
 import { createBrowserRouter } from 'react-router';
+import NotFoundPage from './common/components/NotFoundPage';
 import RouteErrorBoundary from './common/RouteErrorBoundary';
 import Root from './Root';
 import AuthenticateChecking from './screen/AuthenticateChecking';
@@ -86,6 +87,10 @@ export const router = createBrowserRouter([
                       {
                         path: 'admin',
                         element: <AdminHome />,
+                      },
+                      {
+                        path: '*',
+                        element: <NotFoundPage />,
                       },
                     ],
                   },

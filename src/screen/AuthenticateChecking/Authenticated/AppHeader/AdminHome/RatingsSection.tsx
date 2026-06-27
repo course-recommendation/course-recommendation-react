@@ -132,9 +132,9 @@ export function RatingsSection() {
     <>
       {contextHolder}
       <ProTable<AdminRatingRow>
-        className='rounded-lg border border-gray-200 overflow-hidden'
+        className='rounded-lg border border-primary overflow-hidden'
         actionRef={actionRef}
-        headerTitle={<span className='flex items-center gap-2 text-lg font-semibold'><StarOutlined className='text-amber-600' />Đánh giá của người dùng</span>}
+        headerTitle={<span className='flex items-center gap-2 text-lg font-semibold'><StarOutlined className='text-amber-600' />Đánh giá môn học</span>}
         rowKey='id'
         rowSelection={{ selectedRowKeys: selectedKeys, onChange: setSelectedKeys }}
         search={false}
@@ -331,8 +331,7 @@ export function RatingsSection() {
         <div className='py-2 flex flex-col gap-4'>
           <p className='text-gray-600 text-[14px] leading-[1.7]'>
             Gửi đường dẫn dưới đây đến người dùng để họ điền khảo sát đánh giá môn học. Dữ liệu
-            đánh giá sẽ được lưu lại và xuất hiện trong bảng bên dưới, giúp cải thiện độ chính xác
-            của hệ thống gợi ý.
+            đánh giá sẽ được lưu lại và xuất hiện trong bảng bên dưới, giúp hệ thống có thông tin để gợi ý môn học.
           </p>
           <div className='flex items-center gap-2 rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-2'>
             <span className='flex-1 text-indigo-700 text-sm font-mono break-all'>{surveyLink}</span>

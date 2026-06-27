@@ -39,6 +39,7 @@ function SectionCard({
   index,
   courses,
   attributes,
+  selectedInOtherSections,
   onCourseChange,
   onScoreChange,
   onDelete,
@@ -48,6 +49,7 @@ function SectionCard({
   index: number;
   courses: Course[];
   attributes: Attribute[];
+  selectedInOtherSections: number[];
   onCourseChange: (courseId: number | null) => void;
   onScoreChange: (attributeId: number, score: number) => void;
   onDelete: () => void;
@@ -63,7 +65,12 @@ function SectionCard({
       styles={{ body: { padding: '24px 28px' } }}
     >
       <div className='flex items-start justify-between gap-4 mb-5'>
-        <div className='font-semibold text-[#1C1917] text-base'>Môn học {index + 1}</div>
+        <div className='font-semibold text-[#1C1917] text-lg'>
+          #{index + 1} -{' '}
+          {section.courseId
+            ? (courses.find((c) => c.id === section.courseId)?.name ?? 'Môn học')
+            : 'Chưa chọn môn học'}
+        </div>
         {canDelete && (
           <Button
             type='text'
@@ -78,7 +85,7 @@ function SectionCard({
       </div>
 
       <div className='mb-5'>
-        <div className='text-sm font-medium text-gray-600 mb-1.5'>Chọn môn học</div>
+        <div className='text-sm font-medium text-gray-600 mb-1.5'>Môn học</div>
         <Select
           showSearch
           placeholder='Chọn môn học...'
@@ -91,6 +98,7 @@ function SectionCard({
           options={courses.map((c) => ({
             label: `${c.code} – ${c.name}`,
             value: c.id,
+            disabled: selectedInOtherSections.includes(c.id),
           }))}
         />
       </div>
@@ -251,8 +259,7 @@ export default function CourseRatingPage() {
 
       <div className='mb-6 rounded-xl border border-indigo-200 bg-indigo-50 px-5 py-4'>
         <p className='text-indigo-800 text-[14px] leading-[1.7]'>
-          Vui lòng đánh giá các môn học bạn đã học. Mỗi mục tương ứng với một môn học. Bạn có thể
-          thêm nhiều môn học và đánh giá từng thuộc tính theo thang điểm 1–5.
+          Đánh giá mỗi thuộc tính của môn học theo thang điểm từ 1-5. Điểm càng cao tức là cảm nhận của bạn về thuộc tính đó càng tích cực
         </p>
       </div>
 
@@ -267,6 +274,9 @@ export default function CourseRatingPage() {
                 section={section}
                 index={index}
                 courses={courses}
+                selectedInOtherSections={sections
+                  .filter((s) => s.key !== section.key && s.courseId != null)
+                  .map((s) => s.courseId as number)}
                 attributes={attributesResponse?.data ?? []}
                 onCourseChange={(courseId) => handleCourseChange(section.key, courseId)}
                 onScoreChange={(attributeId, score) =>
@@ -281,6 +291,7 @@ export default function CourseRatingPage() {
           <div className='mt-5'>
             <Button
               type='dashed'
+              size='large'
               icon={<PlusOutlined />}
               className='w-full'
               onClick={handleAddSection}
