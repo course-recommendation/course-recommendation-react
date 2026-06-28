@@ -119,7 +119,7 @@ export default function PostCard({ postDetail, isNew, algorithm }: Props) {
 
   const content = postDetail.post.content;
   const needsExpand = content.length > 200;
-  const timestamp = postDetail.post.createdAt ? dayjs(postDetail.post.createdAt).fromNow() : null;
+  const timestamp = postDetail.post.createdAt ? dayjs(postDetail.post.createdAt).locale('vi').fromNow() : null;
 
   const handleVote = async (voteType: VoteType) => {
     const prevCount = voteCount;

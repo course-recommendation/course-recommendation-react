@@ -72,7 +72,7 @@ export default function PostCommentItem({
 
   const { request: voteRequest } = useRequest<void, VoteRequest>();
 
-  const timestamp = postComment.createdAt ? dayjs(postComment.createdAt).fromNow() : null;
+  const timestamp = postComment.createdAt ? dayjs(postComment.createdAt).locale('vi').fromNow() : null;
 
   const handleVote = async (voteType: VoteType) => {
     const prevCount = voteCount;
