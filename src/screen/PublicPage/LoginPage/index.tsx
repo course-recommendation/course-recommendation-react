@@ -4,9 +4,10 @@ import useRequest from '@/common/hooks/network/useRequest';
 import { GlobalErrorCode } from '@/common/types/GlobalErrorCode';
 import { RestError } from '@/common/types/Network';
 import { ProForm, ProFormText } from '@ant-design/pro-components';
-import { Button } from 'antd';
+import { Button, Checkbox } from 'antd';
 import useApp from 'antd/es/app/useApp';
 import { useForm } from 'antd/es/form/Form';
+import { useState } from 'react';
 
 type LoginFormType = {
   email: string;
@@ -21,13 +22,29 @@ type LoginRequest = {
 export default function LoginPage() {
   const { message } = useApp();
   const [form] = useForm<LoginFormType>();
+  const [rememberMe, setRememberMe] = useState<boolean>(() => {
+    return !!localStorage.getItem(LocalStorageKey.REMEMBERED_EMAIL);
+  });
   const { request: login, isPending: loginPending } = useRequest<
     { accessToken: string },
     LoginRequest
   >();
 
+  const initialValues: Partial<LoginFormType> = {
+    email: localStorage.getItem(LocalStorageKey.REMEMBERED_EMAIL) ?? undefined,
+    password: localStorage.getItem(LocalStorageKey.REMEMBERED_PASSWORD) ?? undefined,
+  };
+
   const handleLogin = async () => {
     const formValues = await form.validateFields();
+
+    if (rememberMe) {
+      localStorage.setItem(LocalStorageKey.REMEMBERED_EMAIL, formValues.email);
+      localStorage.setItem(LocalStorageKey.REMEMBERED_PASSWORD, formValues.password);
+    } else {
+      localStorage.removeItem(LocalStorageKey.REMEMBERED_EMAIL);
+      localStorage.removeItem(LocalStorageKey.REMEMBERED_PASSWORD);
+    }
 
     try {
       const loginResponse = (
@@ -79,7 +96,7 @@ export default function LoginPage() {
           className='bg-white rounded-2xl px-8 py-8'
           style={{ boxShadow: '0 1px 4px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04)' }}
         >
-          <ProForm<LoginFormType> form={form} submitter={false}>
+          <ProForm<LoginFormType> form={form} submitter={false} initialValues={initialValues}>
             <ProFormText
               name='email'
               label='Email'
@@ -94,6 +111,12 @@ export default function LoginPage() {
               fieldProps={{ onPressEnter: handleLogin }}
             />
           </ProForm>
+
+          <div className='mb-4'>
+            <Checkbox checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)}>
+              Ghi nhớ đăng nhập
+            </Checkbox>
+          </div>
 
           <Button
             className='w-full mt-1'
