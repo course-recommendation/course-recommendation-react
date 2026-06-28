@@ -29,6 +29,7 @@ export default function LoginPage() {
     { accessToken: string },
     LoginRequest
   >();
+  const { request: forgotPassword, isPending: forgotPending } = useRequest<void>();
 
   const initialValues: Partial<LoginFormType> = {
     email: localStorage.getItem(LocalStorageKey.REMEMBERED_EMAIL) ?? undefined,
@@ -76,6 +77,25 @@ export default function LoginPage() {
     }
   };
 
+  const handleForgotPassword = async () => {
+    const email = form.getFieldValue('email');
+    if (!email) {
+      form.setFields([{ name: 'email', errors: ['Vui lòng nhập email để lấy lại mật khẩu'] }]);
+      return;
+    }
+
+    try {
+      await forgotPassword({
+        url: '/auth/password-reset/request',
+        method: 'POST',
+        data: { email },
+      });
+      message.success('Email đặt lại mật khẩu đã được gửi. Vui lòng kiểm tra hộp thư.');
+    } catch {
+      message.error('Đã có lỗi xảy ra');
+    }
+  };
+
   return (
     <div className='min-h-screen bg-[#FAF9F7] flex items-center justify-center px-4'>
       <div className='w-full max-w-md'>
@@ -112,10 +132,19 @@ export default function LoginPage() {
             />
           </ProForm>
 
-          <div className='mb-4'>
+          <div className='flex items-center justify-between mb-4'>
             <Checkbox checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)}>
               Ghi nhớ đăng nhập
             </Checkbox>
+            <Button
+              type='link'
+              size='small'
+              className='p-0 text-indigo-700'
+              loading={forgotPending}
+              onClick={handleForgotPassword}
+            >
+              Quên mật khẩu?
+            </Button>
           </div>
 
           <Button
