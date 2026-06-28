@@ -29,9 +29,9 @@ export default function Authenticated() {
 
     const isAdmin = isAdminResponse!.data;
 
-    // Admins should be redirected to /admin
+    // Admins land on /admin by default, but can navigate to other pages
     if (isAdmin) {
-      if (pathname !== '/admin') {
+      if (pathname === '/' || pathname === '') {
         navigate('/admin', { replace: true });
       }
       return;

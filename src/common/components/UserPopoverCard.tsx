@@ -3,11 +3,10 @@ import useGet from '@/common/hooks/network/useGet';
 import { FindPostDetailsRequest } from '@/common/types/Discuss.types';
 import { User } from '@/common/types/User.types';
 import { Avatar, Skeleton } from 'antd';
-import { useSearchParams } from 'react-router';
+import { Link } from 'react-router';
 
 function UserPopoverCardContent({ user }: { user: User }) {
   const algorithm = useAlgorithmContext();
-  const [, setSearchParams] = useSearchParams();
 
   const { data: postsResponse, isPending } = useGet<unknown[]>('/posts', {
     params: {
@@ -20,15 +19,6 @@ function UserPopoverCardContent({ user }: { user: User }) {
 
   const postCount = postsResponse?.data?.length ?? 0;
 
-  const filterByAuthor = () => {
-    setSearchParams((prev) => {
-      const next = new URLSearchParams(prev);
-      next.set('authorIds', user.id);
-      next.delete('courseCodes');
-      return next;
-    }, { replace: true });
-  };
-
   return (
     <div className='flex items-start gap-3 p-1 min-w-[200px] max-w-[260px]'>
       <Avatar src={user.avatarUrl} size={44} className='shrink-0' />
@@ -37,14 +27,14 @@ function UserPopoverCardContent({ user }: { user: User }) {
         <p className='text-xs text-slate-400 mt-0.5 truncate'>{user.email}</p>
         {isPending ? (
           <Skeleton.Button active size='small' className='mt-1.5 !h-4 !min-w-[60px]' />
-        ) : (
-          <button
-            onClick={filterByAuthor}
-            className='mt-1.5 text-xs text-indigo-600 hover:text-indigo-700 hover:underline font-medium cursor-pointer'
+        ) : postCount > 0 ? (
+          <Link
+            to={`/discuss?authorIds=${user.id}`}
+            className='mt-1.5 text-xs text-indigo-600 hover:text-indigo-700 hover:underline font-medium block'
           >
             {postCount} bài viết
-          </button>
-        )}
+          </Link>
+        ) : null}
       </div>
     </div>
   );

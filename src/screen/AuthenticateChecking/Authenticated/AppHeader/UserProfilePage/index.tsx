@@ -1,9 +1,9 @@
 import useRequest from '@/common/hooks/network/useRequest'
-import { User } from '@/common/types/User.types'
-import { useMeContext } from '@/screen/AuthenticateChecking/Authenticated/context/MeContext'
-import { Button, Form, Input, Typography } from 'antd'
+import {User} from '@/common/types/User.types'
+import {useMeContext} from '@/screen/AuthenticateChecking/Authenticated/context/MeContext'
+import {Button, Divider, Form, Input, Typography} from 'antd'
 import useApp from 'antd/es/app/useApp'
-import { useState } from 'react'
+import {useState} from 'react'
 
 export default function UserProfilePage() {
   const { me } = useMeContext()
@@ -60,7 +60,9 @@ export default function UserProfilePage() {
           </div>
         </div>
 
-        <div className='border-t pt-6'>
+        <Divider/>
+
+        <div className=''>
           <Typography.Text type='secondary' className='text-xs uppercase tracking-wide'>
             Họ và tên
           </Typography.Text>
@@ -77,8 +79,8 @@ export default function UserProfilePage() {
             </Button>
           </Form>
         </div>
-
-        <div className='border-t pt-6'>
+        <Divider/>
+        <div className=''>
           <Typography.Text
             type='secondary'
             className='text-xs uppercase tracking-wide block mb-3'
