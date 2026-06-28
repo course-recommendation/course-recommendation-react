@@ -136,7 +136,7 @@ export default function PostCard({ postDetail, isNew, algorithm }: Props) {
               />
             }
           >
-            <span className='shrink-0 inline-flex items-center rounded-full bg-yellow-50 border border-yellow-200 px-1.5 py-1 text-xs font-medium text-yellow-400 cursor-default hover:bg-yellow-100 transition-colors'>
+            <span className='shrink-0 inline-flex items-center rounded-full bg-yellow-50 border border-yellow-300 px-1.5 py-1 text-xs font-medium text-yellow-400 cursor-default hover:bg-yellow-100 transition-colors'>
               ★
             </span>
           </Popover>

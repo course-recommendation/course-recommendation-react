@@ -13,10 +13,12 @@ import DiscussPage from './screen/AuthenticateChecking/Authenticated/AppHeader/D
 import MyCoursesPage from './screen/AuthenticateChecking/Authenticated/AppHeader/MyCoursesPage';
 import RecommendationPage from './screen/AuthenticateChecking/Authenticated/AppHeader/RecommendationPage';
 import SurveyPage from './screen/AuthenticateChecking/Authenticated/AppHeader/SurveyPage';
+import UserProfilePage from './screen/AuthenticateChecking/Authenticated/AppHeader/UserProfilePage';
 import AuthenticatedStatsig from './screen/AuthenticateChecking/Authenticated/AuthenticatedStatsig';
 import PublicPage from './screen/PublicPage';
 import LoginPage from './screen/PublicPage/LoginPage';
 import RegisterPage from './screen/PublicPage/RegisterPage';
+import ResetPasswordPage from './screen/ResetPasswordPage';
 
 export const router = createBrowserRouter([
   {
@@ -33,6 +35,11 @@ export const router = createBrowserRouter([
         element: <RegisterPage />,
       },
     ],
+  },
+
+  {
+    path: 'reset-password',
+    element: <ResetPasswordPage />,
   },
 
   {
@@ -87,6 +94,10 @@ export const router = createBrowserRouter([
                       {
                         path: 'admin',
                         element: <AdminHome />,
+                      },
+                      {
+                        path: '/profile',
+                        element: <UserProfilePage />,
                       },
                       {
                         path: '*',

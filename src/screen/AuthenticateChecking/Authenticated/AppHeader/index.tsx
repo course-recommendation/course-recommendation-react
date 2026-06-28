@@ -6,9 +6,10 @@ import {
   BulbOutlined,
   CommentOutlined,
   FolderOutlined,
-  HomeOutlined,
+  HomeOutlined, LogoutOutlined,
   MenuOutlined,
   ReadOutlined,
+  UserOutlined,
 } from '@ant-design/icons';
 import {
   Avatar,
@@ -111,7 +112,16 @@ export default function AppHeader() {
       menu={{
         items: [
           {
+            key: 'profile',
+            icon: <UserOutlined />,
+            label: <Link to='/profile'>Thông tin tài khoản</Link>,
+          },
+          {
+            type: 'divider',
+          },
+          {
             key: 'logout',
+            icon: <LogoutOutlined />,
             label: (
               <a
                 onClick={() => {
