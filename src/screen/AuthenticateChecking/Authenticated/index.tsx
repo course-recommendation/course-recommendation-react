@@ -1,6 +1,4 @@
-import { useAlgorithmContext } from '@/common/context/AlgorithmContext';
 import useGet from '@/common/hooks/network/useGet';
-import { Algorithm } from '@/common/types/Course.types';
 import { User } from '@/common/types/User.types';
 import { Spin } from 'antd';
 import { useEffect } from 'react';
@@ -9,21 +7,12 @@ import { Outlet, useLocation, useNavigate } from 'react-router';
 export default function Authenticated() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const algorithm = useAlgorithmContext();
 
   const { data: meResponse, isPending: mePending } = useGet<User>(`/me`);
-  const { data: isFirstLoginResponse, isPending: firstLoginPending } = useGet<boolean>(
-    '/me/first-login',
-    {
-      params: {
-        algorithm,
-      } as { algorithm: Algorithm },
-    },
-  );
   const { data: isAdminResponse, isPending: isAdminPending } = useGet<boolean>('/admin/is-admin');
 
   useEffect(() => {
-    if (mePending || firstLoginPending || isAdminPending) {
+    if (mePending || isAdminPending) {
       return;
     }
 
@@ -37,7 +26,6 @@ export default function Authenticated() {
       return;
     }
   }, [
-    firstLoginPending,
     mePending,
     navigate,
     pathname,
@@ -45,7 +33,7 @@ export default function Authenticated() {
     isAdminResponse,
   ]);
 
-  if (mePending || firstLoginPending || isAdminPending) {
+  if (mePending || isAdminPending) {
     return <Spin fullscreen />;
   }
 
@@ -53,7 +41,6 @@ export default function Authenticated() {
     <Outlet
       context={{
         me: meResponse!.data,
-        isFirstLogin: isFirstLoginResponse!.data,
         isAdmin: isAdminResponse!.data,
       }}
     />

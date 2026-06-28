@@ -12,7 +12,6 @@ import CoursesPage from './screen/AuthenticateChecking/Authenticated/AppHeader/C
 import DiscussPage from './screen/AuthenticateChecking/Authenticated/AppHeader/DiscussPage';
 import MyCoursesPage from './screen/AuthenticateChecking/Authenticated/AppHeader/MyCoursesPage';
 import RecommendationPage from './screen/AuthenticateChecking/Authenticated/AppHeader/RecommendationPage';
-import SurveyPage from './screen/AuthenticateChecking/Authenticated/AppHeader/SurveyPage';
 import UserProfilePage from './screen/AuthenticateChecking/Authenticated/AppHeader/UserProfilePage';
 import AuthenticatedStatsig from './screen/AuthenticateChecking/Authenticated/AuthenticatedStatsig';
 import PublicPage from './screen/PublicPage';
@@ -66,10 +65,6 @@ export const router = createBrowserRouter([
                       {
                         path: '',
                         element: <RecommendationPage />,
-                      },
-                      {
-                        path: '/survey',
-                        element: <SurveyPage />,
                       },
                       {
                         path: '/course-rating',

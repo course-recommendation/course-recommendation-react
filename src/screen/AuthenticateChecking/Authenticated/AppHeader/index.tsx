@@ -39,7 +39,7 @@ export default function AppHeader() {
   const { pathname } = useLocation();
   const { me, isAdmin } = useMeContext();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const isDoingSurvey = pathname === '/survey' || pathname === '/course-rating';
+  const isDoingSurvey = pathname === '/course-rating';
 
   const { data: tenantReadyResponse } = useGet<boolean>('/admin/tenant-ready');
   const tenantReady = tenantReadyResponse?.data;
