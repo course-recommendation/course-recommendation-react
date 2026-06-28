@@ -338,7 +338,7 @@ export function RatingsSection() {
             <Button
               type='text'
               size='small'
-              icon={copied ? <CheckOutlined className='text-green-600' /> : <CopyOutlined className='text-indigo-500' />}
+              icon={copied ? <CheckOutlined className='text-green-600' /> : <CopyOutlined className='text-primary' />}
               onClick={handleCopy}
               className='shrink-0'
             />

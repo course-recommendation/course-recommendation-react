@@ -1,3 +1,4 @@
+import UserPopoverCardContent from '@/common/components/UserPopoverCard';
 import useGet from '@/common/hooks/network/useGet';
 import useRequest from '@/common/hooks/network/useRequest';
 import RatingPopoverCard from '@/common/components/RatingPopoverCard';
@@ -5,6 +6,8 @@ import {
   CreatePostCommentRequest,
   PostCommentDetail,
   PostDetail,
+  VoteRequest,
+  VoteType,
 } from '@/common/types/Discuss.types';
 import { Algorithm } from '@/common/types/Course.types';
 import { getUserFullName } from '@/common/types/User.types';
@@ -14,6 +17,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import 'dayjs/locale/vi';
 import { useState } from 'react';
 import { Link } from 'react-router';
+import ArrowUp from '@/assets/icons/ArrowUp';
 import PostCommentInput from './PostCommentSection/PostCommentInput';
 import PostCommentItem from './PostCommentSection/PostCommentItem';
 
@@ -48,6 +52,15 @@ function InlineComments({ postId }: { postId: number }) {
     setCommenting(false);
   };
 
+  const handleReply = async (parentCommentId: number, text: string) => {
+    await comment({
+      method: 'post',
+      url: `/posts/${postId}/comments`,
+      data: { content: text, parentCommentId },
+    });
+    await refetch();
+  };
+
   if (isPending) {
     return (
       <div className='mt-3'>
@@ -65,11 +78,16 @@ function InlineComments({ postId }: { postId: number }) {
         <Empty description='Chưa có bình luận nào' className='py-2' />
       ) : (
         <div
-          className={`flex flex-col gap-2${expanded ? ' max-h-[360px] overflow-y-auto pr-1' : ''}`}
+          className={`flex flex-col gap-2.5${expanded ? ' max-h-[400px] overflow-y-auto pr-1' : ''}`}
         >
           {commenting && <Spin className='flex justify-center' />}
           {visibleComments.map((c) => (
-            <PostCommentItem key={c.postComment.id} postCommentDetail={c} />
+            <PostCommentItem
+              key={c.postComment.id}
+              postCommentDetail={c}
+              postId={postId}
+              onReply={handleReply}
+            />
           ))}
         </div>
       )}
@@ -94,11 +112,45 @@ function InlineComments({ postId }: { postId: number }) {
 
 export default function PostCard({ postDetail, isNew, algorithm }: Props) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [voteCount, setVoteCount] = useState(postDetail.voteCount ?? 0);
+  const [userVote, setUserVote] = useState<VoteType | null>(postDetail.userVote ?? null);
+
+  const { request: voteRequest } = useRequest<void, VoteRequest>();
 
   const content = postDetail.post.content;
   const needsExpand = content.length > 200;
-
   const timestamp = postDetail.post.createdAt ? dayjs(postDetail.post.createdAt).fromNow() : null;
+
+  const handleVote = async (voteType: VoteType) => {
+    const prevCount = voteCount;
+    const prevVote = userVote;
+
+    if (userVote === voteType) {
+      setUserVote(null);
+      setVoteCount((c) => c + (voteType === 'UPVOTE' ? -1 : 1));
+      try {
+        await voteRequest({ method: 'delete', url: `/posts/${postDetail.post.id}/vote` });
+      } catch {
+        setVoteCount(prevCount);
+        setUserVote(prevVote);
+      }
+    } else {
+      const diff = voteType === 'UPVOTE' ? 1 : -1;
+      const prevDiff = prevVote ? (prevVote === 'UPVOTE' ? -1 : 1) : 0;
+      setVoteCount((c) => c + diff + prevDiff);
+      setUserVote(voteType);
+      try {
+        await voteRequest({
+          method: 'post',
+          url: `/posts/${postDetail.post.id}/vote`,
+          data: { voteType },
+        });
+      } catch {
+        setVoteCount(prevCount);
+        setUserVote(prevVote);
+      }
+    }
+  };
 
   return (
     <div
@@ -108,11 +160,32 @@ export default function PostCard({ postDetail, isNew, algorithm }: Props) {
       {/* Header */}
       <div className='flex items-center justify-between gap-3'>
         <div className='flex items-center gap-2.5'>
-          <Avatar src={postDetail.user.avatarUrl} size={36} className='shrink-0' />
+          <Popover
+            content={<UserPopoverCardContent user={postDetail.user} />}
+            trigger='click'
+            placement='bottomLeft'
+            overlayInnerStyle={{ background: 'white', padding: 8 }}
+          >
+            <Avatar
+              src={postDetail.user.avatarUrl}
+              size={36}
+              className='shrink-0 cursor-pointer'
+            />
+          </Popover>
           <div>
-            <Typography.Text strong className='text-sm leading-tight block'>
-              {getUserFullName(postDetail.user)}
-            </Typography.Text>
+            <Popover
+              content={<UserPopoverCardContent user={postDetail.user} />}
+              trigger='click'
+              placement='bottomLeft'
+              overlayInnerStyle={{ background: 'white', padding: 8 }}
+            >
+              <Typography.Text
+                strong
+                className='text-sm leading-tight block cursor-pointer hover:text-indigo-700 transition-colors'
+              >
+                {getUserFullName(postDetail.user)}
+              </Typography.Text>
+            </Popover>
             {timestamp && (
               <span className='text-[11px] text-slate-400 mt-0.5 block'>{timestamp}</span>
             )}
@@ -160,8 +233,35 @@ export default function PostCard({ postDetail, isNew, algorithm }: Props) {
         )}
       </div>
 
+      {/* Vote bar */}
+      <div className='mt-3 flex items-center gap-0'>
+        <button
+          onClick={() => handleVote('UPVOTE')}
+          className={`cursor-pointer flex items-center p-0.5 rounded transition-colors ${
+            userVote === 'UPVOTE' ? 'text-primary' : 'text-slate-500 hover:text-primary'
+          }`}
+        >
+          <ArrowUp width={20} height={20} fill='currentColor' filled={userVote === 'UPVOTE'} />
+        </button>
+        <span
+          className={`text-sm font-bold min-w-5 text-center ${
+            'text-slate-500'
+          }`}
+        >
+          {voteCount}
+        </span>
+        <button
+          onClick={() => handleVote('DOWNVOTE')}
+          className={`cursor-pointer flex items-center p-0.5 rounded transition-colors ${
+            userVote === 'DOWNVOTE' ? 'text-primary' : 'text-slate-500 hover:text-primary'
+          }`}
+        >
+          <ArrowUp width={20} height={20} fill='currentColor' filled={userVote === 'DOWNVOTE'} className='rotate-180' />
+        </button>
+      </div>
+
       {/* Divider */}
-      <div className='mt-4 border-t border-[#E8E5E0]' />
+      <div className='mt-3 border-t border-[#E8E5E0]' />
 
       <InlineComments postId={postDetail.post.id} />
     </div>

@@ -4,12 +4,13 @@ import PostCommentInput from './PostCommentInput';
 import PostCommentItem from './PostCommentItem';
 
 type Props = {
+  postId: number;
   postCommentDetails: PostCommentDetail[];
   commenting?: boolean;
   onComment: (text: string) => void;
 };
 
-export default function PostCommentSection({ postCommentDetails, commenting, onComment }: Props) {
+export default function PostCommentSection({ postId, postCommentDetails, commenting, onComment }: Props) {
   return (
     <div>
       {postCommentDetails.length === 0 && !commenting ? (
@@ -21,6 +22,7 @@ export default function PostCommentSection({ postCommentDetails, commenting, onC
               <PostCommentItem
                 key={postCommentDetail.postComment.id}
                 postCommentDetail={postCommentDetail}
+                postId={postId}
               />
             );
           })}

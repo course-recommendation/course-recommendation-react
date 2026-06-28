@@ -59,7 +59,7 @@ export default function CoursesPage() {
           <SearchOutlined
             className={[
               'absolute left-3.5 text-base transition-colors duration-200',
-              isFocused ? 'text-indigo-500' : 'text-gray-400',
+              isFocused ? 'text-primary' : 'text-gray-400',
             ].join(' ')}
           />
           <input
