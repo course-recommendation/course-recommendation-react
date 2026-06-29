@@ -36,7 +36,7 @@ export default function DiscussMainArea({
           }
 
           if (!postDetails || postDetails.length === 0) {
-            return <Empty description='Hiện chưa có bài viết nào về môn học này' />;
+            return <Empty description='Không có bài viết nào' />;
           }
 
           return (

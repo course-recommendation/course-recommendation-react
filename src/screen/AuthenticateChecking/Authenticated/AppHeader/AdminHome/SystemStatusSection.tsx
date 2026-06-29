@@ -37,7 +37,7 @@ export function SystemStatusSection() {
           <div className='flex items-center gap-2'>
             <span className={`inline-block w-2.5 h-2.5 rounded-full ${systemEnabled ? 'bg-green-500' : 'bg-red-500'}`} />
             <Typography.Text strong style={{ fontSize: 16 }}>
-              {systemEnabled ? 'Hệ thống đang hoạt động' : 'Hệ thống đang tắt'}
+              {systemEnabled ? 'Hệ thống đang bật' : 'Hệ thống đang tắt'}
             </Typography.Text>
           </div>
           <Typography.Text type='secondary' className='text-sm'>

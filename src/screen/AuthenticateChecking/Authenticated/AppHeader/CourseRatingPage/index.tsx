@@ -259,7 +259,7 @@ export default function CourseRatingPage() {
 
       <div className='mb-6 rounded-xl border border-indigo-200 bg-indigo-50 px-5 py-4'>
         <p className='text-indigo-800 text-[14px] leading-[1.7]'>
-          Đánh giá mỗi thuộc tính của môn học theo thang điểm từ 1-5. Điểm càng cao tức là cảm nhận của bạn về thuộc tính đó càng tích cực
+          Đánh giá các thuộc tính của những môn bạn đã học theo thang điểm từ 1-5. Điểm càng cao tức là cảm nhận của bạn về thuộc tính đó càng tích cực
         </p>
       </div>
 
