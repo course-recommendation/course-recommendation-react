@@ -6,7 +6,7 @@ import { useShowExplanationContext } from '@/common/context/ShowExplanationConte
 import useGet from '@/common/hooks/network/useGet';
 import useRequest from '@/common/hooks/network/useRequest';
 import { StatsigEvent } from '@/common/constants/StatsigEvent.ts';
-import { useLogEvent } from '@/common/hooks/useLogEvent';
+import { useLogStatsigEvent } from '@/common/hooks/useLogStatsigEvent.ts';
 import {
   Algorithm,
   Attribute,
@@ -63,7 +63,7 @@ const CategorySection = memo(function CategorySection({
   rankOffset,
   showExplanation,
 }: CategorySectionProps) {
-  const logEvent = useLogEvent();
+  const logEvent = useLogStatsigEvent();
   const { modal } = useApp();
 
   const getExplanationScores = (courseCode: string) =>
@@ -84,7 +84,8 @@ const CategorySection = memo(function CategorySection({
       {/* Sticky category header — note: no overflow-hidden on parent so sticky works */}
       <div className='sticky top-0 z-20 rounded-t-xl bg-violet-50 border-b border-violet-200 px-6 py-4'>
         <Typography.Text strong className='text-[16px] m-0 flex items-center gap-3'>
-          <span className='inline-block w-1.5 h-6 rounded-full bg-indigo-600 shrink-0'></span>
+          {/*<span className='inline-block w-1.5 h-6 rounded-full bg-indigo-600 shrink-0'></span>*/}
+          <span className={'text-primary'}>#{catIdx + 1} - </span>
           <span>
             {categoryDetail.category.map((tradeoffPair, idx) => {
               const isUp = isDirectionUp(tradeoffPair.direction);
@@ -224,7 +225,7 @@ const CategorySection = memo(function CategorySection({
 });
 
 export default function FSRecommendation() {
-  const logEvent = useLogEvent();
+  const logEvent = useLogStatsigEvent();
   const showExplanation = useShowExplanationContext();
 
   const { data: allCoursesResponse } = useGet<Course[]>(`/courses`, {
@@ -317,6 +318,7 @@ export default function FSRecommendation() {
     ).data;
 
     setRecommendationResult(result);
+    scrollToTop();
   };
 
   const handleShowMore = useCallback((catIdx: number) => {

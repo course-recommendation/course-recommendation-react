@@ -4,7 +4,7 @@ import useGet from '@/common/hooks/network/useGet';
 import useRequest from '@/common/hooks/network/useRequest';
 import { useAttributeValues } from '@/common/hooks/useAttributeValues';
 import { StatsigEvent } from '@/common/constants/StatsigEvent.ts';
-import { useLogEvent } from '@/common/hooks/useLogEvent';
+import { useLogStatsigEvent } from '@/common/hooks/useLogStatsigEvent.ts';
 import {
   CourseDetail,
   GetCourseDetailsRequest,
@@ -22,7 +22,7 @@ export default function CourseDetailPage() {
   const [searchParams] = useSearchParams();
   const rank = searchParams.get('rank') ?? undefined;
   const algorithm = useAlgorithmContext();
-  const logEvent = useLogEvent();
+  const logEvent = useLogStatsigEvent();
 
   const courseCode = courseCodeOpt!;
 

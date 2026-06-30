@@ -1,18 +1,12 @@
 import RatingBox from '@/common/components/RatingBox';
-import { StatsigEvent } from '@/common/constants/StatsigEvent.ts';
-import { useLogEvent } from '@/common/hooks/useLogEvent';
-import { Attribute, Course } from '@/common/types/Course.types';
-import { FilterCoursesOption } from '@/common/types/Recommendation.types';
-import { RecommendationSettingsFormType } from '@/common/types/TriRank.types';
-import {
-  ProForm,
-  ProFormCheckbox,
-  ProFormDependency,
-  ProFormItem,
-  ProFormSelect,
-} from '@ant-design/pro-components';
-import { FormInstance } from 'antd/es/form';
-import { useEffect, useRef } from 'react';
+import {StatsigEvent} from '@/common/constants/StatsigEvent.ts';
+import {useLogStatsigEvent} from '@/common/hooks/useLogStatsigEvent.ts';
+import {Attribute, Course} from '@/common/types/Course.types';
+import {FilterCoursesOption} from '@/common/types/Recommendation.types';
+import {RecommendationSettingsFormType} from '@/common/types/TriRank.types';
+import {ProForm, ProFormCheckbox, ProFormDependency, ProFormItem, ProFormSelect,} from '@ant-design/pro-components';
+import {FormInstance} from 'antd/es/form';
+import {useEffect, useRef} from 'react';
 
 type Props = {
   form: FormInstance<RecommendationSettingsFormType>;
@@ -45,7 +39,7 @@ export default function RecommendationSettingsForm({
   initialFilterCoursesOptions,
   initialCustomFilteredCourseCodes,
 }: Props) {
-  const logEvent = useLogEvent();
+  const logEvent = useLogStatsigEvent();
 
   return (
     <ProForm<RecommendationSettingsFormType>
@@ -167,8 +161,8 @@ function AttributeRow({
   onChange?: (value: number) => void;
 }) {
   return (
-    <div className='flex flex-col gap-1.5 rounded-lg px-3 py-2.5 hover:bg-indigo-50/60 transition-colors duration-150 group'>
-      <span className='text-sm text-gray-600 group-hover:text-indigo-800 transition-colors duration-150 leading-snug'>
+    <div className='flex flex-col gap-1.5 rounded-lg px-3 py-2.5 transition-colors duration-150 group'>
+      <span className='text-sm text-gray-600  transition-colors duration-150 leading-snug'>
         {label}
       </span>
       <RatingBox highlightSmallerValues value={value} onChange={onChange} />

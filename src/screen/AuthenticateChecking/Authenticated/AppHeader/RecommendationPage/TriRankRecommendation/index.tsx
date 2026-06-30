@@ -4,7 +4,7 @@ import { useShowExplanationContext } from '@/common/context/ShowExplanationConte
 import useGet from '@/common/hooks/network/useGet';
 import useRequest from '@/common/hooks/network/useRequest';
 import { StatsigEvent } from '@/common/constants/StatsigEvent.ts';
-import { useLogEvent } from '@/common/hooks/useLogEvent';
+import { useLogStatsigEvent } from '@/common/hooks/useLogStatsigEvent.ts';
 import {
   Algorithm,
   Attribute,
@@ -19,7 +19,7 @@ import {
 } from '@/common/types/TriRank.types';
 import { Button, Empty, Select, Skeleton, Spin, Tag } from 'antd';
 import { useForm } from 'antd/es/form/Form';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import RecommendationSettingsForm from '../components/RecommendationSettingsForm';
 import RecommendationSettingsSidebar from '../components/RecommendationSettingsSidebar';
 
@@ -39,7 +39,7 @@ function RankBadge({ rank }: { rank: number }) {
 }
 
 export default function TriRankRecommendation() {
-  const logEvent = useLogEvent();
+  const logEvent = useLogStatsigEvent();
   const showExplanation = useShowExplanationContext();
 
   const [form] = useForm<RecommendationSettingsFormType>();
@@ -78,6 +78,8 @@ export default function TriRankRecommendation() {
 
   const { request: getTriRankRecommendation, isPending: getTriRankRecommendationPending } =
     useRequest<TriRankRecommendationResult, TriRankRecommendationRequest>();
+
+  const resultsContainerRef = useRef<HTMLDivElement>(null);
 
   const [recommendationResult, setRecommendationResult] = useState<
     TriRankRecommendationResult | undefined
@@ -123,6 +125,7 @@ export default function TriRankRecommendation() {
     ).data;
 
     setRecommendationResult(result);
+    resultsContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const recommendButton = (
@@ -176,7 +179,7 @@ export default function TriRankRecommendation() {
         />
 
         <div className='flex flex-col md:h-full md:overflow-hidden w-full'>
-          <div className='md:flex-1 md:min-h-0 md:overflow-y-auto overscroll-none'>
+          <div ref={resultsContainerRef} className='md:flex-1 md:min-h-0 md:overflow-y-auto overscroll-none'>
             {/*<div className='mb-4'>*/}
             {/*  <div*/}
             {/*    className='font-bold text-[28px] text-[#1C1917] leading-tight'*/}

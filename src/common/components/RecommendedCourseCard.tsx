@@ -1,6 +1,6 @@
 import PostCard from '@/screen/AuthenticateChecking/Authenticated/AppHeader/DiscussPage/Discuss/DiscussMainArea/PostCard';
 import { CommentOutlined } from '@ant-design/icons';
-import { Button, Card, Drawer, Empty, Progress, Skeleton } from 'antd';
+import { Button, Card, Drawer, Empty, Progress, Skeleton, Tooltip } from 'antd';
 import { ReactNode, useState } from 'react';
 import { Link } from 'react-router';
 import { useAlgorithmContext } from '../context/AlgorithmContext';
@@ -124,7 +124,6 @@ export default function RecommendedCourseCard({
           {hasExplanation && (
             <div
               className='mt-4 pt-4 border-t border-stone-200'
-              onClick={(e) => e.preventDefault()}
             >
               <p className='text-xs text-gray-400 mb-2'>
                 Cảm nhận của các sinh viên khác về các tiêu chí
@@ -133,7 +132,9 @@ export default function RecommendedCourseCard({
                 {visibleScores.map(({ label, score }) => (
                   <div key={label}>
                     <div className='flex justify-between items-center mb-1'>
-                      <span className='text-xs text-gray-600 truncate flex-1'>{label}</span>
+                      <Tooltip title={label} placement='top'>
+                        <span className='text-xs text-gray-600 truncate flex-1 cursor-default'>{label}</span>
+                      </Tooltip>
                       <span
                         className='text-xs font-semibold ml-2 shrink-0'
                         style={{ color: scoreColor(score) }}
@@ -158,7 +159,7 @@ export default function RecommendedCourseCard({
                     type='text'
                     size='small'
                     className='text-indigo-600 text-xs'
-                    onClick={() => setExpanded(!expanded)}
+                    onClick={(e) => { e.preventDefault(); setExpanded(!expanded); }}
                   >
                     {expanded
                       ? 'Thu gọn ←'
@@ -170,7 +171,7 @@ export default function RecommendedCourseCard({
                   size='small'
                   icon={<CommentOutlined />}
                   className='text-indigo-600 text-xs ml-auto'
-                  onClick={() => setDiscussionOpen(true)}
+                  onClick={(e) => { e.preventDefault(); setDiscussionOpen(true); }}
                 >
                   Xem thảo luận
                 </Button>

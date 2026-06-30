@@ -4,7 +4,7 @@ import { StatsigEvent } from '@/common/constants/StatsigEvent.ts';
 import { useStatsigClient } from '@statsig/react-bindings';
 import { useTenantName } from './useTenantName';
 
-export function useLogEvent() {
+export function useLogStatsigEvent() {
   const { client } = useStatsigClient();
   const tenantName = useTenantName();
   const showExplanation = useShowExplanationContext();
