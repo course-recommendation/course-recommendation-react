@@ -1,5 +1,5 @@
 import RatingBox from '@/common/components/RatingBox';
-import { StatsigEvent } from '@/common/constants/analyticsEvents';
+import { StatsigEvent } from '@/common/constants/StatsigEvent.ts';
 import { useLogEvent } from '@/common/hooks/useLogEvent';
 import { Attribute, Course } from '@/common/types/Course.types';
 import { FilterCoursesOption } from '@/common/types/Recommendation.types';

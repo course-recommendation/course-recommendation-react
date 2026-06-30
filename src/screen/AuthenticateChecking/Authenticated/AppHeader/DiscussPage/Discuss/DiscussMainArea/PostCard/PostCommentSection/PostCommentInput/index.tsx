@@ -42,7 +42,11 @@ function renderHighlighted(text: string, mentions: MentionEntry[]): React.ReactN
   return <>{parts}</>;
 }
 
-export default function PostCommentInput({ onComment, placeholder = 'Bình luận...', autoFocus }: Props) {
+export default function PostCommentInput({
+  onComment,
+  placeholder = 'Bình luận...',
+  autoFocus,
+}: Props) {
   const { me } = useMeContext();
   const [text, setText] = useState('');
   const [mentions, setMentions] = useState<MentionEntry[]>([]);
@@ -53,7 +57,10 @@ export default function PostCommentInput({ onComment, placeholder = 'Bình luậ
   const backdropRef = useRef<HTMLDivElement>(null);
   const { request: searchUsers, isPending: searchPending } = useRequest<User[]>();
 
-  const getMentionContext = (value: string, cursor: number): { query: string; start: number } | null => {
+  const getMentionContext = (
+    value: string,
+    cursor: number,
+  ): { query: string; start: number } | null => {
     let i = cursor - 1;
     while (i >= 0 && value[i] !== ' ' && value[i] !== '\n' && value[i] !== '@') {
       i--;

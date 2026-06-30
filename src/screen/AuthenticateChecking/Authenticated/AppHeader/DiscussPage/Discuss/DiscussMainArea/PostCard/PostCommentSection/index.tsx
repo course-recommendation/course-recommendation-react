@@ -10,7 +10,12 @@ type Props = {
   onComment: (text: string) => void;
 };
 
-export default function PostCommentSection({ postId, postCommentDetails, commenting, onComment }: Props) {
+export default function PostCommentSection({
+  postId,
+  postCommentDetails,
+  commenting,
+  onComment,
+}: Props) {
   return (
     <div>
       {postCommentDetails.length === 0 && !commenting ? (

@@ -27,14 +27,16 @@ function UserPopoverCardContent({ user }: { user: User }) {
         <p className='text-xs text-slate-400 mt-0.5 truncate'>{user.email}</p>
         {isPending ? (
           <Skeleton.Button active size='small' className='mt-1.5 !h-4 !min-w-[60px]' />
-        ) : postCount > 0 ? (
-          <Link
-            to={`/discuss?authorIds=${user.id}`}
-            className='mt-1.5 text-xs text-indigo-600 hover:text-indigo-700 hover:underline font-medium block'
-          >
-            {postCount} bài viết
-          </Link>
-        ) : null}
+        ) : (
+          postCount > 0 && (
+            <Link
+              to={`/discuss?authorIds=${user.id}`}
+              className='mt-1.5 text-xs text-indigo-600 hover:text-indigo-700 hover:underline font-medium block'
+            >
+              {postCount} bài viết
+            </Link>
+          )
+        )}
       </div>
     </div>
   );

@@ -25,13 +25,7 @@ export default function Authenticated() {
       }
       return;
     }
-  }, [
-    mePending,
-    navigate,
-    pathname,
-    isAdminPending,
-    isAdminResponse,
-  ]);
+  }, [mePending, navigate, pathname, isAdminPending, isAdminResponse]);
 
   if (mePending || isAdminPending) {
     return <Spin fullscreen />;

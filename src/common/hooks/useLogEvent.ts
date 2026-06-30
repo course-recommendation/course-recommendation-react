@@ -1,6 +1,6 @@
 import { useAlgorithmContext } from '@/common/context/AlgorithmContext';
 import { useShowExplanationContext } from '@/common/context/ShowExplanationContext';
-import { StatsigEvent } from '@/common/constants/analyticsEvents';
+import { StatsigEvent } from '@/common/constants/StatsigEvent.ts';
 import { useStatsigClient } from '@statsig/react-bindings';
 import { useTenantName } from './useTenantName';
 

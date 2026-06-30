@@ -119,7 +119,9 @@ export default function PostCard({ postDetail, isNew, algorithm }: Props) {
 
   const content = postDetail.post.content;
   const needsExpand = content.length > 200;
-  const timestamp = postDetail.post.createdAt ? dayjs(postDetail.post.createdAt).locale('vi').fromNow() : null;
+  const timestamp = postDetail.post.createdAt
+    ? dayjs(postDetail.post.createdAt).locale('vi').fromNow()
+    : null;
 
   const handleVote = async (voteType: VoteType) => {
     const prevCount = voteCount;
@@ -136,7 +138,9 @@ export default function PostCard({ postDetail, isNew, algorithm }: Props) {
       }
     } else {
       const diff = voteType === 'UPVOTE' ? 1 : -1;
-      const prevDiff = prevVote ? (prevVote === 'UPVOTE' ? -1 : 1) : 0;
+      let prevDiff = 0;
+      if (prevVote === 'UPVOTE') prevDiff = -1;
+      else if (prevVote === 'DOWNVOTE') prevDiff = 1;
       setVoteCount((c) => c + diff + prevDiff);
       setUserVote(voteType);
       try {
@@ -166,11 +170,7 @@ export default function PostCard({ postDetail, isNew, algorithm }: Props) {
             placement='bottomLeft'
             overlayInnerStyle={{ background: 'white', padding: 8 }}
           >
-            <Avatar
-              src={postDetail.user.avatarUrl}
-              size={36}
-              className='shrink-0 cursor-pointer'
-            />
+            <Avatar src={postDetail.user.avatarUrl} size={36} className='shrink-0 cursor-pointer' />
           </Popover>
           <div>
             <Popover
@@ -243,11 +243,7 @@ export default function PostCard({ postDetail, isNew, algorithm }: Props) {
         >
           <ArrowUp width={20} height={20} fill='currentColor' filled={userVote === 'UPVOTE'} />
         </button>
-        <span
-          className={`text-sm font-bold min-w-5 text-center ${
-            'text-slate-500'
-          }`}
-        >
+        <span className={`text-sm font-bold min-w-5 text-center ${'text-slate-500'}`}>
           {voteCount}
         </span>
         <button
@@ -256,7 +252,13 @@ export default function PostCard({ postDetail, isNew, algorithm }: Props) {
             userVote === 'DOWNVOTE' ? 'text-primary' : 'text-slate-500 hover:text-primary'
           }`}
         >
-          <ArrowUp width={20} height={20} fill='currentColor' filled={userVote === 'DOWNVOTE'} className='rotate-180' />
+          <ArrowUp
+            width={20}
+            height={20}
+            fill='currentColor'
+            filled={userVote === 'DOWNVOTE'}
+            className='rotate-180'
+          />
         </button>
       </div>
 

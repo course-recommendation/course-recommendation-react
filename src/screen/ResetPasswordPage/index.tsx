@@ -1,35 +1,35 @@
-import BookIcon from '@/assets/icons/BookIcon'
-import useRequest from '@/common/hooks/network/useRequest'
-import { App, Button, Form, Input } from 'antd'
-import useApp from 'antd/es/app/useApp'
-import { useNavigate } from 'react-router'
+import BookIcon from '@/assets/icons/BookIcon';
+import useRequest from '@/common/hooks/network/useRequest';
+import { App, Button, Form, Input } from 'antd';
+import useApp from 'antd/es/app/useApp';
+import { useNavigate } from 'react-router';
 
 function ResetPasswordPageInner() {
-  const navigate = useNavigate()
-  const { message } = useApp()
-  const [form] = Form.useForm<{ newPassword: string; confirmPassword: string }>()
-  const { request: confirmReset, isPending } = useRequest<void>()
+  const navigate = useNavigate();
+  const { message } = useApp();
+  const [form] = Form.useForm<{ newPassword: string; confirmPassword: string }>();
+  const { request: confirmReset, isPending } = useRequest<void>();
 
-  const token = new URLSearchParams(window.location.search).get('token')
+  const token = new URLSearchParams(window.location.search).get('token');
 
   const handleSubmit = async () => {
     try {
-      const values = await form.validateFields()
+      const values = await form.validateFields();
       if (values.newPassword !== values.confirmPassword) {
-        form.setFields([{ name: 'confirmPassword', errors: ['Mật khẩu xác nhận không khớp'] }])
-        return
+        form.setFields([{ name: 'confirmPassword', errors: ['Mật khẩu xác nhận không khớp'] }]);
+        return;
       }
       await confirmReset({
         url: '/auth/password-reset/confirm',
         method: 'POST',
         data: { token, newPassword: values.newPassword },
-      })
-      message.success('Đặt lại mật khẩu thành công! Vui lòng đăng nhập.')
-      navigate('/public-path/login')
+      });
+      message.success('Đặt lại mật khẩu thành công! Vui lòng đăng nhập.');
+      navigate('/public-path/login');
     } catch {
-      message.error('Link đặt lại mật khẩu không hợp lệ hoặc đã hết hạn')
+      message.error('Link đặt lại mật khẩu không hợp lệ hoặc đã hết hạn');
     }
-  }
+  };
 
   if (!token) {
     return (
@@ -41,7 +41,7 @@ function ResetPasswordPageInner() {
           </Button>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -52,9 +52,7 @@ function ResetPasswordPageInner() {
             <BookIcon className='text-indigo-700 w-9 h-9' />
             <span className='font-bold text-2xl text-[#1C1917] tracking-tight'>CoursePilot</span>
           </div>
-          <h1 className='text-[28px] font-semibold text-[#1C1917] text-center'>
-            Đặt lại mật khẩu
-          </h1>
+          <h1 className='text-[28px] font-semibold text-[#1C1917] text-center'>Đặt lại mật khẩu</h1>
           <p className='text-gray-500 text-sm mt-1 text-center'>Nhập mật khẩu mới của bạn.</p>
         </div>
 
@@ -99,7 +97,7 @@ function ResetPasswordPageInner() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 export default function ResetPasswordPage() {
@@ -107,5 +105,5 @@ export default function ResetPasswordPage() {
     <App>
       <ResetPasswordPageInner />
     </App>
-  )
+  );
 }

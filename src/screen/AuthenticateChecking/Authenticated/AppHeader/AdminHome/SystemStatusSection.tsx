@@ -27,7 +27,7 @@ export function SystemStatusSection() {
     <Card
       title={
         <span className='flex items-center gap-2'>
-        <PoweroffOutlined className={'text-primary'} />
+          <PoweroffOutlined className={'text-primary'} />
           Trạng thái hệ thống
         </span>
       }
@@ -35,7 +35,9 @@ export function SystemStatusSection() {
       <div className='flex items-center justify-between'>
         <div className='flex flex-col gap-1'>
           <div className='flex items-center gap-2'>
-            <span className={`inline-block w-2.5 h-2.5 rounded-full ${systemEnabled ? 'bg-green-500' : 'bg-red-500'}`} />
+            <span
+              className={`inline-block w-2.5 h-2.5 rounded-full ${systemEnabled ? 'bg-green-500' : 'bg-red-500'}`}
+            />
             <Typography.Text strong style={{ fontSize: 16 }}>
               {systemEnabled ? 'Hệ thống đang bật' : 'Hệ thống đang tắt'}
             </Typography.Text>

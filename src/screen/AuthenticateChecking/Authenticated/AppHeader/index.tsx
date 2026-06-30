@@ -6,7 +6,8 @@ import {
   BulbOutlined,
   CommentOutlined,
   FolderOutlined,
-  HomeOutlined, LogoutOutlined,
+  HomeOutlined,
+  LogoutOutlined,
   MenuOutlined,
   ReadOutlined,
   UserOutlined,
@@ -211,17 +212,19 @@ export default function AppHeader() {
       </Header>
 
       <div className='flex-1 min-h-0 overflow-auto overscroll-y-none px-4 py-6 md:px-20 md:py-10'>
-        {isAdminPage && !isAdmin ? (
-          <NotFoundPage />
-        ) : !isAdmin && tenantReady === false && pathname !== '/course-rating' ? (
-          <Result
-            status='warning'
-            title='Hệ thống chưa sẵn sàng để sử dụng'
-            subTitle='Vui lòng chờ quản trị viên cập nhật hệ thống'
-          />
-        ) : (
-          <Outlet />
-        )}
+        {(() => {
+          if (isAdminPage && !isAdmin) return <NotFoundPage />;
+          if (!isAdmin && tenantReady === false && pathname !== '/course-rating') {
+            return (
+              <Result
+                status='warning'
+                title='Hệ thống chưa sẵn sàng để sử dụng'
+                subTitle='Vui lòng chờ quản trị viên cập nhật hệ thống'
+              />
+            );
+          }
+          return <Outlet />;
+        })()}
       </div>
     </Layout>
   );

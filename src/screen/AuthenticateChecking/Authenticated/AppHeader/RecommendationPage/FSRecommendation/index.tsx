@@ -5,7 +5,7 @@ import RecommendedCourseCard from '@/common/components/RecommendedCourseCard';
 import { useShowExplanationContext } from '@/common/context/ShowExplanationContext';
 import useGet from '@/common/hooks/network/useGet';
 import useRequest from '@/common/hooks/network/useRequest';
-import { StatsigEvent } from '@/common/constants/analyticsEvents';
+import { StatsigEvent } from '@/common/constants/StatsigEvent.ts';
 import { useLogEvent } from '@/common/hooks/useLogEvent';
 import {
   Algorithm,

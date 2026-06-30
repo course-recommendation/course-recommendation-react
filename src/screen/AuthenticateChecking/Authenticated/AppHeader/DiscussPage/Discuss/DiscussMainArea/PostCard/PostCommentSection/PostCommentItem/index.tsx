@@ -72,7 +72,9 @@ export default function PostCommentItem({
 
   const { request: voteRequest } = useRequest<void, VoteRequest>();
 
-  const timestamp = postComment.createdAt ? dayjs(postComment.createdAt).locale('vi').fromNow() : null;
+  const timestamp = postComment.createdAt
+    ? dayjs(postComment.createdAt).locale('vi').fromNow()
+    : null;
 
   const handleVote = async (voteType: VoteType) => {
     const prevCount = voteCount;
@@ -92,7 +94,9 @@ export default function PostCommentItem({
       }
     } else {
       const diff = voteType === 'UPVOTE' ? 1 : -1;
-      const prevDiff = prevVote ? (prevVote === 'UPVOTE' ? -1 : 1) : 0;
+      let prevDiff = 0;
+      if (prevVote === 'UPVOTE') prevDiff = -1;
+      else if (prevVote === 'DOWNVOTE') prevDiff = 1;
       setVoteCount((c) => c + diff + prevDiff);
       setUserVote(voteType);
       try {
@@ -127,7 +131,11 @@ export default function PostCommentItem({
         placement='bottomLeft'
         overlayInnerStyle={{ background: 'white', padding: 8 }}
       >
-        <Avatar src={user.avatarUrl} size={isReply ? 26 : 32} className='shrink-0 cursor-pointer mt-0.5' />
+        <Avatar
+          src={user.avatarUrl}
+          size={isReply ? 26 : 32}
+          className='shrink-0 cursor-pointer mt-0.5'
+        />
       </Popover>
 
       <div className='flex-1 min-w-0'>
@@ -160,11 +168,7 @@ export default function PostCommentItem({
             >
               <ArrowUp width={16} height={16} fill='currentColor' filled={userVote === 'UPVOTE'} />
             </button>
-            <span
-              className={`text-xs font-semibold min-w-[14px] text-center ${
-                  'text-slate-500'
-              }`}
-            >
+            <span className={`text-xs font-semibold min-w-[14px] text-center ${'text-slate-500'}`}>
               {voteCount}
             </span>
             <button
@@ -173,19 +177,23 @@ export default function PostCommentItem({
                 userVote === 'DOWNVOTE' ? 'text-primary' : 'text-slate-500 hover:text-primary'
               }`}
             >
-              <ArrowUp width={16} height={16} fill='currentColor' filled={userVote === 'DOWNVOTE'} className='rotate-180' />
+              <ArrowUp
+                width={16}
+                height={16}
+                fill='currentColor'
+                filled={userVote === 'DOWNVOTE'}
+                className='rotate-180'
+              />
             </button>
           </div>
 
           {/* Timestamp */}
-          {timestamp && (
-            <span className='text-[11px] text-slate-400'>{timestamp}</span>
-          )}
+          {timestamp && <span className='text-[11px] text-slate-400'>{timestamp}</span>}
 
           {/* Reply button */}
           {((!isReply && onReply) || (isReply && onReplyClick)) && (
             <button
-              onClick={() => isReply ? onReplyClick!() : setShowReplyInput((v) => !v)}
+              onClick={() => (isReply ? onReplyClick!() : setShowReplyInput((v) => !v))}
               className='text-[11px] font-semibold text-slate-400 hover:text-indigo-600 transition-colors cursor-pointer'
             >
               Trả lời
@@ -211,9 +219,7 @@ export default function PostCommentItem({
               placeholder={`Trả lời ${getUserFullName(user)}...`}
               autoFocus
             />
-            {replyLoading && (
-              <p className='text-xs text-slate-400 mt-1 ml-10'>Đang gửi...</p>
-            )}
+            {replyLoading && <p className='text-xs text-slate-400 mt-1 ml-10'>Đang gửi...</p>}
           </div>
         )}
 

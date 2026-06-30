@@ -121,7 +121,12 @@ export function AttributesSection() {
       <ProTable<AdminAttributeRow>
         className='rounded-lg border border-gray-200 overflow-hidden'
         actionRef={actionRef}
-        headerTitle={<span className='flex items-center gap-2 text-lg font-semibold'><TagsOutlined className='text-violet-600' />Thuộc tính</span>}
+        headerTitle={
+          <span className='flex items-center gap-2 text-lg font-semibold'>
+            <TagsOutlined className='text-violet-600' />
+            Thuộc tính
+          </span>
+        }
         rowKey='id'
         rowSelection={{ selectedRowKeys: selectedKeys, onChange: setSelectedKeys }}
         search={false}

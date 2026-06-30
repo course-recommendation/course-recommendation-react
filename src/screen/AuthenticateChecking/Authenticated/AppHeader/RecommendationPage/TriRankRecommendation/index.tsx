@@ -3,7 +3,7 @@ import RecommendedCourseCard from '@/common/components/RecommendedCourseCard';
 import { useShowExplanationContext } from '@/common/context/ShowExplanationContext';
 import useGet from '@/common/hooks/network/useGet';
 import useRequest from '@/common/hooks/network/useRequest';
-import { StatsigEvent } from '@/common/constants/analyticsEvents';
+import { StatsigEvent } from '@/common/constants/StatsigEvent.ts';
 import { useLogEvent } from '@/common/hooks/useLogEvent';
 import {
   Algorithm,
@@ -23,8 +23,10 @@ import { useEffect, useState } from 'react';
 import RecommendationSettingsForm from '../components/RecommendationSettingsForm';
 import RecommendationSettingsSidebar from '../components/RecommendationSettingsSidebar';
 
+const rankBgColors: Record<number, string> = { 1: '#f59e0b', 2: '#94a3b8', 3: '#ea580c' };
+
 function RankBadge({ rank }: { rank: number }) {
-  const bg = rank === 1 ? '#f59e0b' : rank === 2 ? '#94a3b8' : rank === 3 ? '#ea580c' : '#a8a29e';
+  const bg = rankBgColors[rank] ?? '#a8a29e';
   const label = rank <= 3 ? `TOP ${rank}` : `#${rank}`;
   return (
     <div

@@ -36,15 +36,22 @@ export function RetrainSection() {
   };
 
   return (
-    <Card title={<span className='flex items-center gap-2'><SyncOutlined className='text-indigo-600' />Huấn luyện mô hình</span>}>
+    <Card
+      title={
+        <span className='flex items-center gap-2'>
+          <SyncOutlined className='text-indigo-600' />
+          Huấn luyện mô hình
+        </span>
+      }
+    >
       <div className='flex flex-col gap-4'>
         <div className='rounded-xl border border-indigo-100 bg-indigo-50 p-4'>
           <Typography.Text style={{ color: '#4338CA' }}>
             Huấn luyện lại mô hình giúp hệ thống cập nhật các gợi ý dựa trên{' '}
             <Typography.Text strong style={{ color: '#4338CA' }}>
               đánh giá và bình luận mới nhất của người dùng
-            </Typography.Text>
-            {' '}kể từ lần huấn luyện trước, đồng thời có thể gợi ý thêm các{' '}
+            </Typography.Text>{' '}
+            kể từ lần huấn luyện trước, đồng thời có thể gợi ý thêm các{' '}
             <Typography.Text strong style={{ color: '#4338CA' }}>
               khóa học mới
             </Typography.Text>{' '}

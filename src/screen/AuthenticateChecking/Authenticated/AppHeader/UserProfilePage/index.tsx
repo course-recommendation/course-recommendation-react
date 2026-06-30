@@ -1,51 +1,51 @@
-import useRequest from '@/common/hooks/network/useRequest'
-import { GlobalErrorCode } from '@/common/types/GlobalErrorCode'
-import { RestError } from '@/common/types/Network'
-import {User} from '@/common/types/User.types'
-import {useMeContext} from '@/screen/AuthenticateChecking/Authenticated/context/MeContext'
-import {Button, Form, Input, Typography} from 'antd'
-import useApp from 'antd/es/app/useApp'
-import {useState} from 'react'
+import useRequest from '@/common/hooks/network/useRequest';
+import { GlobalErrorCode } from '@/common/types/GlobalErrorCode';
+import { RestError } from '@/common/types/Network';
+import { User } from '@/common/types/User.types';
+import { useMeContext } from '@/screen/AuthenticateChecking/Authenticated/context/MeContext';
+import { Button, Form, Input, Typography } from 'antd';
+import useApp from 'antd/es/app/useApp';
+import { useState } from 'react';
 
-const cardStyle = { boxShadow: '0 1px 4px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04)' }
+const cardStyle = { boxShadow: '0 1px 4px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04)' };
 
 export default function UserProfilePage() {
-  const { me } = useMeContext()
-  const { message } = useApp()
-  const [form] = Form.useForm()
-  const [currentMe, setCurrentMe] = useState<User>(me)
-  const [isEditing, setIsEditing] = useState(false)
-  const { request: updateProfile, isPending: updatePending } = useRequest<User>()
-  const { request: requestReset, isPending: resetPending } = useRequest<void>()
+  const { me } = useMeContext();
+  const { message } = useApp();
+  const [form] = Form.useForm();
+  const [currentMe, setCurrentMe] = useState<User>(me);
+  const [isEditing, setIsEditing] = useState(false);
+  const { request: updateProfile, isPending: updatePending } = useRequest<User>();
+  const { request: requestReset, isPending: resetPending } = useRequest<void>();
 
   const handleEdit = () => {
-    form.setFieldsValue({ fullName: currentMe.fullName, email: currentMe.email })
-    setIsEditing(true)
-  }
+    form.setFieldsValue({ fullName: currentMe.fullName, email: currentMe.email });
+    setIsEditing(true);
+  };
 
   const handleCancel = () => {
-    setIsEditing(false)
-  }
+    setIsEditing(false);
+  };
 
   const handleSave = async () => {
     try {
-      const values = await form.validateFields()
+      const values = await form.validateFields();
       const response = await updateProfile({
         url: '/me/profile',
         method: 'PUT',
         data: { fullName: values.fullName, email: values.email },
-      })
-      setCurrentMe(response.data!)
-      setIsEditing(false)
-      message.success('Cập nhật thông tin thành công')
+      });
+      setCurrentMe(response.data!);
+      setIsEditing(false);
+      message.success('Cập nhật thông tin thành công');
     } catch (error) {
       if (error instanceof RestError && error.errorCode === GlobalErrorCode.EMAIL_DUPLICATED) {
-        form.setFields([{ name: 'email', errors: ['Email này đã được sử dụng'] }])
+        form.setFields([{ name: 'email', errors: ['Email này đã được sử dụng'] }]);
       } else if (!(error instanceof Error && error.name === 'ValidateError')) {
-        message.error('Đã có lỗi xảy ra')
+        message.error('Đã có lỗi xảy ra');
       }
     }
-  }
+  };
 
   const handlePasswordReset = async () => {
     try {
@@ -53,12 +53,12 @@ export default function UserProfilePage() {
         url: '/auth/password-reset/request',
         method: 'POST',
         data: { email: currentMe.email },
-      })
-      message.success('Email đặt lại mật khẩu đã được gửi. Vui lòng kiểm tra hộp thư của bạn.')
+      });
+      message.success('Email đặt lại mật khẩu đã được gửi. Vui lòng kiểm tra hộp thư của bạn.');
     } catch {
-      message.error('Đã có lỗi xảy ra')
+      message.error('Đã có lỗi xảy ra');
     }
-  }
+  };
 
   return (
     <div className='max-w-lg mx-auto'>
@@ -67,7 +67,9 @@ export default function UserProfilePage() {
       </Typography.Title>
 
       <div className='bg-white rounded-2xl px-8 py-8 mb-4' style={cardStyle}>
-        <Typography.Title level={4} className='mb-6'>Thông tin cá nhân</Typography.Title>
+        <Typography.Title level={4} className='mb-6'>
+          Thông tin cá nhân
+        </Typography.Title>
 
         {isEditing ? (
           <Form form={form} layout='vertical'>
@@ -117,13 +119,17 @@ export default function UserProfilePage() {
                 </div>
               </div>
             </div>
-            <Button type='primary' onClick={handleEdit}>Chỉnh sửa</Button>
+            <Button type='primary' onClick={handleEdit}>
+              Chỉnh sửa
+            </Button>
           </>
         )}
       </div>
 
       <div className='bg-white rounded-2xl px-8 py-8' style={cardStyle}>
-        <Typography.Title level={4} className='mb-2'>Mật khẩu</Typography.Title>
+        <Typography.Title level={4} className='mb-2'>
+          Mật khẩu
+        </Typography.Title>
         <Typography.Text type='secondary' className='block mb-4 text-sm'>
           Gửi email đặt lại mật khẩu đến địa chỉ email của bạn.
         </Typography.Text>
@@ -132,5 +138,5 @@ export default function UserProfilePage() {
         </Button>
       </div>
     </div>
-  )
+  );
 }

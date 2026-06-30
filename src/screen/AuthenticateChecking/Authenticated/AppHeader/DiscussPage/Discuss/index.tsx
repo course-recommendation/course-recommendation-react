@@ -76,7 +76,7 @@ export default function Discuss({ algorithm }: Props) {
           .catch(() => {});
       });
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Sync state to URL params
@@ -98,8 +98,7 @@ export default function Discuss({ algorithm }: Props) {
     const ids = authorIdsParam ? authorIdsParam.split(',').filter(Boolean) : [];
     const currentIds = finalFilteredAuthorIds;
 
-    const same =
-      ids.length === currentIds.length && ids.every((id) => currentIds.includes(id));
+    const same = ids.length === currentIds.length && ids.every((id) => currentIds.includes(id));
     if (!same) {
       setFilteredAuthorIds(ids);
       setFinalFilteredAuthorIds(ids);
@@ -115,7 +114,7 @@ export default function Discuss({ algorithm }: Props) {
         }
       });
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
   const resolveNumberOfFiltersText = () => {

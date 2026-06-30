@@ -3,7 +3,7 @@ import { useAlgorithmContext } from '@/common/context/AlgorithmContext';
 import useGet from '@/common/hooks/network/useGet';
 import useRequest from '@/common/hooks/network/useRequest';
 import { useAttributeValues } from '@/common/hooks/useAttributeValues';
-import { StatsigEvent } from '@/common/constants/analyticsEvents';
+import { StatsigEvent } from '@/common/constants/StatsigEvent.ts';
 import { useLogEvent } from '@/common/hooks/useLogEvent';
 import {
   CourseDetail,

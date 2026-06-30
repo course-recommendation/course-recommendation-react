@@ -72,13 +72,7 @@ function SectionCard({
             : 'Chưa chọn môn học'}
         </div>
         {canDelete && (
-          <Button
-            type='text'
-            danger
-            icon={<DeleteOutlined />}
-            size='small'
-            onClick={onDelete}
-          >
+          <Button type='text' danger icon={<DeleteOutlined />} size='small' onClick={onDelete}>
             Xóa
           </Button>
         )}
@@ -93,7 +87,7 @@ function SectionCard({
           value={section.courseId}
           onChange={onCourseChange}
           filterOption={(input, option) =>
-            (option?.label as string ?? '').toLowerCase().includes(input.toLowerCase())
+            ((option?.label as string) ?? '').toLowerCase().includes(input.toLowerCase())
           }
           options={courses.map((c) => ({
             label: `${c.code} – ${c.name}`,
@@ -133,10 +127,10 @@ export default function CourseRatingPage() {
   const isDone = searchParams.get('status') === 'done';
   const algorithm = useAlgorithmContext();
 
-  const keyCounter = useRef(0);
+  const keyCounter = useRef(1);
   const nextKey = () => `section-${keyCounter.current++}`;
 
-  const [sections, setSections] = useState<FormSection[]>([makeEmptySection(nextKey())]);
+  const [sections, setSections] = useState<FormSection[]>(() => [makeEmptySection('section-0')]);
   const [initialized, setInitialized] = useState(false);
 
   const { data: courseDetailsResponse, isPending: coursesPending } = useGet<CourseDetail[]>(
@@ -147,7 +141,8 @@ export default function CourseRatingPage() {
     '/attributes',
     { params: { algorithm } as { algorithm: Algorithm } },
   );
-  const { data: savedResponse, isPending: savedPending } = useGet<SavedRatingSection[]>('/course-rating');
+  const { data: savedResponse, isPending: savedPending } =
+    useGet<SavedRatingSection[]>('/course-rating');
 
   const { request: save, isPending: saving } = useRequest<void, SavePayload>();
 
@@ -155,6 +150,7 @@ export default function CourseRatingPage() {
     if (savedPending || initialized) return;
     const saved = savedResponse?.data;
     if (saved && saved.length > 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSections(
         saved.map((s) => ({
           key: nextKey(),
@@ -178,9 +174,7 @@ export default function CourseRatingPage() {
   };
 
   const handleCourseChange = (key: string, courseId: number | null) => {
-    setSections((prev) =>
-      prev.map((s) => (s.key === key ? { ...s, courseId } : s)),
-    );
+    setSections((prev) => prev.map((s) => (s.key === key ? { ...s, courseId } : s)));
   };
 
   const handleScoreChange = (key: string, attributeId: number, score: number) => {
@@ -189,9 +183,7 @@ export default function CourseRatingPage() {
         if (s.key !== key) return s;
         const existing = s.attributeRatings.find((r) => r.attributeId === attributeId);
         const updated = existing
-          ? s.attributeRatings.map((r) =>
-              r.attributeId === attributeId ? { ...r, score } : r,
-            )
+          ? s.attributeRatings.map((r) => (r.attributeId === attributeId ? { ...r, score } : r))
           : [...s.attributeRatings, { attributeId, score }];
         return { ...s, attributeRatings: updated };
       }),
@@ -259,7 +251,8 @@ export default function CourseRatingPage() {
 
       <div className='mb-6 rounded-xl border border-indigo-200 bg-indigo-50 px-5 py-4'>
         <p className='text-indigo-800 text-[14px] leading-[1.7]'>
-          Đánh giá các thuộc tính của những môn bạn đã học theo thang điểm từ 1-5. Điểm càng cao tức là cảm nhận của bạn về thuộc tính đó càng tích cực
+          Đánh giá các thuộc tính của những môn bạn đã học theo thang điểm từ 1-5. Điểm càng cao tức
+          là cảm nhận của bạn về thuộc tính đó càng tích cực
         </p>
       </div>
 

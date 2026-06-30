@@ -35,7 +35,7 @@ export default function DiscussFilter({
 
   const { request: searchUsersRequest } = useRequest<User[]>();
 
-  const allCourses = allCoursesResponse?.data ?? [];
+  const allCourses = useMemo(() => allCoursesResponse?.data ?? [], [allCoursesResponse?.data]);
 
   const selectedCourses = useMemo(
     () => allCourses.filter((c) => selectedCourseIds.includes(c.code)),
@@ -120,7 +120,9 @@ export default function DiscussFilter({
               <Tag
                 key={course.code}
                 closable
-                onClose={() => onSelectedCourseIdsChange(selectedCourseIds.filter((x) => x !== course.code))}
+                onClose={() =>
+                  onSelectedCourseIdsChange(selectedCourseIds.filter((x) => x !== course.code))
+                }
                 closeIcon={<CloseOutlined className='text-[10px]' />}
                 className='rounded-full border-indigo-100 bg-indigo-50 text-indigo-700 text-xs font-medium px-2 py-0.5 flex items-center gap-1 m-0'
               >
@@ -140,14 +142,18 @@ export default function DiscussFilter({
           />
         </div>
         <div className='max-h-[220px] overflow-y-auto py-1'>
-          {allCoursesPending ? (
-            <div className='px-4 py-3'>
-              <Skeleton active paragraph={{ rows: 4 }} title={false} />
-            </div>
-          ) : filteredCourses.length === 0 ? (
-            <p className='px-4 py-3 text-sm text-slate-400'>Không tìm thấy môn học</p>
-          ) : (
-            filteredCourses.map((course) => {
+          {(() => {
+            if (allCoursesPending) {
+              return (
+                <div className='px-4 py-3'>
+                  <Skeleton active paragraph={{ rows: 4 }} title={false} />
+                </div>
+              );
+            }
+            if (filteredCourses.length === 0) {
+              return <p className='px-4 py-3 text-sm text-slate-400'>Không tìm thấy môn học</p>;
+            }
+            return filteredCourses.map((course) => {
               const isSelected = selectedCourseIds.includes(course.code);
               return (
                 <button
@@ -165,8 +171,8 @@ export default function DiscussFilter({
                   )}
                 </button>
               );
-            })
-          )}
+            });
+          })()}
         </div>
       </div>
 
@@ -184,7 +190,9 @@ export default function DiscussFilter({
                 <Tag
                   key={id}
                   closable
-                  onClose={() => onSelectedAuthorIdsChange(selectedAuthorIds.filter((x) => x !== id))}
+                  onClose={() =>
+                    onSelectedAuthorIdsChange(selectedAuthorIds.filter((x) => x !== id))
+                  }
                   closeIcon={<CloseOutlined className='text-[10px]' />}
                   className='rounded-full border-indigo-100 bg-indigo-50 text-indigo-700 text-xs font-medium px-2 py-0.5 flex items-center gap-1 m-0'
                 >
@@ -206,36 +214,43 @@ export default function DiscussFilter({
           />
         </div>
         <div className='max-h-[180px] overflow-y-auto py-1'>
-          {authorSearchPending ? (
-            <div className='flex justify-center py-3'>
-              <Spin size='small' />
-            </div>
-          ) : authorInput && authorSearchResults.length === 0 ? (
-            <p className='px-4 py-3 text-sm text-slate-400'>Không tìm thấy tác giả</p>
-          ) : authorSearchResults.length > 0 ? (
-            authorSearchResults.map((user) => {
-              const isSelected = selectedAuthorIds.includes(user.id);
+          {(() => {
+            if (authorSearchPending) {
               return (
-                <button
-                  key={user.id}
-                  onClick={() => toggleAuthor(user)}
-                  className={`w-full text-left px-3 py-2 text-sm transition-all border-l-[3px] flex items-center gap-2.5 group ${
-                    isSelected
-                      ? 'border-indigo-500 bg-indigo-50 text-indigo-700 font-medium'
-                      : 'border-transparent text-slate-600 hover:bg-slate-50 hover:border-[#E8E5E0] hover:text-slate-800'
-                  }`}
-                >
-                  <Avatar src={user.avatarUrl} size={24} className='shrink-0' />
-                  <span className='leading-snug flex-1 truncate'>{user.fullName}</span>
-                  {isSelected && (
-                    <CloseOutlined className='text-[10px] text-violet-400 opacity-0 group-hover:opacity-100 transition-opacity shrink-0' />
-                  )}
-                </button>
+                <div className='flex justify-center py-3'>
+                  <Spin size='small' />
+                </div>
               );
-            })
-          ) : (
-            <p className='px-4 py-2 pb-3 text-xs text-slate-400'>Nhập tên để tìm kiếm tác giả</p>
-          )}
+            }
+            if (authorInput && authorSearchResults.length === 0) {
+              return <p className='px-4 py-3 text-sm text-slate-400'>Không tìm thấy tác giả</p>;
+            }
+            if (authorSearchResults.length > 0) {
+              return authorSearchResults.map((user) => {
+                const isSelected = selectedAuthorIds.includes(user.id);
+                return (
+                  <button
+                    key={user.id}
+                    onClick={() => toggleAuthor(user)}
+                    className={`w-full text-left px-3 py-2 text-sm transition-all border-l-[3px] flex items-center gap-2.5 group ${
+                      isSelected
+                        ? 'border-indigo-500 bg-indigo-50 text-indigo-700 font-medium'
+                        : 'border-transparent text-slate-600 hover:bg-slate-50 hover:border-[#E8E5E0] hover:text-slate-800'
+                    }`}
+                  >
+                    <Avatar src={user.avatarUrl} size={24} className='shrink-0' />
+                    <span className='leading-snug flex-1 truncate'>{user.fullName}</span>
+                    {isSelected && (
+                      <CloseOutlined className='text-[10px] text-violet-400 opacity-0 group-hover:opacity-100 transition-opacity shrink-0' />
+                    )}
+                  </button>
+                );
+              });
+            }
+            return (
+              <p className='px-4 py-2 pb-3 text-xs text-slate-400'>Nhập tên để tìm kiếm tác giả</p>
+            );
+          })()}
         </div>
       </div>
     </div>

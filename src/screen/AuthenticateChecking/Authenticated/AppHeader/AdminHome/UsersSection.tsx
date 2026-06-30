@@ -223,7 +223,12 @@ export function UsersSection() {
       <ProTable<AdminUserRow>
         className='rounded-lg border border-gray-200 overflow-hidden'
         actionRef={actionRef}
-        headerTitle={<span className='flex items-center gap-2 text-lg font-semibold'><TeamOutlined className='text-emerald-600' />Người dùng</span>}
+        headerTitle={
+          <span className='flex items-center gap-2 text-lg font-semibold'>
+            <TeamOutlined className='text-emerald-600' />
+            Người dùng
+          </span>
+        }
         rowKey='id'
         rowSelection={{ selectedRowKeys: selectedKeys, onChange: setSelectedKeys }}
         search={false}
