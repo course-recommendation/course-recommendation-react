@@ -166,15 +166,15 @@ export default function RecommendedCourseCard({
                       : `Xem tất cả tiêu chí (${hiddenCount} tiêu chí khác) →`}
                   </Button>
                 )}
-                <Button
-                  type='text'
-                  size='small'
-                  icon={<CommentOutlined />}
-                  className='text-indigo-600 text-xs ml-auto'
-                  onClick={(e) => { e.preventDefault(); setDiscussionOpen(true); }}
-                >
-                  Xem thảo luận
-                </Button>
+                {/*<Button*/}
+                {/*  type='text'*/}
+                {/*  size='small'*/}
+                {/*  icon={<CommentOutlined />}*/}
+                {/*  className='text-indigo-600 text-xs ml-auto'*/}
+                {/*  onClick={(e) => { e.preventDefault(); setDiscussionOpen(true); }}*/}
+                {/*>*/}
+                {/*  Xem thảo luận*/}
+                {/*</Button>*/}
               </div>
             </div>
           )}
