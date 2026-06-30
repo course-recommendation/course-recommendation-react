@@ -159,7 +159,7 @@ export default function AppHeader() {
             <Link to={'/'} className='text-black'>
               <span className='flex items-center gap-2'>
                 <BookIcon className='text-primary inline w-8 h-8 md:w-10 md:h-10' />
-                <span className='font-bold text-xl md:text-2xl'>CourseHub</span>
+                <span className='font-bold text-xl md:text-2xl'>CoursePilot</span>
               </span>
             </Link>
             {!isDoingSurvey && (

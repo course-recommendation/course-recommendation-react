@@ -50,7 +50,7 @@ function ResetPasswordPageInner() {
         <div className='flex flex-col items-center mb-8'>
           <div className='flex items-center gap-2.5 mb-3'>
             <BookIcon className='text-indigo-700 w-9 h-9' />
-            <span className='font-bold text-2xl text-[#1C1917] tracking-tight'>CourseHub</span>
+            <span className='font-bold text-2xl text-[#1C1917] tracking-tight'>CoursePilot</span>
           </div>
           <h1 className='text-[28px] font-semibold text-[#1C1917] text-center'>
             Đặt lại mật khẩu
