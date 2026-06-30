@@ -1,12 +1,18 @@
 import RatingBox from '@/common/components/RatingBox';
-import {StatsigEvent} from '@/common/constants/StatsigEvent.ts';
-import {useLogStatsigEvent} from '@/common/hooks/useLogStatsigEvent.ts';
-import {Attribute, Course} from '@/common/types/Course.types';
-import {FilterCoursesOption} from '@/common/types/Recommendation.types';
-import {RecommendationSettingsFormType} from '@/common/types/TriRank.types';
-import {ProForm, ProFormCheckbox, ProFormDependency, ProFormItem, ProFormSelect,} from '@ant-design/pro-components';
-import {FormInstance} from 'antd/es/form';
-import {useEffect, useRef} from 'react';
+import { StatsigEvent } from '@/common/constants/StatsigEvent.ts';
+import { useLogStatsigEvent } from '@/common/hooks/useLogStatsigEvent.ts';
+import { Attribute, Course } from '@/common/types/Course.types';
+import { FilterCoursesOption } from '@/common/types/Recommendation.types';
+import { RecommendationSettingsFormType } from '@/common/types/TriRank.types';
+import {
+  ProForm,
+  ProFormCheckbox,
+  ProFormDependency,
+  ProFormItem,
+  ProFormSelect,
+} from '@ant-design/pro-components';
+import { FormInstance } from 'antd/es/form';
+import { useEffect, useRef } from 'react';
 
 type Props = {
   form: FormInstance<RecommendationSettingsFormType>;

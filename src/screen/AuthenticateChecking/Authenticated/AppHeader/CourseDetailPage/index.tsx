@@ -1,9 +1,9 @@
 import CourseStatusButton from '@/common/components/CourseStatusButton';
+import { StatsigEvent } from '@/common/constants/StatsigEvent.ts';
 import { useAlgorithmContext } from '@/common/context/AlgorithmContext';
 import useGet from '@/common/hooks/network/useGet';
 import useRequest from '@/common/hooks/network/useRequest';
 import { useAttributeValues } from '@/common/hooks/useAttributeValues';
-import { StatsigEvent } from '@/common/constants/StatsigEvent.ts';
 import { useLogStatsigEvent } from '@/common/hooks/useLogStatsigEvent.ts';
 import {
   CourseDetail,

@@ -1,5 +1,4 @@
 import PostCard from '@/screen/AuthenticateChecking/Authenticated/AppHeader/DiscussPage/Discuss/DiscussMainArea/PostCard';
-import { CommentOutlined } from '@ant-design/icons';
 import { Button, Card, Drawer, Empty, Progress, Skeleton, Tooltip } from 'antd';
 import { ReactNode, useState } from 'react';
 import { Link } from 'react-router';
@@ -122,9 +121,7 @@ export default function RecommendedCourseCard({
 
           {/* Row 2: explanation scores (full width strip) */}
           {hasExplanation && (
-            <div
-              className='mt-4 pt-4 border-t border-stone-200'
-            >
+            <div className='mt-4 pt-4 border-t border-stone-200'>
               <p className='text-xs text-gray-400 mb-2'>
                 Cảm nhận của các sinh viên khác về các tiêu chí
               </p>
@@ -133,7 +130,9 @@ export default function RecommendedCourseCard({
                   <div key={label}>
                     <div className='flex justify-between items-center mb-1'>
                       <Tooltip title={label} placement='top'>
-                        <span className='text-xs text-gray-600 truncate flex-1 cursor-default'>{label}</span>
+                        <span className='text-xs text-gray-600 truncate flex-1 cursor-default'>
+                          {label}
+                        </span>
                       </Tooltip>
                       <span
                         className='text-xs font-semibold ml-2 shrink-0'
@@ -159,7 +158,10 @@ export default function RecommendedCourseCard({
                     type='text'
                     size='small'
                     className='text-indigo-600 text-xs'
-                    onClick={(e) => { e.preventDefault(); setExpanded(!expanded); }}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setExpanded(!expanded);
+                    }}
                   >
                     {expanded
                       ? 'Thu gọn ←'

@@ -179,7 +179,10 @@ export default function TriRankRecommendation() {
         />
 
         <div className='flex flex-col md:h-full md:overflow-hidden w-full'>
-          <div ref={resultsContainerRef} className='md:flex-1 md:min-h-0 md:overflow-y-auto overscroll-none'>
+          <div
+            ref={resultsContainerRef}
+            className='md:flex-1 md:min-h-0 md:overflow-y-auto overscroll-none'
+          >
             {/*<div className='mb-4'>*/}
             {/*  <div*/}
             {/*    className='font-bold text-[28px] text-[#1C1917] leading-tight'*/}
