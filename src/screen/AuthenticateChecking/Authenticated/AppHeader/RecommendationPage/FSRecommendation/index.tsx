@@ -5,6 +5,7 @@ import RecommendedCourseCard from '@/common/components/RecommendedCourseCard';
 import { useShowExplanationContext } from '@/common/context/ShowExplanationContext';
 import useGet from '@/common/hooks/network/useGet';
 import useRequest from '@/common/hooks/network/useRequest';
+import { StatsigEvent } from '@/common/constants/analyticsEvents';
 import { useLogEvent } from '@/common/hooks/useLogEvent';
 import {
   Algorithm,
@@ -121,7 +122,7 @@ const CategorySection = memo(function CategorySection({
                 showExplanation ? getExplanationScores(courseDetail.course.code) : undefined
               }
               onClick={() => {
-                logEvent('see_course_detail', undefined, {
+                logEvent(StatsigEvent.SeeCourseDetail, undefined, {
                   courseCode: courseDetail.course.code,
                   rank: String(rank),
                 });
@@ -142,7 +143,7 @@ const CategorySection = memo(function CategorySection({
                     courseId={courseDetail.course.id}
                     onMarkChange={(marked) => {
                       if (marked) {
-                        logEvent('click_planned', undefined, {
+                        logEvent(StatsigEvent.ClickPlanned, undefined, {
                           courseCode: courseDetail.course.code,
                           page: 'recommendation',
                           rank: String(rank),
@@ -168,7 +169,7 @@ const CategorySection = memo(function CategorySection({
                         e.preventDefault();
                         e.stopPropagation();
 
-                        logEvent('get_refined_recommendation', undefined, {
+                        logEvent(StatsigEvent.GetRefinedRecommendation, undefined, {
                           courseCode: courseDetail.course.code,
                           rank: String(rank),
                         });
@@ -293,7 +294,7 @@ export default function FSRecommendation() {
   }, [latestFSRecommendationResultPending, latestFSRecommendationResultResponse]);
 
   const handleGetRecommendation = async () => {
-    logEvent('get_recommendation');
+    logEvent(StatsigEvent.GetRecommendation);
     setSettingsDrawerOpen(false);
 
     const formValues = await form.validateFields();
@@ -465,7 +466,7 @@ export default function FSRecommendation() {
                             index={index}
                             rank={rank}
                             onClick={() => {
-                              logEvent('see_course_detail', undefined, {
+                              logEvent(StatsigEvent.SeeCourseDetail, undefined, {
                                 courseCode: courseDetail.course.code,
                                 rank: String(rank),
                               });
@@ -489,7 +490,7 @@ export default function FSRecommendation() {
                                 courseId={courseDetail.course.id}
                                 onMarkChange={(marked) => {
                                   if (marked) {
-                                    logEvent('click_planned', undefined, {
+                                    logEvent(StatsigEvent.ClickPlanned, undefined, {
                                       courseCode: courseDetail.course.code,
                                       page: 'recommendation',
                                       rank: String(rank),
@@ -548,7 +549,7 @@ export default function FSRecommendation() {
                         recommendationResult.itemIdToItemSentiments,
                       )}
                       onClick={() => {
-                        logEvent('see_course_detail', undefined, {
+                        logEvent(StatsigEvent.SeeCourseDetail, undefined, {
                           courseCode: topCourseDetail.course.code,
                           rank: '1',
                         });
@@ -572,7 +573,7 @@ export default function FSRecommendation() {
                           courseId={topCourseDetail.course.id}
                           onMarkChange={(marked) => {
                             if (marked) {
-                              logEvent('click_planned', undefined, {
+                              logEvent(StatsigEvent.ClickPlanned, undefined, {
                                 courseCode: topCourseDetail.course.code,
                                 page: 'recommendation',
                                 rank: '1',

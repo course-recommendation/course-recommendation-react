@@ -1,4 +1,5 @@
 import RatingBox from '@/common/components/RatingBox';
+import { StatsigEvent } from '@/common/constants/analyticsEvents';
 import { useLogEvent } from '@/common/hooks/useLogEvent';
 import { Attribute, Course } from '@/common/types/Course.types';
 import { FilterCoursesOption } from '@/common/types/Recommendation.types';
@@ -79,7 +80,7 @@ export default function RecommendationSettingsForm({
                 <AttributeRow
                   label={attribute.value}
                   onChange={(value) => {
-                    logEvent('adjust_preference', value, {
+                    logEvent(StatsigEvent.AdjustPreference, value, {
                       attribute: attribute.value,
                     });
                   }}
@@ -105,7 +106,7 @@ export default function RecommendationSettingsForm({
           fieldProps={{
             className: 'w-full',
             onChange: () => {
-              logEvent('click_filter_courses_option');
+              logEvent(StatsigEvent.ClickFilterCoursesOption);
             },
           }}
           options={[

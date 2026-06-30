@@ -3,6 +3,7 @@ import RecommendedCourseCard from '@/common/components/RecommendedCourseCard';
 import { useShowExplanationContext } from '@/common/context/ShowExplanationContext';
 import useGet from '@/common/hooks/network/useGet';
 import useRequest from '@/common/hooks/network/useRequest';
+import { StatsigEvent } from '@/common/constants/analyticsEvents';
 import { useLogEvent } from '@/common/hooks/useLogEvent';
 import {
   Algorithm,
@@ -102,7 +103,7 @@ export default function TriRankRecommendation() {
   };
 
   const handleGetRecommendation = async () => {
-    logEvent('get_recommendation');
+    logEvent(StatsigEvent.GetRecommendation);
     setSettingsDrawerOpen(false);
 
     const formValues = await form.validateFields();
@@ -244,7 +245,7 @@ export default function TriRankRecommendation() {
                                 : undefined
                             }
                             onClick={() => {
-                              logEvent('see_course_detail', undefined, {
+                              logEvent(StatsigEvent.SeeCourseDetail, undefined, {
                                 courseCode: courseDetail.course.code,
                                 rank: String(rank),
                               });
@@ -273,7 +274,7 @@ export default function TriRankRecommendation() {
                                 courseId={courseDetail.course.id}
                                 onMarkChange={(marked) => {
                                   if (marked) {
-                                    logEvent('click_planned', undefined, {
+                                    logEvent(StatsigEvent.ClickPlanned, undefined, {
                                       courseCode: courseDetail.course.code,
                                       page: 'recommendation',
                                       rank: String(rank),
