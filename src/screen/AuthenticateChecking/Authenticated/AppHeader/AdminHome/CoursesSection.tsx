@@ -13,7 +13,6 @@ type AdminCourseRow = {
   code: string;
   name: string;
   description: string;
-  thumbnailUrl: string;
   algorithm: string;
 };
 
@@ -175,17 +174,6 @@ export function CoursesSection() {
           },
           { title: 'Mô tả', dataIndex: 'description', ellipsis: true },
           {
-            title: 'URL ảnh',
-            dataIndex: 'thumbnailUrl',
-            ellipsis: true,
-            render: (_, r) =>
-              r.thumbnailUrl ? (
-                <a href={r.thumbnailUrl} target='_blank' rel='noreferrer'>
-                  {r.thumbnailUrl}
-                </a>
-              ) : null,
-          },
-          {
             title: 'Thao tác',
             valueType: 'option',
             render: (_, r) => (
@@ -214,7 +202,6 @@ export function CoursesSection() {
               { col: 'A', label: 'Mã khóa học', required: true },
               { col: 'B', label: 'Tên khóa học', required: true },
               { col: 'C', label: 'Mô tả' },
-              { col: 'D', label: 'URL ảnh' },
             ]}
           />,
           <Button
@@ -249,7 +236,6 @@ export function CoursesSection() {
         <ProFormText name='code' label='Mã' rules={[{ required: true }]} />
         <ProFormText name='name' label='Tên' rules={[{ required: true }]} />
         <ProFormText name='description' label='Mô tả' />
-        <ProFormText name='thumbnailUrl' label='URL ảnh' />
       </ModalForm>
 
       <ModalForm
@@ -271,7 +257,6 @@ export function CoursesSection() {
         <ProFormText name='code' label='Mã' rules={[{ required: true }]} />
         <ProFormText name='name' label='Tên' rules={[{ required: true }]} />
         <ProFormText name='description' label='Mô tả' />
-        <ProFormText name='thumbnailUrl' label='URL ảnh' />
       </ModalForm>
     </>
   );
