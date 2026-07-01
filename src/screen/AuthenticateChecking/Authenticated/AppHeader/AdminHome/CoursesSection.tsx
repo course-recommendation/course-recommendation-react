@@ -14,6 +14,7 @@ type AdminCourseRow = {
   name: string;
   description: string;
   algorithm: string;
+  createdAt: string;
 };
 
 function buildSortParam(sort: Record<string, SortOrder>): string | undefined {
@@ -173,6 +174,22 @@ export function CoursesSection() {
             onFilter: () => true,
           },
           { title: 'Mô tả', dataIndex: 'description', ellipsis: true },
+          {
+            title: 'Ngày tạo',
+            dataIndex: 'createdAt',
+            width: 160,
+            sorter: true,
+            render: (_, entity) =>
+              entity.createdAt
+                ? new Date(entity.createdAt).toLocaleString('vi-VN', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })
+                : '-',
+          },
           {
             title: 'Thao tác',
             valueType: 'option',

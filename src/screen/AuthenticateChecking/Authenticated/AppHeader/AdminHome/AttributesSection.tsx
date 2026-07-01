@@ -12,6 +12,7 @@ type AdminAttributeRow = {
   id: number;
   value: string;
   algorithm: string;
+  createdAt: string;
 };
 
 function buildSortParam(sort: Record<string, SortOrder>): string | undefined {
@@ -160,6 +161,22 @@ export function AttributesSection() {
             sorter: true,
             filterDropdown: textFilterDropdown('Tìm tên thuộc tính'),
             onFilter: () => true,
+          },
+          {
+            title: 'Ngày tạo',
+            dataIndex: 'createdAt',
+            width: 160,
+            sorter: true,
+            render: (_, entity) =>
+              entity.createdAt
+                ? new Date(entity.createdAt).toLocaleString('vi-VN', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })
+                : '-',
           },
           {
             title: 'Thao tác',

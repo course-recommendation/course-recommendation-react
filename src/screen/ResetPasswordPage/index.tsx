@@ -64,9 +64,7 @@ function ResetPasswordPageInner() {
             <Form.Item
               name='newPassword'
               label='Mật khẩu mới'
-              rules={[
-                { required: true, message: 'Mật khẩu không được để trống' },
-              ]}
+              rules={[{ required: true, message: 'Mật khẩu không được để trống' }]}
             >
               <Input.Password size='large' placeholder='Nhập mật khẩu mới' />
             </Form.Item>

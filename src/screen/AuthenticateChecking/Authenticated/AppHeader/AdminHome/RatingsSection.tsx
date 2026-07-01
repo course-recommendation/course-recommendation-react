@@ -29,6 +29,7 @@ type AdminRatingRow = {
   attributeId: number;
   attributeName: string;
   score: number;
+  createdAt: string;
 };
 
 function buildSortParam(sort: Record<string, SortOrder>): string | undefined {
@@ -199,6 +200,22 @@ export function RatingsSection() {
             onFilter: () => true,
           },
           { title: 'Điểm', dataIndex: 'score', sorter: true },
+          {
+            title: 'Ngày tạo',
+            dataIndex: 'createdAt',
+            width: 160,
+            sorter: true,
+            render: (_, entity) =>
+              entity.createdAt
+                ? new Date(entity.createdAt).toLocaleString('vi-VN', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })
+                : '-',
+          },
           {
             title: 'Thao tác',
             valueType: 'option',

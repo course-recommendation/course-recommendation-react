@@ -22,9 +22,9 @@ export default function AdminHome() {
       </div>
       <div className='space-y-6 p-8'>
         <SystemStatusSection />
+        <UsersSection />
         <CoursesSection />
         <AttributesSection />
-        <UsersSection />
         <RatingsSection />
         <RetrainSection />
       </div>

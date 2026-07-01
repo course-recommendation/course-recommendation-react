@@ -25,6 +25,7 @@ type AdminUserRow = {
   email: string;
   fullName: string;
   roles: string[];
+  createdAt: string;
 };
 
 const ROLE_OPTIONS = [
@@ -287,6 +288,22 @@ export function UsersSection() {
                   {role === 'ADMIN' ? 'Quản trị viên' : 'Người dùng'}
                 </Tag>
               )),
+          },
+          {
+            title: 'Ngày tạo',
+            dataIndex: 'createdAt',
+            width: 160,
+            sorter: true,
+            render: (_, entity) =>
+              entity.createdAt
+                ? new Date(entity.createdAt).toLocaleString('vi-VN', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })
+                : '-',
           },
           {
             title: 'Thao tác',
