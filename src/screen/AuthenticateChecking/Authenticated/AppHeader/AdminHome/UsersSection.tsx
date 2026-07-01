@@ -24,7 +24,6 @@ type AdminUserRow = {
   id: string;
   email: string;
   fullName: string;
-  avatarUrl: string;
   roles: string[];
 };
 
@@ -274,7 +273,6 @@ export function UsersSection() {
             filterDropdown: textFilterDropdown('Tìm họ và tên'),
             onFilter: () => true,
           },
-          { title: 'Ảnh đại diện URL', dataIndex: 'avatarUrl', ellipsis: true },
           {
             title: 'Vai trò',
             dataIndex: 'roles',
@@ -318,9 +316,8 @@ export function UsersSection() {
             formatColumns={[
               { col: 'A', label: 'Email', required: true },
               { col: 'B', label: 'Họ và tên' },
-              { col: 'C', label: 'URL ảnh đại diện' },
-              { col: 'D', label: 'Vai trò', note: 'USER hoặc ADMIN', required: true },
-              { col: 'E', label: 'Mật khẩu', required: true },
+              { col: 'C', label: 'Vai trò', note: 'USER hoặc ADMIN', required: true },
+              { col: 'D', label: 'Mật khẩu', required: true },
             ]}
           />,
           <Button
@@ -358,7 +355,6 @@ export function UsersSection() {
           rules={[{ required: true }]}
         />
         <ProFormText name='fullName' label='Họ và tên' rules={[{ required: true }]} />
-        <ProFormText name='avatarUrl' label='Ảnh đại diện URL' />
         <ProFormSelect name='role' label='Vai trò' options={ROLE_OPTIONS} initialValue='USER' />
       </ModalForm>
 
@@ -383,7 +379,6 @@ export function UsersSection() {
       >
         <ProFormText name='email' label='Email' rules={[{ required: true }]} />
         <ProFormText name='fullName' label='Họ và tên' rules={[{ required: true }]} />
-        <ProFormText name='avatarUrl' label='Ảnh đại diện URL' />
         <ProFormSelect name='role' label='Vai trò' options={ROLE_OPTIONS} />
       </ModalForm>
     </>
