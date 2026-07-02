@@ -14,7 +14,7 @@ jobs:
       - name: Write .env file
         run: |
           cat <<EOF > .env
-          VITE_BACKEND_URL="https://api.courserecom.site"
+          VITE_BACKEND_URL="https://api.course-pilot.site"
           EOF
 
       - name: Print env
