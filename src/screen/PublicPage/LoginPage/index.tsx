@@ -122,6 +122,7 @@ export default function LoginPage() {
               label='Email'
               placeholder='Nhập email của bạn'
               rules={[{ required: true, message: 'Email không được trống' }]}
+              fieldProps={{ onPressEnter: handleLogin }}
             />
             <ProFormText.Password
               name='password'
