@@ -4,5 +4,6 @@ export enum StatsigEvent {
   ClickPlanned = 'click_planned',
   GetRecommendation = 'get_recommendation',
   GetRefinedRecommendation = 'get_refined_recommendation',
+  MarkNotInterested = 'mark_not_interested',
   SeeCourseDetail = 'see_course_detail',
 }

@@ -77,7 +77,7 @@ export function RetrainSection() {
               }
             }}
           >
-            Huấn luyện lại hệ thống gợi ý
+            Huấn luyện lại mô hình
           </Button>
         </div>
       </div>

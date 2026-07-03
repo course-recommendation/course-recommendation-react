@@ -18,8 +18,9 @@ import {
   TriRankRecommendationResult,
 } from '@/common/types/TriRank.types';
 import { Button, Empty, Select, Skeleton, Spin, Tag } from 'antd';
+import useApp from 'antd/es/app/useApp';
 import { useForm } from 'antd/es/form/Form';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import RecommendationSettingsForm from '../components/RecommendationSettingsForm';
 import RecommendationSettingsSidebar from '../components/RecommendationSettingsSidebar';
 
@@ -41,6 +42,7 @@ function RankBadge({ rank }: { rank: number }) {
 export default function TriRankRecommendation() {
   const logEvent = useLogStatsigEvent();
   const showExplanation = useShowExplanationContext();
+  const { message } = useApp();
 
   const [form] = useForm<RecommendationSettingsFormType>();
   const [settingsDrawerOpen, setSettingsDrawerOpen] = useState(false);
@@ -105,6 +107,23 @@ export default function TriRankRecommendation() {
     }
     return fallbackUserCourseStatus;
   };
+
+  const handleMarkNotInterested = useCallback(
+    (courseCode: string) => {
+      logEvent(StatsigEvent.MarkNotInterested, undefined, { courseCode });
+
+      const currentCustomCodes: string[] = form.getFieldValue('customFilteredCourseCodes') ?? [];
+
+      form.setFieldsValue({
+        customFilteredCourseCodes: Array.from(new Set([...currentCustomCodes, courseCode])),
+      });
+
+      message.success(
+        'Đã thêm môn học vào danh sách không quan tâm. Nhấn "Xem kết quả" để nhận gợi ý mới.',
+      );
+    },
+    [form, logEvent, message],
+  );
 
   const handleGetRecommendation = async () => {
     logEvent(StatsigEvent.GetRecommendation);
@@ -258,6 +277,9 @@ export default function TriRankRecommendation() {
                                 rank: String(rank),
                               });
                             }}
+                            onMarkNotInterested={() =>
+                              handleMarkNotInterested(courseDetail.course.code)
+                            }
                             topLeftBadge={<RankBadge rank={rank} />}
                             topRightBadge={
                               getEffectiveUserCourseStatus(

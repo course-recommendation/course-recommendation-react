@@ -1,11 +1,13 @@
 import PostCard from '@/screen/AuthenticateChecking/Authenticated/AppHeader/DiscussPage/Discuss/DiscussMainArea/PostCard';
-import { Button, Card, Drawer, Empty, Progress, Skeleton, Tooltip } from 'antd';
+import { MoreOutlined } from '@ant-design/icons';
+import { Button, Card, Drawer, Dropdown, Empty, Progress, Skeleton, Tooltip } from 'antd';
 import { ReactNode, useState } from 'react';
 import { Link } from 'react-router';
 import { useAlgorithmContext } from '../context/AlgorithmContext';
 import useGet from '../hooks/network/useGet';
 import { CourseDetail } from '../types/Course.types';
 import { FindPostDetailsRequest, PostDetail } from '../types/Discuss.types';
+import { PageResponse } from '../types/Network';
 import { scoreColor, scoreTrail } from '../utils/scoreColor';
 
 export type ExplanationScore = {
@@ -23,11 +25,12 @@ type Props = {
   rank?: number;
   onClick?: (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => void;
   explanationScores?: ExplanationScore[];
+  onMarkNotInterested?: () => void;
 };
 
 function CourseDiscussionDrawerContent({ courseCode }: { courseCode: string }) {
   const algorithm = useAlgorithmContext();
-  const { data: postDetailsResponse, isPending } = useGet<PostDetail[]>(`/posts`, {
+  const { data: postDetailsResponse, isPending } = useGet<PageResponse<PostDetail>>(`/posts`, {
     params: {
       sort: ['createdAt,desc'],
       algorithm,
@@ -39,13 +42,13 @@ function CourseDiscussionDrawerContent({ courseCode }: { courseCode: string }) {
     return <Skeleton active paragraph={{ rows: 4 }} />;
   }
 
-  if (!postDetailsResponse?.data?.length) {
+  if (!postDetailsResponse?.data?.content?.length) {
     return <Empty description='Chưa có bài thảo luận nào về môn học này' />;
   }
 
   return (
     <div className='flex flex-col gap-4'>
-      {postDetailsResponse.data.map((postDetail) => (
+      {postDetailsResponse.data.content.map((postDetail) => (
         <PostCard key={postDetail.post.id} postDetail={postDetail} algorithm={algorithm} />
       ))}
     </div>
@@ -65,6 +68,7 @@ export default function RecommendedCourseCard({
   rank,
   onClick,
   explanationScores,
+  onMarkNotInterested,
 }: Props) {
   const hasExplanation = explanationScores && explanationScores.length > 0;
   const sortedScores =
@@ -95,6 +99,34 @@ export default function RecommendedCourseCard({
           style={{ '--card-i': index ?? 0 } as React.CSSProperties}
         >
           {topLeftBadge}
+
+          {onMarkNotInterested && (
+            <div className='absolute top-3 right-3 z-20 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-150'>
+              <Dropdown
+                trigger={['click']}
+                menu={{
+                  items: [{ key: 'not-interested', label: 'Không quan tâm' }],
+                  onClick: ({ domEvent }) => {
+                    domEvent.preventDefault();
+                    domEvent.stopPropagation();
+                    onMarkNotInterested();
+                  },
+                }}
+              >
+                <Button
+                  type='text'
+                  shape='circle'
+                  icon={<MoreOutlined rotate={90} />}
+                  aria-label='Tùy chọn khác'
+                  className='bg-white/95 border border-stone-300 text-gray-500 shadow-sm hover:bg-gray-100'
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }}
+                />
+              </Dropdown>
+            </div>
+          )}
 
           {/* Row 1: thumbnail + course info */}
           <div className='flex flex-col md:flex-row items-center gap-4 md:gap-5'>

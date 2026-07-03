@@ -1,6 +1,7 @@
 import { useAlgorithmContext } from '@/common/context/AlgorithmContext';
 import useGet from '@/common/hooks/network/useGet';
 import { FindPostDetailsRequest } from '@/common/types/Discuss.types';
+import { PageResponse } from '@/common/types/Network';
 import { User } from '@/common/types/User.types';
 import { Avatar, Skeleton } from 'antd';
 import { Link } from 'react-router';
@@ -8,16 +9,18 @@ import { Link } from 'react-router';
 function UserPopoverCardContent({ user }: { user: User }) {
   const algorithm = useAlgorithmContext();
 
-  const { data: postsResponse, isPending } = useGet<unknown[]>('/posts', {
+  const { data: postsResponse, isPending } = useGet<PageResponse<unknown>>('/posts', {
     params: {
       algorithm,
       sort: ['createdAt,desc'],
+      page: 0,
+      size: 1,
       courseIdsRequest: { fetchAll: true, data: [] },
       authorIdsRequest: { fetchAll: false, data: [user.id] },
-    } as FindPostDetailsRequest,
+    } as FindPostDetailsRequest & { page: number; size: number },
   });
 
-  const postCount = postsResponse?.data?.length ?? 0;
+  const postCount = postsResponse?.data?.totalElements ?? 0;
 
   return (
     <div className='flex items-start gap-3 p-1 min-w-[200px] max-w-[260px]'>

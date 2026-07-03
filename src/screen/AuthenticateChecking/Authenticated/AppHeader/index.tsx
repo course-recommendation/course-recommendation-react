@@ -1,6 +1,6 @@
 import BookIcon from '@/assets/icons/BookIcon';
 import NotFoundPage from '@/common/components/NotFoundPage';
-import { LocalStorageKey } from '@/common/constants/LocalStorageKey';
+import {LocalStorageKey} from '@/common/constants/LocalStorageKey';
 import useGet from '@/common/hooks/network/useGet';
 import {
   BulbOutlined,
@@ -12,21 +12,11 @@ import {
   ReadOutlined,
   UserOutlined,
 } from '@ant-design/icons';
-import {
-  Avatar,
-  Button,
-  Drawer,
-  Dropdown,
-  Layout,
-  Menu,
-  MenuProps,
-  Result,
-  Typography,
-} from 'antd';
-import { Header } from 'antd/es/layout/layout';
-import { useState } from 'react';
-import { Link, Navigate, Outlet, useLocation } from 'react-router';
-import { useMeContext } from '../context/MeContext';
+import {Avatar, Button, Drawer, Dropdown, Layout, Menu, MenuProps, Result, Typography,} from 'antd';
+import {Header} from 'antd/es/layout/layout';
+import {useState} from 'react';
+import {Link, Navigate, Outlet, useLocation} from 'react-router';
+import {useMeContext} from '../context/MeContext';
 
 const PathKey = {
   RECOMMENDATION: 'RECOMMENDATION',
@@ -66,22 +56,22 @@ export default function AppHeader() {
     : [
         {
           key: PathKey.RECOMMENDATION,
-          icon: <BulbOutlined style={{ color: '#F59E0B' }} />,
+          icon: <BulbOutlined/>,
           label: <Link to={'/'}>Gợi ý môn học</Link>,
         },
         {
           key: PathKey.COURSES,
-          icon: <ReadOutlined style={{ color: '#3B82F6' }} />,
+          icon: <ReadOutlined/>,
           label: <Link to={'/courses'}>Môn học</Link>,
         },
         {
           key: PathKey.DISCUSS,
-          icon: <CommentOutlined style={{ color: '#22C55E' }} />,
+          icon: <CommentOutlined/>,
           label: <Link to={'/discuss'}>Thảo luận</Link>,
         },
         {
           key: PathKey.MY_COURSES,
-          icon: <FolderOutlined style={{ color: '#A855F7' }} />,
+          icon: <FolderOutlined/>,
           label: <Link to={'/my-courses'}>Môn học của tôi</Link>,
         },
       ];

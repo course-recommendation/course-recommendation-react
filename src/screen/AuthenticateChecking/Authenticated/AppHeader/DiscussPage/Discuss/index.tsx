@@ -1,11 +1,12 @@
-import useGet from '@/common/hooks/network/useGet';
 import useRequest from '@/common/hooks/network/useRequest';
+import defaultAxios from '@/common/services/defaultAxios';
 import { Algorithm } from '@/common/types/Course.types';
 import { FindPostDetailsRequest, PostDetail } from '@/common/types/Discuss.types';
+import { PageResponse, RestResponse } from '@/common/types/Network';
 import { User } from '@/common/types/User.types';
 import { FilterOutlined } from '@ant-design/icons';
 import { Button, Drawer } from 'antd';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import DiscussFilter from './components/DiscussFilter';
 import DiscussMainArea from './DiscussMainArea';
@@ -13,6 +14,8 @@ import DiscussMainArea from './DiscussMainArea';
 type Props = {
   algorithm: Algorithm;
 };
+
+const POSTS_PAGE_SIZE = 10;
 
 export default function Discuss({ algorithm }: Props) {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -27,26 +30,65 @@ export default function Discuss({ algorithm }: Props) {
   const { request: fetchUser } = useRequest<User>();
   const initialLoadDone = useRef(false);
 
-  const {
-    data: postDetailsResponse,
-    isPending: postDetailsPending,
-    refetch: refetchPosts,
-  } = useGet<PostDetail[]>(`/posts`, {
-    params: {
-      sort: ['createdAt,desc'],
-      algorithm,
-      courseIdsRequest: {
-        fetchAll: finalFilteredCourseCodes.length === 0,
-        data: finalFilteredCourseCodes,
-      },
-      ...(finalFilteredAuthorIds.length > 0 && {
-        authorIdsRequest: {
-          fetchAll: false,
-          data: finalFilteredAuthorIds,
-        },
-      }),
-    } as FindPostDetailsRequest,
-  });
+  const [postDetails, setPostDetails] = useState<PostDetail[]>([]);
+  const [postDetailsPending, setPostDetailsPending] = useState(true);
+  const [isFetchingNextPage, setIsFetchingNextPage] = useState(false);
+  const [hasNextPage, setHasNextPage] = useState(false);
+  const nextPageRef = useRef(0);
+  const requestSeqRef = useRef(0);
+
+  const loadPosts = useCallback(
+    async (page: number, replace: boolean) => {
+      const requestSeq = ++requestSeqRef.current;
+      if (replace) setPostDetailsPending(true);
+      else setIsFetchingNextPage(true);
+
+      try {
+        const response = await defaultAxios.get<RestResponse<PageResponse<PostDetail>>>('/posts', {
+          params: {
+            page,
+            size: POSTS_PAGE_SIZE,
+            sort: ['createdAt,desc'],
+            algorithm,
+            courseIdsRequest: {
+              fetchAll: finalFilteredCourseCodes.length === 0,
+              data: finalFilteredCourseCodes,
+            },
+            ...(finalFilteredAuthorIds.length > 0 && {
+              authorIdsRequest: {
+                fetchAll: false,
+                data: finalFilteredAuthorIds,
+              },
+            }),
+          } as FindPostDetailsRequest & { page: number; size: number },
+        });
+
+        if (requestSeq !== requestSeqRef.current) return;
+
+        const pageData = response.data.data;
+        setPostDetails((prev) => (replace ? pageData.content : [...prev, ...pageData.content]));
+        setHasNextPage(pageData.page + 1 < pageData.totalPages);
+        nextPageRef.current = pageData.page + 1;
+      } finally {
+        if (requestSeq === requestSeqRef.current) {
+          setPostDetailsPending(false);
+          setIsFetchingNextPage(false);
+        }
+      }
+    },
+    [algorithm, finalFilteredCourseCodes, finalFilteredAuthorIds],
+  );
+
+  useEffect(() => {
+    loadPosts(0, true);
+  }, [loadPosts]);
+
+  const fetchNextPage = useCallback(() => {
+    if (postDetailsPending || isFetchingNextPage || !hasNextPage) return;
+    loadPosts(nextPageRef.current, false);
+  }, [postDetailsPending, isFetchingNextPage, hasNextPage, loadPosts]);
+
+  const refetchPosts = useCallback(() => loadPosts(0, true), [loadPosts]);
 
   // Load from URL on mount only
   useEffect(() => {
@@ -133,8 +175,11 @@ export default function Discuss({ algorithm }: Props) {
       <div className='min-w-0 self-start'>
         <DiscussMainArea
           algorithm={algorithm}
-          postDetails={postDetailsResponse?.data}
+          postDetails={postDetails}
           postDetailsPending={postDetailsPending}
+          isFetchingNextPage={isFetchingNextPage}
+          hasNextPage={hasNextPage}
+          fetchNextPage={fetchNextPage}
           refetchPosts={refetchPosts}
           filterSection={
             <Button

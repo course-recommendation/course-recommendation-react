@@ -42,7 +42,7 @@ export default function RecommendationSettingsSidebar({
         </div>
 
         <div className='flex flex-col h-full gap-4 min-h-0'>
-          <div className='flex-1 overflow-auto overscroll-none'>{settingsForm}</div>
+          <div className='flex-1 min-h-0 flex flex-col'>{settingsForm}</div>
           {recommendButton}
         </div>
       </Card>

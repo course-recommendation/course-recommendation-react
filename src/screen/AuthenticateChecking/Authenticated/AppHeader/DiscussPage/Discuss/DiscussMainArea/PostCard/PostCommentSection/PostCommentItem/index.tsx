@@ -204,7 +204,7 @@ export default function PostCommentItem({
           {!isReply && !repliesExpanded && replies.length > 0 && (
             <button
               onClick={() => setRepliesExpanded(true)}
-              className='text-[11px] font-semibold text-slate-400 hover:text-indigo-600 transition-colors cursor-pointer'
+              className='text-[11px] font-semibold text-slate-400 underline hover:text-indigo-600 transition-colors cursor-pointer'
             >
               Xem {replies.length} phản hồi
             </button>

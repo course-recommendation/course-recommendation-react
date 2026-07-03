@@ -48,6 +48,7 @@ type CategorySectionProps = {
   onScrollToTop: () => void;
   rankOffset: number;
   showExplanation: boolean;
+  onMarkNotInterested: (courseCode: string) => void;
 };
 
 const CategorySection = memo(function CategorySection({
@@ -62,6 +63,7 @@ const CategorySection = memo(function CategorySection({
   onScrollToTop,
   rankOffset,
   showExplanation,
+  onMarkNotInterested,
 }: CategorySectionProps) {
   const logEvent = useLogStatsigEvent();
   const { modal } = useApp();
@@ -85,7 +87,7 @@ const CategorySection = memo(function CategorySection({
       <div className='sticky top-0 z-20 rounded-t-xl bg-violet-50 border-b border-violet-200 px-6 py-4'>
         <Typography.Text strong className='text-[16px] m-0 flex items-center gap-3'>
           {/*<span className='inline-block w-1.5 h-6 rounded-full bg-indigo-600 shrink-0'></span>*/}
-          <span className={'text-primary'}>#{catIdx + 1} - </span>
+          <span className={'text-primary'}>#{catIdx + 2} - </span>
           <span>
             {categoryDetail.category.map((tradeoffPair, idx) => {
               const isUp = isDirectionUp(tradeoffPair.direction);
@@ -128,6 +130,7 @@ const CategorySection = memo(function CategorySection({
                   rank: String(rank),
                 });
               }}
+              onMarkNotInterested={() => onMarkNotInterested(courseDetail.course.code)}
               topRightBadge={
                 getEffectiveStatus(courseDetail) === UserCourseStatus.COMPLETED ? (
                   <Tag variant='solid' color='green'>
@@ -227,6 +230,7 @@ const CategorySection = memo(function CategorySection({
 export default function FSRecommendation() {
   const logEvent = useLogStatsigEvent();
   const showExplanation = useShowExplanationContext();
+  const { message } = useApp();
 
   const { data: allCoursesResponse } = useGet<Course[]>(`/courses`, {
     params: {
@@ -333,6 +337,23 @@ export default function FSRecommendation() {
       setCourseStatusOverrides((prev) => ({ ...prev, [courseCode]: status }));
     },
     [],
+  );
+
+  const handleMarkNotInterested = useCallback(
+    (courseCode: string) => {
+      logEvent(StatsigEvent.MarkNotInterested, undefined, { courseCode });
+
+      const currentCustomCodes: string[] = form.getFieldValue('customFilteredCourseCodes') ?? [];
+
+      form.setFieldsValue({
+        customFilteredCourseCodes: Array.from(new Set([...currentCustomCodes, courseCode])),
+      });
+
+      message.success(
+        'Đã thêm môn học vào danh sách không quan tâm. Nhấn "Xem kết quả" để nhận gợi ý mới.',
+      );
+    },
+    [form, logEvent, message],
   );
 
   const handleRefinedRecommendation = async (itemId: string, category: FSTradeoffPair[]) => {
@@ -473,6 +494,9 @@ export default function FSRecommendation() {
                                 rank: String(rank),
                               });
                             }}
+                            onMarkNotInterested={() =>
+                              handleMarkNotInterested(courseDetail.course.code)
+                            }
                             topRightBadge={
                               getEffectiveUserCourseStatus(courseDetail) ===
                               UserCourseStatus.COMPLETED ? (
@@ -556,6 +580,9 @@ export default function FSRecommendation() {
                           rank: '1',
                         });
                       }}
+                      onMarkNotInterested={() =>
+                        handleMarkNotInterested(topCourseDetail.course.code)
+                      }
                       topRightBadge={
                         getEffectiveUserCourseStatus(topCourseDetail) ===
                         UserCourseStatus.COMPLETED ? (
@@ -619,6 +646,7 @@ export default function FSRecommendation() {
                           itemIdToItemSentiments={recommendationResult.itemIdToItemSentiments}
                           courseStatusOverrides={courseStatusOverrides}
                           onCourseStatusChange={handleCourseStatusChange}
+                          onMarkNotInterested={handleMarkNotInterested}
                           onRefinedRecommendation={handleRefinedRecommendation}
                           onScrollToTop={scrollToTop}
                           rankOffset={rankOffset}
