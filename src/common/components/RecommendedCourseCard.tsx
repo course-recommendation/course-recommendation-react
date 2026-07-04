@@ -154,7 +154,7 @@ export default function RecommendedCourseCard({
           {/* Row 2: explanation scores (full width strip) */}
           {hasExplanation && (
             <div className='mt-4 pt-4 border-t border-stone-200'>
-              <p className='text-xs text-gray-400 mb-2'>
+              <p className='text-xs text-gray-500 mb-2'>
                 Cảm nhận của các sinh viên khác về các tiêu chí
               </p>
               <div className='grid grid-cols-1 md:grid-cols-5 gap-x-6 gap-y-2'>

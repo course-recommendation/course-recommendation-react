@@ -1,6 +1,7 @@
 import BookIcon from '@/assets/icons/BookIcon';
 import NotFoundPage from '@/common/components/NotFoundPage';
 import {LocalStorageKey} from '@/common/constants/LocalStorageKey';
+import {useTenantNicknameContext} from '@/common/context/TenantNicknameContext';
 import useGet from '@/common/hooks/network/useGet';
 import {
   BulbOutlined,
@@ -12,7 +13,7 @@ import {
   ReadOutlined,
   UserOutlined,
 } from '@ant-design/icons';
-import {Avatar, Button, Drawer, Dropdown, Layout, Menu, MenuProps, Result, Typography,} from 'antd';
+import {Avatar, Button, Drawer, Dropdown, Layout, Menu, MenuProps, Result, Tooltip, Typography,} from 'antd';
 import {Header} from 'antd/es/layout/layout';
 import {useState} from 'react';
 import {Link, Navigate, Outlet, useLocation} from 'react-router';
@@ -34,6 +35,8 @@ export default function AppHeader() {
 
   const { data: tenantReadyResponse } = useGet<boolean>('/admin/tenant-ready');
   const tenantReady = tenantReadyResponse?.data;
+
+  const tenantNickname = useTenantNicknameContext();
 
   const isDiscussPage = pathname.includes('/discuss');
   const isMyCoursesPage = pathname.includes('/my-courses');
@@ -131,6 +134,14 @@ export default function AppHeader() {
     </Dropdown>
   );
 
+  const tenantNicknameLabel = tenantNickname?.showNickname && tenantNickname.nickname && (
+      <Tooltip title={'Tên gọi của hệ thống này'}>
+    <span className='ml-2 md:ml-3 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-semibold cursor-default'>
+      {tenantNickname.nickname}
+    </span>
+      </Tooltip>
+  );
+
   return (
     <Layout style={{ height: '100vh' }}>
       <Header
@@ -153,6 +164,7 @@ export default function AppHeader() {
                 <span className='font-bold text-xl md:text-2xl'>CoursePilot</span>
               </span>
             </Link>
+            {tenantNicknameLabel}
             {!isDoingSurvey && (
               <div className='hidden md:flex ml-8'>
                 <Menu

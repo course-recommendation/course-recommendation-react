@@ -59,8 +59,8 @@ export default function RecommendationSettingsForm({
       {/* Criteria section */}
       <div className='flex-1 min-h-[96px] overflow-y-auto pr-1'>
         <SectionHeading
-          title='Điều chỉnh các tiêu chí'
-          description='Điểm số càng cao nghĩa là bạn muốn tiêu chí đó có cảm nhận tích cực hơn.'
+          title='Điều chỉnh sở thích'
+          description='Điểm số càng cao nghĩa là bạn muốn tiêu chí đó có cảm nhận tích cực hơn bởi các sinh viên khác.'
         />
         <div className='flex flex-col gap-1'>
           {attributes
@@ -125,14 +125,10 @@ function CustomFilterSelect({ allCourses }: { allCourses: Course[] }) {
     <div className='mt-3'>
       <ProFormSelect
         name={'customFilteredCourseCodes'}
-        label={
-          <span className='text-sm font-medium text-gray-700'>
-            Các môn không quan tâm
-          </span>
-        }
+        label={<span className='text-sm font-medium text-gray-700'>Các môn không quan tâm</span>}
         mode='multiple'
         showSearch
-        fieldProps={{maxTagCount: 'responsive'}}
+        fieldProps={{ maxTagCount: 'responsive' }}
         options={allCourses.map((course) => ({ label: course.name, value: course.code }))}
       />
     </div>
