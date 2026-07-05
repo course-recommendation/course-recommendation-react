@@ -5,9 +5,11 @@ import { GlobalErrorCode } from '../types/GlobalErrorCode';
 import { RestError } from '../types/Network';
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
-const resolvedBaseUrl = backendUrl
-  ? backendUrl.replace('{host}', window.location.hostname)
-  : window.location.origin;
+const resolvedBaseUrl = import.meta.env.DEV
+  ? '/api'
+  : backendUrl
+    ? backendUrl.replace('{host}', window.location.hostname)
+    : window.location.origin;
 
 const defaultAxios = axios.create({
   baseURL: resolvedBaseUrl,
