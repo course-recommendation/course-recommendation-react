@@ -1,7 +1,7 @@
 import BookIcon from '@/assets/icons/BookIcon';
 import NotFoundPage from '@/common/components/NotFoundPage';
-import {LocalStorageKey} from '@/common/constants/LocalStorageKey';
-import {useTenantNicknameContext} from '@/common/context/TenantNicknameContext';
+import { LocalStorageKey } from '@/common/constants/LocalStorageKey';
+import { useTenantNicknameContext } from '@/common/context/TenantNicknameContext';
 import useGet from '@/common/hooks/network/useGet';
 import {
   BulbOutlined,
@@ -13,11 +13,22 @@ import {
   ReadOutlined,
   UserOutlined,
 } from '@ant-design/icons';
-import {Avatar, Button, Drawer, Dropdown, Layout, Menu, MenuProps, Result, Tooltip, Typography,} from 'antd';
-import {Header} from 'antd/es/layout/layout';
-import {useState} from 'react';
-import {Link, Navigate, Outlet, useLocation} from 'react-router';
-import {useMeContext} from '../context/MeContext';
+import {
+  Avatar,
+  Button,
+  Drawer,
+  Dropdown,
+  Layout,
+  Menu,
+  MenuProps,
+  Result,
+  Tooltip,
+  Typography,
+} from 'antd';
+import { Header } from 'antd/es/layout/layout';
+import { useState } from 'react';
+import { Link, Navigate, Outlet, useLocation } from 'react-router';
+import { useMeContext } from '../context/MeContext';
 
 const PathKey = {
   RECOMMENDATION: 'RECOMMENDATION',
@@ -59,22 +70,22 @@ export default function AppHeader() {
     : [
         {
           key: PathKey.RECOMMENDATION,
-          icon: <BulbOutlined/>,
+          icon: <BulbOutlined />,
           label: <Link to={'/'}>Gợi ý môn học</Link>,
         },
         {
           key: PathKey.COURSES,
-          icon: <ReadOutlined/>,
+          icon: <ReadOutlined />,
           label: <Link to={'/courses'}>Môn học</Link>,
         },
         {
           key: PathKey.DISCUSS,
-          icon: <CommentOutlined/>,
+          icon: <CommentOutlined />,
           label: <Link to={'/discuss'}>Thảo luận</Link>,
         },
         {
           key: PathKey.MY_COURSES,
-          icon: <FolderOutlined/>,
+          icon: <FolderOutlined />,
           label: <Link to={'/my-courses'}>Môn học của tôi</Link>,
         },
       ];
@@ -135,11 +146,11 @@ export default function AppHeader() {
   );
 
   const tenantNicknameLabel = tenantNickname?.showNickname && tenantNickname.nickname && (
-      <Tooltip title={'Tên gọi của hệ thống này'}>
-    <span className='ml-2 md:ml-3 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-semibold cursor-default'>
-      {tenantNickname.nickname}
-    </span>
-      </Tooltip>
+    <Tooltip title={'Tên gọi của hệ thống này'}>
+      <span className='ml-2 md:ml-3 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-semibold cursor-default'>
+        {tenantNickname.nickname}
+      </span>
+    </Tooltip>
   );
 
   return (
