@@ -4,8 +4,11 @@ import { useLogStatsigEvent } from '@/common/hooks/useLogStatsigEvent.ts';
 import { Attribute, Course } from '@/common/types/Course.types';
 import { FilterCoursesOption } from '@/common/types/Recommendation.types';
 import { RecommendationSettingsFormType } from '@/common/types/TriRank.types';
+import {DownOutlined, UpOutlined} from '@ant-design/icons';
 import { ProForm, ProFormCheckbox, ProFormItem, ProFormSelect } from '@ant-design/pro-components';
+import { Form } from 'antd';
 import { FormInstance } from 'antd/es/form';
+import { useState } from 'react';
 
 type Props = {
   form: FormInstance<RecommendationSettingsFormType>;
@@ -39,6 +42,13 @@ export default function RecommendationSettingsForm({
   initialCustomFilteredCourseCodes,
 }: Props) {
   const logEvent = useLogStatsigEvent();
+  const [filterSectionExpanded, setFilterSectionExpanded] = useState(false);
+
+  const watchedFilterCoursesOptions = Form.useWatch('filterCoursesOptions', form);
+  const watchedCustomFilteredCourseCodes = Form.useWatch('customFilteredCourseCodes', form);
+  const activeFilterCount =
+    (watchedFilterCoursesOptions ?? initialFilterCoursesOptions).length +
+    (watchedCustomFilteredCourseCodes ?? initialCustomFilteredCourseCodes).length;
 
   return (
     <ProForm<RecommendationSettingsFormType>
@@ -89,32 +99,62 @@ export default function RecommendationSettingsForm({
 
       {/* Filter section */}
       <div className='shrink min-h-0 overflow-y-auto pr-1 -mb-5'>
-        <SectionHeading
-          title='Lọc môn học'
-          description='Loại bỏ các môn bạn không muốn xuất hiện trong kết quả gợi ý.'
-        />
-        <ProFormCheckbox.Group
-          noStyle
-          layout='vertical'
-          name={'filterCoursesOptions'}
-          fieldProps={{
-            className: 'w-full',
-            onChange: () => {
-              logEvent(StatsigEvent.ClickFilterCoursesOption);
-            },
-          }}
-          options={[
-            {
-              label: <span className='text-sm text-gray-700'>Lọc các môn đã lưu</span>,
-              value: FilterCoursesOption.PLANNING,
-            },
-            {
-              label: <span className='text-sm text-gray-700'>Lọc các môn đã hoàn thành</span>,
-              value: FilterCoursesOption.COMPLETED,
-            },
-          ]}
-        />
-        <CustomFilterSelect allCourses={allCourses} />
+        <button
+          type='button'
+          onClick={() => setFilterSectionExpanded((expanded) => !expanded)}
+          className='w-full flex items-center justify-between gap-2 mb-4 group'
+        >
+          <div className='flex items-center gap-2.5 min-w-0'>
+            <span className='inline-block w-1 h-5 rounded-full bg-indigo-600 shrink-0'></span>
+            <span className='text-[15px] font-semibold text-[#1C1917] tracking-tight'>
+              Lọc môn học
+            </span>
+            {!filterSectionExpanded && activeFilterCount > 0 && (
+              <span className='inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-indigo-100 text-indigo-700 text-[11px] font-semibold shrink-0'>
+                {activeFilterCount}
+              </span>
+            )}
+          </div>
+          <UpOutlined
+            className={`text-gray-400 text-xs shrink-0 transition-transform duration-200 ease-out group-hover:text-gray-600 ${
+              filterSectionExpanded ? 'rotate-180' : ''
+            }`}
+          />
+        </button>
+
+        <div
+          className={`grid transition-[grid-template-rows] duration-300 ease-out motion-reduce:transition-none ${
+            filterSectionExpanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
+          }`}
+        >
+          <div className='overflow-hidden'>
+            <p className='mb-4 ml-[18px] text-[13px] text-gray-500 leading-relaxed'>
+              Loại bỏ các môn bạn không muốn xuất hiện trong kết quả gợi ý.
+            </p>
+            <ProFormCheckbox.Group
+              noStyle
+              layout='vertical'
+              name={'filterCoursesOptions'}
+              fieldProps={{
+                className: 'w-full',
+                onChange: () => {
+                  logEvent(StatsigEvent.ClickFilterCoursesOption);
+                },
+              }}
+              options={[
+                {
+                  label: <span className='text-sm text-gray-700'>Lọc các môn đã lưu</span>,
+                  value: FilterCoursesOption.PLANNING,
+                },
+                {
+                  label: <span className='text-sm text-gray-700'>Lọc các môn đã hoàn thành</span>,
+                  value: FilterCoursesOption.COMPLETED,
+                },
+              ]}
+            />
+            <CustomFilterSelect allCourses={allCourses} />
+          </div>
+        </div>
       </div>
     </ProForm>
   );
