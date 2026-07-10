@@ -1,14 +1,15 @@
-import PostCard from '@/screen/AuthenticateChecking/Authenticated/AppHeader/DiscussPage/Discuss/DiscussMainArea/PostCard';
-import { MoreOutlined } from '@ant-design/icons';
-import { Button, Card, Drawer, Dropdown, Empty, Progress, Skeleton, Tooltip } from 'antd';
-import { ReactNode, useState } from 'react';
-import { Link } from 'react-router';
-import { useAlgorithmContext } from '../context/AlgorithmContext';
+import PostCard
+  from '@/screen/AuthenticateChecking/Authenticated/AppHeader/DiscussPage/Discuss/DiscussMainArea/PostCard';
+import {MoreOutlined} from '@ant-design/icons';
+import {Button, Card, Drawer, Dropdown, Empty, Progress, Skeleton, Tooltip} from 'antd';
+import {ReactNode, useState} from 'react';
+import {Link} from 'react-router';
+import {useAlgorithmContext} from '../context/AlgorithmContext';
 import useGet from '../hooks/network/useGet';
-import { CourseDetail } from '../types/Course.types';
-import { FindPostDetailsRequest, PostDetail } from '../types/Discuss.types';
-import { PageResponse } from '../types/Network';
-import { scoreColor, scoreTrail } from '../utils/scoreColor';
+import {CourseDetail} from '../types/Course.types';
+import {FindPostDetailsRequest, PostDetail} from '../types/Discuss.types';
+import {PageResponse} from '../types/Network';
+import {scoreColor, scoreTrail} from '../utils/scoreColor';
 
 export type ExplanationScore = {
   label: string;
@@ -100,34 +101,6 @@ export default function RecommendedCourseCard({
         >
           {topLeftBadge}
 
-          {onMarkNotInterested && (
-            <div className='absolute top-3 right-3 z-20 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-150'>
-              <Dropdown
-                trigger={['click']}
-                menu={{
-                  items: [{ key: 'not-interested', label: 'Không quan tâm' }],
-                  onClick: ({ domEvent }) => {
-                    domEvent.preventDefault();
-                    domEvent.stopPropagation();
-                    onMarkNotInterested();
-                  },
-                }}
-              >
-                <Button
-                  type='text'
-                  shape='circle'
-                  icon={<MoreOutlined rotate={90} />}
-                  aria-label='Tùy chọn khác'
-                  className='bg-white/95 border border-stone-300 text-gray-500 shadow-sm hover:bg-gray-100'
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                  }}
-                />
-              </Dropdown>
-            </div>
-          )}
-
           {/* Row 1: thumbnail + course info */}
           <div className='flex flex-col md:flex-row items-center gap-4 md:gap-5'>
             <div className='w-full md:w-60 aspect-video overflow-hidden rounded-xl shrink-0 bg-stone-100'>
@@ -138,11 +111,39 @@ export default function RecommendedCourseCard({
             </div>
 
             <div className='flex flex-col gap-3 flex-1 min-w-0'>
-              <div className='flex items-start gap-2'>
+              <div className='flex items-center gap-2'>
                 <div className='text-[18px] font-semibold text-[#1C1917] line-clamp-2 md:line-clamp-1 leading-snug flex-1 min-w-0'>
                   {courseName ?? courseDetail.course.name}
                 </div>
-                {topRightBadge && <div className='shrink-0'>{topRightBadge}</div>}
+                {(topRightBadge || onMarkNotInterested) && (
+                    <div className='flex items-center gap-1.5 shrink-0'>
+                      {topRightBadge}
+                      {onMarkNotInterested && (
+                          <Dropdown
+                              trigger={['click']}
+                              menu={{
+                                items: [{key: 'not-interested', label: 'Không quan tâm'}],
+                                onClick: ({domEvent}) => {
+                                  domEvent.preventDefault();
+                                  domEvent.stopPropagation();
+                                  onMarkNotInterested();
+                                },
+                              }}
+                          >
+                            <Button
+                                shape='circle'
+                                icon={<MoreOutlined style={{fontSize: 20}} rotate={90}/>}
+                                aria-label='Tùy chọn khác'
+                                className=' -my-2'
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                }}
+                            />
+                          </Dropdown>
+                      )}
+                    </div>
+                )}
               </div>
               <div className='line-clamp-3 md:line-clamp-2 text-gray-500 text-[15px] leading-[1.7]'>
                 {courseDetail.course.description}
