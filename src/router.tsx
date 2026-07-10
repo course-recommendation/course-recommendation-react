@@ -18,6 +18,7 @@ import PublicPage from './screen/PublicPage';
 import LoginPage from './screen/PublicPage/LoginPage';
 import RegisterPage from './screen/PublicPage/RegisterPage';
 import ResetPasswordPage from './screen/ResetPasswordPage';
+import SurveyAssignAccountPage from './screen/SurveyAssignAccountPage';
 
 export const router = createBrowserRouter([
   {
@@ -39,6 +40,11 @@ export const router = createBrowserRouter([
   {
     path: 'reset-password',
     element: <ResetPasswordPage />,
+  },
+
+  {
+    path: 'get-account',
+    element: <SurveyAssignAccountPage />,
   },
 
   {
