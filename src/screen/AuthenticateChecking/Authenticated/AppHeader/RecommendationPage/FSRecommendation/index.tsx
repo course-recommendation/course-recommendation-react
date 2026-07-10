@@ -466,10 +466,20 @@ export default function FSRecommendation() {
               const topCourseDetail = recommendationResult.topCourseDetail;
 
               if (!showExplanation) {
+                // Categories aren't mutually exclusive, so a course can appear in
+                // multiple categoryDetails; dedupe or the flat list gets duplicate
+                // React keys, which breaks card ordering on re-render.
+                const seenCourseCodes = new Set<string>();
                 const flatCourseDetails = [
                   topCourseDetail,
                   ...recommendationResult.categoryDetails.flatMap((cd) => cd.courseDetails),
-                ];
+                ].filter((courseDetail) => {
+                  if (seenCourseCodes.has(courseDetail.course.code)) {
+                    return false;
+                  }
+                  seenCourseCodes.add(courseDetail.course.code);
+                  return true;
+                });
 
                 return (
                   <Spin
