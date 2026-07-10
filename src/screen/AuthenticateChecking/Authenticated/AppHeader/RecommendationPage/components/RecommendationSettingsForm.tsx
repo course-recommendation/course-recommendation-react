@@ -4,7 +4,7 @@ import { useLogStatsigEvent } from '@/common/hooks/useLogStatsigEvent.ts';
 import { Attribute, Course } from '@/common/types/Course.types';
 import { FilterCoursesOption } from '@/common/types/Recommendation.types';
 import { RecommendationSettingsFormType } from '@/common/types/TriRank.types';
-import {DownOutlined, UpOutlined} from '@ant-design/icons';
+import { UpOutlined } from '@ant-design/icons';
 import { ProForm, ProFormCheckbox, ProFormItem, ProFormSelect } from '@ant-design/pro-components';
 import { Form } from 'antd';
 import { FormInstance } from 'antd/es/form';
@@ -69,8 +69,8 @@ export default function RecommendationSettingsForm({
       {/* Criteria section */}
       <div className='flex-1 min-h-[96px] overflow-y-auto pr-1'>
         <SectionHeading
-          title='Điều chỉnh sở thích'
-          description='Điểm số càng cao nghĩa là bạn muốn tiêu chí đó có cảm nhận tích cực hơn bởi các sinh viên khác.'
+          title='Điều chỉnh sở thích của bạn'
+          description='Điểm số càng cao nghĩa là bạn muốn tiêu chí đó càng tích cực trong các môn được gợi ý.'
         />
         <div className='flex flex-col gap-1'>
           {attributes
