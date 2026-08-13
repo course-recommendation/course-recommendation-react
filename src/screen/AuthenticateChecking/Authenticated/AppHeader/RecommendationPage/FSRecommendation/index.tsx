@@ -21,7 +21,7 @@ import {
   FSRecommendationResult,
   FSRefinedRecommendationRequest,
   FSTradeoffPair,
-  isDirectionUp,
+  isDirectionImproved,
 } from '@/common/types/FS.types';
 import { FilterCoursesOption } from '@/common/types/Recommendation.types';
 import { RecommendationSettingsFormType } from '@/common/types/TriRank.types';
@@ -92,6 +92,17 @@ const CategorySection = memo(function CategorySection({
     return courseDetail.userCourseStatus;
   };
 
+  // Bài báo yêu cầu nêu các thuộc tính "gần sở thích hơn" trước rồi mới tới các
+  // thuộc tính "xa sở thích hơn" trong tiêu đề nhóm.
+  const sortedCategory = useMemo(
+    () =>
+      [...categoryDetail.category].sort(
+        (a, b) =>
+          Number(isDirectionImproved(b.direction)) - Number(isDirectionImproved(a.direction)),
+      ),
+    [categoryDetail.category],
+  );
+
   return (
     <div className='rounded-xl bg-white border border-stone-200' style={{ boxShadow: CARD_SHADOW }}>
       {/* Sticky category header — note: no overflow-hidden on parent so sticky works */}
@@ -100,17 +111,16 @@ const CategorySection = memo(function CategorySection({
           {/*<span className='inline-block w-1.5 h-6 rounded-full bg-indigo-600 shrink-0'></span>*/}
           <span className={'text-primary'}>#{catIdx + 2} - </span>
           <span>
-            {categoryDetail.category.map((tradeoffPair, idx) => {
-              const isUp = isDirectionUp(tradeoffPair.direction);
-              const attribute = attributeByValue[tradeoffPair.attribute];
-              const poleLabel = isUp ? attribute?.highLabel : attribute?.lowLabel;
+            {sortedCategory.map((tradeoffPair, idx) => {
+              const improved = isDirectionImproved(tradeoffPair.direction);
               return (
                 <span key={`${tradeoffPair.attribute}-${tradeoffPair.direction}`}>
                   {idx > 0 && ', '}
-                  <span className='text-indigo-700'>{tradeoffPair.attribute}</span>
-                  {poleLabel
-                    ? ` thiên về ${poleLabel.toLocaleLowerCase('vi')} hơn`
-                    : ` ${isUp ? 'cao hơn' : 'thấp hơn'}`}
+                  <span className='text-indigo-700'>{tradeoffPair.attribute}</span>{' '}
+                  <span className={improved ? 'text-emerald-600' : 'text-red-600'}>
+                    {improved ? 'gần' : 'xa'}
+                  </span>
+                  {' sở thích hơn'}
                 </span>
               );
             })}

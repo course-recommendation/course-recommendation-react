@@ -6,6 +6,13 @@ export type FSTradeoffPair = {
   direction: TradeoffDirection;
 };
 
+/**
+ * Chiều tradeoff của một thuộc tính so với môn đầu tiên: cải thiện (↑) hay đánh đổi (↓).
+ *
+ * Tên "UP"/"DOWN" giữ lại theo lịch sử vì các giá trị này được lưu nguyên văn trong
+ * kết quả gợi ý đã persist; chúng không còn nghĩa "nghiêng về cực cao" nữa mà là
+ * "gần / xa sở thích của người dùng hơn".
+ */
 export enum TradeoffDirection {
   O_UP = 'O_UP',
   O_DOWN = 'O_DOWN',
@@ -13,7 +20,8 @@ export enum TradeoffDirection {
   V_DOWN = 'V_DOWN',
 }
 
-export function isDirectionUp(tradeoffDirection: TradeoffDirection) {
+/** Môn có gần với sở thích người dùng hơn môn đầu tiên ở thuộc tính này không. */
+export function isDirectionImproved(tradeoffDirection: TradeoffDirection) {
   return (
     tradeoffDirection === TradeoffDirection.O_UP || tradeoffDirection === TradeoffDirection.V_UP
   );

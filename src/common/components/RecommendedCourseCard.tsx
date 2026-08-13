@@ -205,7 +205,22 @@ export default function RecommendedCourseCard({
             <div className='mt-4 pt-4 border-t border-stone-200'>
               <p className='text-xs text-gray-500 mb-2 flex items-center gap-1.5'>
                 Cảm nhận của các sinh viên khác về các tiêu chí
-                <Tooltip title='Màu càng xanh là càng gần với sở thích của bạn, càng đỏ là càng lệch xa sở thích của bạn'>
+                <Tooltip
+                  color='#fff'
+                  overlayInnerStyle={{ color: '#1C1917' }}
+                  title={
+                    <div className='py-0.5' style={{ width: 180 }}>
+                      <div
+                        className='h-1.5 rounded-full'
+                        style={{ background: 'linear-gradient(to right, #DC2626, #D97706, #059669)' }}
+                      />
+                      <div className='flex justify-between text-[11px] text-gray-500 mt-1'>
+                        <span>Lệch xa sở thích</span>
+                        <span>Gần sở thích</span>
+                      </div>
+                    </div>
+                  }
+                >
                   <QuestionCircleOutlined className='text-gray-400 hover:text-indigo-600 cursor-help transition-colors duration-150' />
                 </Tooltip>
               </p>
