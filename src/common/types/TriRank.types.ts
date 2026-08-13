@@ -12,8 +12,6 @@ export type TriRankItemAspect = {
   score: number;
 };
 
-export type TriRankItemAspectTuple = [string, number];
-
 export type TriRankRecommendationResult = {
   id: number;
   courseDetails: CourseDetail[];

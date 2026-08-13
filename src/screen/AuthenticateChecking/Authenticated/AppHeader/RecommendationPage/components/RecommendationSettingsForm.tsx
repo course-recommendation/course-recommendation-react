@@ -207,6 +207,12 @@ export default function RecommendationSettingsForm({
             Khi bạn điều chỉnh sở thích bên dưới, hệ thống sẽ ưu tiên gợi ý những môn có điểm số ở
             các tiêu chí này <strong>càng gần với điểm mục tiêu bạn chọn càng tốt</strong>.
           </p>
+          <p>
+            Mỗi tiêu chí có hai thiên hướng ở hai đầu thang điểm, nên{' '}
+            <strong>điểm thấp hay cao không có nghĩa là tệ hay tốt</strong>. Nếu bạn không quan tâm
+            tiêu chí nào, hãy để nó ở <strong>mức 3 (ở giữa)</strong> — hệ thống sẽ bỏ qua tiêu chí
+            đó khi xếp hạng.
+          </p>
           {/*<p>
             Nhờ vậy, bạn có thể tự do khám phá nhiều môn học theo đúng tiêu chí mình quan tâm trước
             khi đưa ra quyết định cuối cùng, thay vì chỉ nhận được những môn mà hệ thống cho là phù
