@@ -12,6 +12,7 @@ import {
   GetCoursesRequest,
   UserCourseStatus,
 } from '@/common/types/Course.types';
+import { FilterCoursesOption } from '@/common/types/Recommendation.types';
 import {
   RecommendationSettingsFormType,
   TriRankRecommendationRequest,
@@ -20,7 +21,7 @@ import {
 import { Button, Empty, Select, Skeleton, Spin, Tag } from 'antd';
 import useApp from 'antd/es/app/useApp';
 import { useForm } from 'antd/es/form/Form';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import RecommendationSettingsForm from '../components/RecommendationSettingsForm';
 import RecommendationSettingsSidebar from '../components/RecommendationSettingsSidebar';
 
@@ -62,6 +63,14 @@ export default function TriRankRecommendation() {
     },
   );
 
+  const attributeByValue = useMemo(
+    () =>
+      Object.fromEntries(
+        (attributesResponse?.data ?? []).map((attribute) => [attribute.value, attribute]),
+      ),
+    [attributesResponse],
+  );
+
   const { data: attributeToScoreResponse, isPending: attributeToScorePending } = useGet<
     Record<string, number> | undefined
   >(`/user-preference`, {
@@ -90,6 +99,12 @@ export default function TriRankRecommendation() {
     Record<string, UserCourseStatus | undefined>
   >({});
   const [displayLimit, setDisplayLimit] = useState(10);
+  // Kết quả TriRank không kèm sở thích, nên lấy từ sở thích đã lưu trên server
+  // và ghi đè bằng giá trị form mỗi lần người dùng lấy gợi ý mới.
+  const [submittedAttributeToScore, setSubmittedAttributeToScore] = useState<
+    Record<string, number> | undefined
+  >(undefined);
+  const preferenceByAttribute = submittedAttributeToScore ?? attributeToScoreResponse?.data;
 
   useEffect(() => {
     if (!latestTriRankRecommendationResultPending) {
@@ -137,13 +152,17 @@ export default function TriRankRecommendation() {
         url: '/tri-rank/recommendation',
         data: {
           attributeToScore: formValues.attributeToScore,
-          filterCoursesOptions: formValues.filterCoursesOptions ?? [],
+          // Môn đã hoàn thành luôn bị lọc, không còn checkbox để bật/tắt.
+          filterCoursesOptions: Array.from(
+            new Set([...(formValues.filterCoursesOptions ?? []), FilterCoursesOption.COMPLETED]),
+          ),
           customFilteredCourseCodes: formValues.customFilteredCourseCodes ?? [],
         },
       })
     ).data;
 
     setRecommendationResult(result);
+    setSubmittedAttributeToScore(formValues.attributeToScore);
     resultsContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -268,7 +287,13 @@ export default function TriRankRecommendation() {
                                     recommendationResult.itemIdToItemAspects[
                                       courseDetail.course.code
                                     ] ?? []
-                                  ).map((a) => ({ label: a.aspect, score: a.score }))
+                                  ).map((a) => ({
+                                    label: a.aspect,
+                                    score: a.score,
+                                    preferenceScore: preferenceByAttribute?.[a.aspect],
+                                    lowLabel: attributeByValue[a.aspect]?.lowLabel,
+                                    highLabel: attributeByValue[a.aspect]?.highLabel,
+                                  }))
                                 : undefined
                             }
                             onClick={() => {

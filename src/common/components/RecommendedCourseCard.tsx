@@ -1,20 +1,68 @@
-import PostCard
-  from '@/screen/AuthenticateChecking/Authenticated/AppHeader/DiscussPage/Discuss/DiscussMainArea/PostCard';
-import {MoreOutlined} from '@ant-design/icons';
-import {Button, Card, Drawer, Dropdown, Empty, Progress, Skeleton, Tooltip} from 'antd';
-import {ReactNode, useState} from 'react';
-import {Link} from 'react-router';
-import {useAlgorithmContext} from '../context/AlgorithmContext';
+import PostCard from '@/screen/AuthenticateChecking/Authenticated/AppHeader/DiscussPage/Discuss/DiscussMainArea/PostCard';
+import { MoreOutlined, QuestionCircleOutlined } from '@ant-design/icons';
+import { Button, Card, Drawer, Dropdown, Empty, Progress, Skeleton, Tooltip } from 'antd';
+import { ReactNode, useState } from 'react';
+import { Link } from 'react-router';
+import { useAlgorithmContext } from '../context/AlgorithmContext';
 import useGet from '../hooks/network/useGet';
-import {CourseDetail} from '../types/Course.types';
-import {FindPostDetailsRequest, PostDetail} from '../types/Discuss.types';
-import {PageResponse} from '../types/Network';
-import {scoreColor, scoreTrail} from '../utils/scoreColor';
+import { CourseDetail } from '../types/Course.types';
+import { FindPostDetailsRequest, PostDetail } from '../types/Discuss.types';
+import { PageResponse } from '../types/Network';
+import PoleLabels from './PoleLabels';
 
 export type ExplanationScore = {
   label: string;
   score: number;
+  /** Điểm mục tiêu người dùng đã chọn cho tiêu chí này (thang 1–5). */
+  preferenceScore?: number;
+  lowLabel?: string;
+  highLabel?: string;
 };
+
+// Thang đo hai cực: điểm thấp/cao chỉ thể hiện thiên hướng, không phải tệ/tốt.
+// Màu thanh thể hiện khoảng cách tới sở thích: trùng khớp → xanh lục,
+// lệch vừa → cam, càng xa điểm mục tiêu → càng đỏ.
+const SCORE_COLOR = '#4338CA'; // indigo-700 — dùng khi không có sở thích để so
+const SCORE_TRAIL = '#E7E5E4'; // stone-200 — trail trung tính cho mọi màu thanh
+const MAX_SCORE_DISTANCE = 4; // thang 1–5 nên chênh lệch tối đa là 4
+
+// Các mốc màu theo khoảng cách chuẩn hoá [0..1]; giữa hai mốc thì nội suy RGB.
+const DISTANCE_COLOR_STOPS: [number, string][] = [
+  [0, '#059669'], // emerald-600 — trùng khớp sở thích
+  [0.5, '#D97706'], // amber-600 — lệch vừa
+  [1, '#DC2626'], // red-600 — xa sở thích nhất
+];
+
+function mixHexColors(from: string, to: string, t: number) {
+  const f = parseInt(from.slice(1), 16);
+  const g = parseInt(to.slice(1), 16);
+  const channel = (shift: number) => {
+    const a = (f >> shift) & 0xff;
+    const b = (g >> shift) & 0xff;
+    return Math.round(a + (b - a) * t);
+  };
+  return `#${((channel(16) << 16) | (channel(8) << 8) | channel(0)).toString(16).padStart(6, '0')}`;
+}
+
+function getScoreColor(score: number, preferenceScore?: number) {
+  if (preferenceScore == null) {
+    return SCORE_COLOR;
+  }
+  const distance =
+    Math.min(Math.abs(score - preferenceScore), MAX_SCORE_DISTANCE) / MAX_SCORE_DISTANCE;
+  for (let i = 1; i < DISTANCE_COLOR_STOPS.length; i++) {
+    const [fromDistance, fromColor] = DISTANCE_COLOR_STOPS[i - 1];
+    const [toDistance, toColor] = DISTANCE_COLOR_STOPS[i];
+    if (distance <= toDistance) {
+      return mixHexColors(
+        fromColor,
+        toColor,
+        (distance - fromDistance) / (toDistance - fromDistance),
+      );
+    }
+  }
+  return DISTANCE_COLOR_STOPS[DISTANCE_COLOR_STOPS.length - 1][1];
+}
 
 type Props = {
   courseDetail: CourseDetail;
@@ -57,7 +105,7 @@ function CourseDiscussionDrawerContent({ courseCode }: { courseCode: string }) {
 }
 
 const SCORE_MAX = 5;
-const PAGE_SIZE = 5;
+const PAGE_SIZE = 6;
 
 export default function RecommendedCourseCard({
   courseDetail,
@@ -116,33 +164,33 @@ export default function RecommendedCourseCard({
                   {courseName ?? courseDetail.course.name}
                 </div>
                 {(topRightBadge || onMarkNotInterested) && (
-                    <div className='flex items-center gap-1.5 shrink-0'>
-                      {topRightBadge}
-                      {onMarkNotInterested && (
-                          <Dropdown
-                              trigger={['click']}
-                              menu={{
-                                items: [{key: 'not-interested', label: 'Không quan tâm'}],
-                                onClick: ({domEvent}) => {
-                                  domEvent.preventDefault();
-                                  domEvent.stopPropagation();
-                                  onMarkNotInterested();
-                                },
-                              }}
-                          >
-                            <Button
-                                shape='circle'
-                                icon={<MoreOutlined style={{fontSize: 20}} rotate={90}/>}
-                                aria-label='Tùy chọn khác'
-                                className=' -my-2'
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                }}
-                            />
-                          </Dropdown>
-                      )}
-                    </div>
+                  <div className='flex items-center gap-1.5 shrink-0'>
+                    {topRightBadge}
+                    {onMarkNotInterested && (
+                      <Dropdown
+                        trigger={['click']}
+                        menu={{
+                          items: [{ key: 'not-interested', label: 'Không quan tâm' }],
+                          onClick: ({ domEvent }) => {
+                            domEvent.preventDefault();
+                            domEvent.stopPropagation();
+                            onMarkNotInterested();
+                          },
+                        }}
+                      >
+                        <Button
+                          shape='circle'
+                          icon={<MoreOutlined style={{ fontSize: 20 }} rotate={90} />}
+                          aria-label='Tùy chọn khác'
+                          className=' -my-2'
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                          }}
+                        />
+                      </Dropdown>
+                    )}
+                  </div>
                 )}
               </div>
               <div className='line-clamp-3 md:line-clamp-2 text-gray-500 text-[15px] leading-[1.7]'>
@@ -155,35 +203,42 @@ export default function RecommendedCourseCard({
           {/* Row 2: explanation scores (full width strip) */}
           {hasExplanation && (
             <div className='mt-4 pt-4 border-t border-stone-200'>
-              <p className='text-xs text-gray-500 mb-2'>
+              <p className='text-xs text-gray-500 mb-2 flex items-center gap-1.5'>
                 Cảm nhận của các sinh viên khác về các tiêu chí
+                <Tooltip title='Màu càng xanh là càng gần với sở thích của bạn, càng đỏ là càng lệch xa sở thích của bạn'>
+                  <QuestionCircleOutlined className='text-gray-400 hover:text-indigo-600 cursor-help transition-colors duration-150' />
+                </Tooltip>
               </p>
-              <div className='grid grid-cols-1 md:grid-cols-5 gap-x-6 gap-y-2'>
-                {visibleScores.map(({ label, score }) => (
-                  <div key={label}>
-                    <div className='flex justify-between items-center mb-1'>
-                      <Tooltip title={label} placement='top'>
-                        <span className='text-xs text-gray-600 truncate flex-1 cursor-default'>
-                          {label}
+              <div className='grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4'>
+                {visibleScores.map(({ label, score, preferenceScore, lowLabel, highLabel }) => {
+                  const scoreColor = getScoreColor(score, preferenceScore);
+                  return (
+                    <div key={label}>
+                      <div className='flex justify-between items-center -mb-1'>
+                        <Tooltip title={label} placement='top'>
+                          <span className='text-xs text-gray-600 truncate flex-1 cursor-default'>
+                            {label}
+                          </span>
+                        </Tooltip>
+                        <span
+                          className='text-xs font-semibold ml-2 shrink-0'
+                          style={{ color: scoreColor }}
+                        >
+                          {score.toFixed(1)}/5
                         </span>
-                      </Tooltip>
-                      <span
-                        className='text-xs font-semibold ml-2 shrink-0'
-                        style={{ color: scoreColor(score) }}
-                      >
-                        {score.toFixed(1)}/5
-                      </span>
+                      </div>
+                      <Progress
+                        showInfo={false}
+                        percent={(score / SCORE_MAX) * 100}
+                        strokeLinecap='round'
+                        strokeColor={scoreColor}
+                        trailColor={SCORE_TRAIL}
+                        size='small'
+                      />
+                      <PoleLabels lowLabel={lowLabel} highLabel={highLabel} className='mt-0.5' />
                     </div>
-                    <Progress
-                      showInfo={false}
-                      percent={(score / SCORE_MAX) * 100}
-                      strokeLinecap='round'
-                      strokeColor={scoreColor(score)}
-                      trailColor={scoreTrail(score)}
-                      size='small'
-                    />
-                  </div>
-                ))}
+                  );
+                })}
               </div>
               <div className='flex items-center gap-3 mt-2'>
                 {hiddenCount > 0 && (

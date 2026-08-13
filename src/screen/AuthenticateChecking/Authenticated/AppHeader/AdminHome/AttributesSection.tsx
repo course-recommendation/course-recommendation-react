@@ -11,6 +11,8 @@ import { ImportButton } from './UsersSection';
 type AdminAttributeRow = {
   id: number;
   value: string;
+  lowLabel?: string;
+  highLabel?: string;
   algorithm: string;
   createdAt: string;
 };
@@ -163,6 +165,18 @@ export function AttributesSection() {
             onFilter: () => true,
           },
           {
+            title: 'Thang đo (điểm 1 ⟷ điểm 5)',
+            render: (_, entity) =>
+              entity.lowLabel || entity.highLabel ? (
+                <span>
+                  {entity.lowLabel ?? '-'} <span className='text-gray-400'>⟷</span>{' '}
+                  {entity.highLabel ?? '-'}
+                </span>
+              ) : (
+                '-'
+              ),
+          },
+          {
             title: 'Ngày tạo',
             dataIndex: 'createdAt',
             width: 160,
@@ -203,7 +217,11 @@ export function AttributesSection() {
             url='/admin/attributes/import'
             onSuccess={() => actionRef.current?.reload()}
             exampleFileName='mau-thuoc-tinh'
-            formatColumns={[{ col: 'A', label: 'Tên thuộc tính', required: true }]}
+            formatColumns={[
+              { col: 'A', label: 'Tên thuộc tính', required: true },
+              { col: 'B', label: 'Nhãn cực thấp (phía điểm 1)', required: false },
+              { col: 'C', label: 'Nhãn cực cao (phía điểm 5)', required: false },
+            ]}
           />,
           <Button
             key='del'
@@ -235,6 +253,16 @@ export function AttributesSection() {
         }}
       >
         <ProFormText name='value' label='Tên' rules={[{ required: true }]} />
+        <ProFormText
+          name='lowLabel'
+          label='Nhãn cực thấp (phía điểm 1)'
+          placeholder='Ví dụ: Lý thuyết'
+        />
+        <ProFormText
+          name='highLabel'
+          label='Nhãn cực cao (phía điểm 5)'
+          placeholder='Ví dụ: Thực hành'
+        />
       </ModalForm>
 
       <ModalForm
@@ -259,6 +287,16 @@ export function AttributesSection() {
         }}
       >
         <ProFormText name='value' label='Tên' rules={[{ required: true }]} />
+        <ProFormText
+          name='lowLabel'
+          label='Nhãn cực thấp (phía điểm 1)'
+          placeholder='Ví dụ: Lý thuyết'
+        />
+        <ProFormText
+          name='highLabel'
+          label='Nhãn cực cao (phía điểm 5)'
+          placeholder='Ví dụ: Thực hành'
+        />
       </ModalForm>
     </>
   );

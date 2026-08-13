@@ -1,6 +1,10 @@
 export type Attribute = {
   id: number;
   value: string;
+  /** Nhãn cực ứng với điểm 1 của thang hai cực (vd: "Lý thuyết") */
+  lowLabel?: string;
+  /** Nhãn cực ứng với điểm 5 của thang hai cực (vd: "Thực hành") */
+  highLabel?: string;
 };
 
 export type Course = {

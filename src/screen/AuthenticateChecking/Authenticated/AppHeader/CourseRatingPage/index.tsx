@@ -1,9 +1,11 @@
+import PoleLabels from '@/common/components/PoleLabels';
+import RatingBox from '@/common/components/RatingBox';
 import { useAlgorithmContext } from '@/common/context/AlgorithmContext';
 import useGet from '@/common/hooks/network/useGet';
 import useRequest from '@/common/hooks/network/useRequest';
 import { Algorithm, Attribute, Course, CourseDetail } from '@/common/types/Course.types';
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, Card, Rate, Result, Select, Skeleton, Spin } from 'antd';
+import { Button, Card, Result, Select, Skeleton, Spin } from 'antd';
 import useApp from 'antd/es/app/useApp';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
@@ -103,15 +105,22 @@ function SectionCard({
           {attributes.map((attr) => (
             <div
               key={attr.id}
-              className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 rounded-xl border border-stone-100 bg-[#FAF9F7] px-4 py-3'
+              className='flex flex-col gap-2 rounded-xl border border-stone-100 bg-[#FAF9F7] px-4 py-3'
             >
               <span className='text-[14px] font-medium text-[#1C1917]'>{attr.value}</span>
-              <Rate
-                className='text-3xl text-amber-500 shrink-0'
-                value={getScore(attr.id)}
-                onChange={(score) => onScoreChange(attr.id, score)}
-                allowClear
-              />
+              <div className='flex flex-col gap-1 w-fit'>
+                <RatingBox
+                  highlightSmallerValues
+                  value={getScore(attr.id)}
+                  onChange={(score) => onScoreChange(attr.id, score)}
+                />
+                {/* Nhãn hai cực căn theo bề rộng dãy ô điểm: cực thấp dưới ô 1, cực cao dưới ô 5 */}
+                <PoleLabels
+                  lowLabel={attr.lowLabel}
+                  highLabel={attr.highLabel}
+                  className='w-[184px]'
+                />
+              </div>
             </div>
           ))}
         </div>
@@ -251,8 +260,9 @@ export default function CourseRatingPage() {
 
       <div className='mb-6 rounded-xl border border-indigo-200 bg-indigo-50 px-5 py-4'>
         <p className='text-indigo-800 text-[14px] leading-[1.7]'>
-          Đánh giá các thuộc tính của những môn bạn đã học theo thang điểm từ 1-5. Điểm càng cao tức
-          là cảm nhận của bạn về thuộc tính đó càng tích cực
+          Đánh giá các thuộc tính của những môn bạn đã học theo thang điểm từ 1-5. Hai đầu thang
+          điểm thể hiện hai thiên hướng khác nhau của môn học — hãy chọn mức điểm mô tả đúng nhất
+          trải nghiệm của bạn, không có thiên hướng nào là tốt hay tệ hơn
         </p>
       </div>
 

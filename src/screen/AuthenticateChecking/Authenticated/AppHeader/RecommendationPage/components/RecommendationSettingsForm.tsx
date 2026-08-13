@@ -1,3 +1,4 @@
+import PoleLabels from '@/common/components/PoleLabels';
 import RatingBox from '@/common/components/RatingBox';
 import { StatsigEvent } from '@/common/constants/StatsigEvent.ts';
 import { useLogStatsigEvent } from '@/common/hooks/useLogStatsigEvent.ts';
@@ -66,8 +67,10 @@ export default function RecommendationSettingsForm({
   const watchedFilterCoursesOptions = Form.useWatch('filterCoursesOptions', form);
   const watchedCustomFilteredCourseCodes = Form.useWatch('customFilteredCourseCodes', form);
   const activeFilterCount =
-    (watchedFilterCoursesOptions ?? initialFilterCoursesOptions).length +
-    (watchedCustomFilteredCourseCodes ?? initialCustomFilteredCourseCodes).length;
+    (
+      watchedFilterCoursesOptions ??
+      initialFilterCoursesOptions.filter((option) => option !== FilterCoursesOption.COMPLETED)
+    ).length + (watchedCustomFilteredCourseCodes ?? initialCustomFilteredCourseCodes).length;
 
   return (
     <>
@@ -82,7 +85,11 @@ export default function RecommendationSettingsForm({
               initialAttributeToScore?.[attribute.value] ?? 3,
             ]),
           ),
-          filterCoursesOptions: initialFilterCoursesOptions,
+          // COMPLETED giờ luôn được lọc mặc định (không còn checkbox), nên loại nó
+          // khỏi giá trị form để badge đếm bộ lọc không tính nhầm.
+          filterCoursesOptions: initialFilterCoursesOptions.filter(
+            (option) => option !== FilterCoursesOption.COMPLETED,
+          ),
           customFilteredCourseCodes: initialCustomFilteredCourseCodes,
         }}
       >
@@ -90,10 +97,10 @@ export default function RecommendationSettingsForm({
         <div className='flex-1 min-h-[96px] overflow-y-auto pr-1'>
           <SectionHeading
             title='Điều chỉnh sở thích của bạn'
-            description='Điểm số càng cao nghĩa là bạn muốn tiêu chí đó càng tích cực trong các môn được gợi ý.'
+            // description='Mỗi tiêu chí có hai thiên hướng ở hai đầu thang điểm. Chọn mức điểm thể hiện thiên hướng bạn mong muốn ở các môn được gợi ý.'
             onHelpClick={() => setPreferenceHelpOpen(true)}
           />
-          <div className='flex flex-col gap-1'>
+          <div className='flex flex-col'>
             {attributes
               .sort((a, b) =>
                 a.value.localeCompare(b.value, 'vi', {
@@ -101,9 +108,15 @@ export default function RecommendationSettingsForm({
                 }),
               )
               .map((attribute) => (
-                <ProFormItem key={attribute.id} name={['attributeToScore', attribute.value]} noStyle>
+                <ProFormItem
+                  key={attribute.id}
+                  name={['attributeToScore', attribute.value]}
+                  noStyle
+                >
                   <AttributeRow
                     label={attribute.value}
+                    lowLabel={attribute.lowLabel}
+                    highLabel={attribute.highLabel}
                     onChange={(value) => {
                       logEvent(StatsigEvent.AdjustPreference, value, {
                         attribute: attribute.value,
@@ -150,7 +163,8 @@ export default function RecommendationSettingsForm({
           >
             <div className='overflow-hidden'>
               <p className='mb-4 ml-[18px] text-[13px] text-gray-500 leading-relaxed'>
-                Loại bỏ các môn bạn không muốn xuất hiện trong kết quả gợi ý.
+                Loại bỏ các môn bạn không muốn xuất hiện trong kết quả gợi ý. Các môn đã hoàn thành
+                luôn được lọc sẵn.
               </p>
               <ProFormCheckbox.Group
                 noStyle
@@ -166,10 +180,6 @@ export default function RecommendationSettingsForm({
                   {
                     label: <span className='text-sm text-gray-700'>Lọc các môn đã lưu</span>,
                     value: FilterCoursesOption.PLANNING,
-                  },
-                  {
-                    label: <span className='text-sm text-gray-700'>Lọc các môn đã hoàn thành</span>,
-                    value: FilterCoursesOption.COMPLETED,
                   },
                 ]}
               />
@@ -187,19 +197,21 @@ export default function RecommendationSettingsForm({
         okText='Đã hiểu'
       >
         <div className='text-sm text-gray-600 leading-relaxed space-y-3'>
-          <p>
+          {/*<p>
             Mỗi tiêu chí của một môn học đều được chấm điểm từ <strong>1 đến 5</strong>, dựa trên
-            đánh giá thực tế của những sinh viên đã học môn đó.
-          </p>
+            đánh giá thực tế của những sinh viên đã học môn đó. Hai đầu thang điểm thể hiện hai
+            thiên hướng khác nhau của môn học (ví dụ thiên lý thuyết hay thiên thực hành), nên{' '}
+            <strong>điểm thấp hay cao không có nghĩa là tệ hay tốt</strong>.
+          </p>*/}
           <p>
             Khi bạn điều chỉnh sở thích bên dưới, hệ thống sẽ ưu tiên gợi ý những môn có điểm số ở
             các tiêu chí này <strong>càng gần với điểm mục tiêu bạn chọn càng tốt</strong>.
           </p>
-          <p>
+          {/*<p>
             Nhờ vậy, bạn có thể tự do khám phá nhiều môn học theo đúng tiêu chí mình quan tâm trước
             khi đưa ra quyết định cuối cùng, thay vì chỉ nhận được những môn mà hệ thống cho là phù
             hợp nhất mà không thể tự điều chỉnh kết quả theo ý mình.
-          </p>
+          </p>*/}
         </div>
       </Modal>
     </>
@@ -223,10 +235,14 @@ function CustomFilterSelect({ allCourses }: { allCourses: Course[] }) {
 
 function AttributeRow({
   label,
+  lowLabel,
+  highLabel,
   value,
   onChange,
 }: {
   label: string;
+  lowLabel?: string;
+  highLabel?: string;
   value?: number;
   onChange?: (value: number) => void;
 }) {
@@ -235,7 +251,11 @@ function AttributeRow({
       <span className='text-sm text-gray-600  transition-colors duration-150 leading-snug'>
         {label}
       </span>
-      <RatingBox highlightSmallerValues value={value} onChange={onChange} />
+      <div className='flex flex-col gap-1 w-fit'>
+        <RatingBox highlightSmallerValues value={value} onChange={onChange} />
+        {/* Nhãn hai cực căn theo bề rộng dãy ô điểm: cực thấp dưới ô 1, cực cao dưới ô 5 */}
+        <PoleLabels lowLabel={lowLabel} highLabel={highLabel} className='w-[184px]' />
+      </div>
     </div>
   );
 }

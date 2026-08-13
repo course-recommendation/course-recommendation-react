@@ -1,5 +1,3 @@
-import TrendingDown from '@/assets/icons/TrendingDown';
-import TrendingUp from '@/assets/icons/TrendingUp';
 import CourseStatusButton from '@/common/components/CourseStatusButton';
 import RecommendedCourseCard from '@/common/components/RecommendedCourseCard';
 import { useShowExplanationContext } from '@/common/context/ShowExplanationContext';
@@ -18,30 +16,38 @@ import {
 import {
   FSCategoryDetail,
   FsItemSentiment,
+  FSPreferenceConfigure,
   FSRecommendationRequest,
   FSRecommendationResult,
   FSRefinedRecommendationRequest,
   FSTradeoffPair,
   isDirectionUp,
 } from '@/common/types/FS.types';
+import { FilterCoursesOption } from '@/common/types/Recommendation.types';
 import { RecommendationSettingsFormType } from '@/common/types/TriRank.types';
 import { ArrowUpOutlined, QuestionOutlined, StarFilled } from '@ant-design/icons';
 import { Button, Empty, Skeleton, Space, Spin, Tag, Typography } from 'antd';
 import useApp from 'antd/es/app/useApp';
 import { useForm } from 'antd/es/form/Form';
-import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import RecommendationSettingsForm from '../components/RecommendationSettingsForm';
 import RecommendationSettingsSidebar from '../components/RecommendationSettingsSidebar';
 
 const CARD_SHADOW = '0 1px 4px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04)';
 const PAGE_SIZE = 5;
 
+// Kết quả cũ lưu trước khi có trường attributeToPreferenceConfigure có thể thiếu nó;
+// dùng chung một object rỗng để không phá memo của CategorySection.
+const EMPTY_ATTRIBUTE_TO_PREFERENCE: Record<string, FSPreferenceConfigure> = {};
+
 type CategorySectionProps = {
   categoryDetail: FSCategoryDetail;
   catIdx: number;
   visibleCount: number;
   onShowMore: (catIdx: number) => void;
+  attributeByValue: Record<string, Attribute>;
   itemIdToItemSentiments: Record<string, FsItemSentiment[]>;
+  attributeToPreference: Record<string, FSPreferenceConfigure>;
   courseStatusOverrides: Record<string, UserCourseStatus | undefined>;
   onCourseStatusChange: (courseCode: string, status: UserCourseStatus | undefined) => void;
   onRefinedRecommendation: (itemId: string, category: FSTradeoffPair[]) => Promise<void>;
@@ -56,7 +62,9 @@ const CategorySection = memo(function CategorySection({
   catIdx,
   visibleCount,
   onShowMore,
+  attributeByValue,
   itemIdToItemSentiments,
+  attributeToPreference,
   courseStatusOverrides,
   onCourseStatusChange,
   onRefinedRecommendation,
@@ -72,6 +80,9 @@ const CategorySection = memo(function CategorySection({
     (itemIdToItemSentiments[courseCode] ?? []).map((s) => ({
       label: s.attribute,
       score: s.sentimentScore,
+      preferenceScore: attributeToPreference[s.attribute]?.targetSentimentScore,
+      lowLabel: attributeByValue[s.attribute]?.lowLabel,
+      highLabel: attributeByValue[s.attribute]?.highLabel,
     }));
 
   const getEffectiveStatus = (courseDetail: CourseDetail) => {
@@ -91,19 +102,19 @@ const CategorySection = memo(function CategorySection({
           <span>
             {categoryDetail.category.map((tradeoffPair, idx) => {
               const isUp = isDirectionUp(tradeoffPair.direction);
+              const attribute = attributeByValue[tradeoffPair.attribute];
+              const poleLabel = isUp ? attribute?.highLabel : attribute?.lowLabel;
               return (
                 <span key={`${tradeoffPair.attribute}-${tradeoffPair.direction}`}>
                   {idx > 0 && ', '}
-                  {isUp ? (
-                    <TrendingUp className='inline mr-1.5 text-emerald-600' />
-                  ) : (
-                    <TrendingDown className='inline mr-1.5 text-red-500' />
-                  )}
                   <span className='text-indigo-700'>{tradeoffPair.attribute}</span>
-                  {` ${isUp ? 'tốt hơn' : 'tệ hơn'}`}
+                  {poleLabel
+                    ? ` thiên về ${poleLabel.toLocaleLowerCase('vi')} hơn`
+                    : ` ${isUp ? 'cao hơn' : 'thấp hơn'}`}
                 </span>
               );
             })}
+            {' so với môn đầu tiên'}
             <span className='text-gray-400 font-normal text-sm ml-2'>
               ({categoryDetail.courseDetails.length} môn)
             </span>
@@ -250,6 +261,14 @@ export default function FSRecommendation() {
     },
   );
 
+  const attributeByValue = useMemo(
+    () =>
+      Object.fromEntries(
+        (attributesResponse?.data ?? []).map((attribute) => [attribute.value, attribute]),
+      ),
+    [attributesResponse],
+  );
+
   const { data: attributeToScoreResponse, isPending: attributeToScorePending } = useGet<
     Record<string, number> | undefined
   >(`/user-preference`, {
@@ -315,7 +334,10 @@ export default function FSRecommendation() {
               { targetSentimentScore: value },
             ]),
           ),
-          filterCoursesOptions: formValues.filterCoursesOptions ?? [],
+          // Môn đã hoàn thành luôn bị lọc, không còn checkbox để bật/tắt.
+          filterCoursesOptions: Array.from(
+            new Set([...(formValues.filterCoursesOptions ?? []), FilterCoursesOption.COMPLETED]),
+          ),
           customFilteredCourseCodes: formValues.customFilteredCourseCodes ?? [],
         },
       })
@@ -386,10 +408,14 @@ export default function FSRecommendation() {
   const getExplanationScores = (
     courseCode: string,
     itemIdToItemSentiments: Record<string, FsItemSentiment[]>,
+    attributeToPreference: Record<string, FSPreferenceConfigure>,
   ) =>
     (itemIdToItemSentiments[courseCode] ?? []).map((s) => ({
       label: s.attribute,
       score: s.sentimentScore,
+      preferenceScore: attributeToPreference[s.attribute]?.targetSentimentScore,
+      lowLabel: attributeByValue[s.attribute]?.lowLabel,
+      highLabel: attributeByValue[s.attribute]?.highLabel,
     }));
 
   const getEffectiveUserCourseStatus = (courseDetail: CourseDetail) => {
@@ -568,10 +594,10 @@ export default function FSRecommendation() {
                       <StarFilled className='text-amber-500 text-xl shrink-0 mt-0.5' />
                       <div>
                         <div className='text-[18px] font-semibold text-[#1C1917]'>
-                          Môn học phù hợp nhất
+                          Gợi ý hàng đầu cho bạn
                         </div>
                         <div className='text-sm text-gray-500 mt-0.5'>
-                          Kết quả tốt nhất theo tiêu chí của bạn
+                          Môn có mức độ khớp cao nhất với các tiêu chí bạn đã chọn
                         </div>
                       </div>
                     </div>
@@ -583,6 +609,8 @@ export default function FSRecommendation() {
                       explanationScores={getExplanationScores(
                         topCourseDetail.course.code,
                         recommendationResult.itemIdToItemSentiments,
+                        recommendationResult.attributeToPreferenceConfigure ??
+                          EMPTY_ATTRIBUTE_TO_PREFERENCE,
                       )}
                       onClick={() => {
                         logEvent(StatsigEvent.SeeCourseDetail, undefined, {
@@ -653,7 +681,12 @@ export default function FSRecommendation() {
                           catIdx={catIdx}
                           visibleCount={getVisibleCount(catIdx)}
                           onShowMore={handleShowMore}
+                          attributeByValue={attributeByValue}
                           itemIdToItemSentiments={recommendationResult.itemIdToItemSentiments}
+                          attributeToPreference={
+                            recommendationResult.attributeToPreferenceConfigure ??
+                            EMPTY_ATTRIBUTE_TO_PREFERENCE
+                          }
                           courseStatusOverrides={courseStatusOverrides}
                           onCourseStatusChange={handleCourseStatusChange}
                           onMarkNotInterested={handleMarkNotInterested}
