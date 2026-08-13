@@ -1,5 +1,6 @@
 import PoleLabels from '@/common/components/PoleLabels';
 import RatingBox from '@/common/components/RatingBox';
+import SatisfactionRating from '@/common/components/SatisfactionRating';
 import { useAlgorithmContext } from '@/common/context/AlgorithmContext';
 import useGet from '@/common/hooks/network/useGet';
 import useRequest from '@/common/hooks/network/useRequest';
@@ -18,6 +19,8 @@ type SectionAttributeRating = {
 type FormSection = {
   key: string;
   courseId: number | null;
+  /** 0 = chưa chọn sao nào */
+  satisfaction: number;
   attributeRatings: SectionAttributeRating[];
 };
 
@@ -25,15 +28,20 @@ type SavedRatingSection = {
   courseId: number;
   courseCode: string;
   courseName: string;
+  satisfaction?: number;
   attributeRatings: { attributeId: number; attributeName: string; score: number }[];
 };
 
 type SavePayload = {
-  sections: { courseId: number; attributeRatings: { attributeId: number; score: number }[] }[];
+  sections: {
+    courseId: number;
+    satisfaction: number;
+    attributeRatings: { attributeId: number; score: number }[];
+  }[];
 };
 
 function makeEmptySection(key: string): FormSection {
-  return { key, courseId: null, attributeRatings: [] };
+  return { key, courseId: null, satisfaction: 0, attributeRatings: [] };
 }
 
 function SectionCard({
@@ -43,6 +51,7 @@ function SectionCard({
   attributes,
   selectedInOtherSections,
   onCourseChange,
+  onSatisfactionChange,
   onScoreChange,
   onDelete,
   canDelete,
@@ -53,6 +62,7 @@ function SectionCard({
   attributes: Attribute[];
   selectedInOtherSections: number[];
   onCourseChange: (courseId: number | null) => void;
+  onSatisfactionChange: (score: number) => void;
   onScoreChange: (attributeId: number, score: number) => void;
   onDelete: () => void;
   canDelete: boolean;
@@ -97,6 +107,15 @@ function SectionCard({
             disabled: selectedInOtherSections.includes(c.id),
           }))}
         />
+      </div>
+
+      <div className='mb-5 rounded-xl border border-stone-100 bg-[#FAF9F7] px-4 py-3'>
+        <div className='text-[14px] font-medium text-[#1C1917]'>Mức độ hài lòng tổng thể</div>
+        <p className='mt-0.5 mb-2 text-[12px] leading-[1.6] text-gray-500'>
+          Bạn hài lòng đến đâu với môn học này? Đây là điểm duy nhất thể hiện thích hay không thích,
+          khác với các thuộc tính bên dưới chỉ mô tả đặc điểm môn học.
+        </p>
+        <SatisfactionRating value={section.satisfaction} onChange={onSatisfactionChange} />
       </div>
 
       {attributes.length > 0 && (
@@ -164,6 +183,7 @@ export default function CourseRatingPage() {
         saved.map((s) => ({
           key: nextKey(),
           courseId: s.courseId,
+          satisfaction: s.satisfaction ?? 0,
           attributeRatings: s.attributeRatings.map((r) => ({
             attributeId: r.attributeId,
             score: r.score,
@@ -186,6 +206,10 @@ export default function CourseRatingPage() {
     setSections((prev) => prev.map((s) => (s.key === key ? { ...s, courseId } : s)));
   };
 
+  const handleSatisfactionChange = (key: string, satisfaction: number) => {
+    setSections((prev) => prev.map((s) => (s.key === key ? { ...s, satisfaction } : s)));
+  };
+
   const handleScoreChange = (key: string, attributeId: number, score: number) => {
     setSections((prev) =>
       prev.map((s) => {
@@ -200,9 +224,14 @@ export default function CourseRatingPage() {
   };
 
   const handleSubmit = async () => {
-    const invalid = sections.some((s) => s.courseId == null);
-    if (invalid) {
+    if (sections.some((s) => s.courseId == null)) {
       message.error('Vui lòng chọn môn học cho tất cả các mục');
+      return;
+    }
+    // Điểm hài lòng là tín hiệu duy nhất cho biết sinh viên thích hay không thích môn học, và là
+    // ma trận user-item của TriRank, nên không cho gửi thiếu.
+    if (sections.some((s) => !s.satisfaction)) {
+      message.error('Vui lòng chọn mức độ hài lòng tổng thể cho tất cả các môn');
       return;
     }
 
@@ -213,6 +242,7 @@ export default function CourseRatingPage() {
         data: {
           sections: sections.map((s) => ({
             courseId: s.courseId!,
+            satisfaction: s.satisfaction,
             attributeRatings: s.attributeRatings,
           })),
         },
@@ -260,9 +290,11 @@ export default function CourseRatingPage() {
 
       <div className='mb-6 rounded-xl border border-indigo-200 bg-indigo-50 px-5 py-4'>
         <p className='text-indigo-800 text-[14px] leading-[1.7]'>
-          Đánh giá các thuộc tính của những môn bạn đã học theo thang điểm từ 1-5. Hai đầu thang
-          điểm thể hiện hai thiên hướng khác nhau của môn học — hãy chọn mức điểm mô tả đúng nhất
-          trải nghiệm của bạn, không có thiên hướng nào là tốt hay tệ hơn
+          Với mỗi môn bạn đã học, hãy cho biết <strong>mức độ hài lòng tổng thể</strong> từ 1 đến 5
+          sao — đây là điểm thể hiện bạn thích hay không thích môn học. Sau đó đánh giá{' '}
+          <strong>các thuộc tính</strong> theo thang 1-5: hai đầu thang điểm thể hiện hai thiên
+          hướng khác nhau của môn học, hãy chọn mức điểm mô tả đúng nhất trải nghiệm của bạn, không
+          có thiên hướng nào là tốt hay tệ hơn
         </p>
       </div>
 
@@ -282,6 +314,7 @@ export default function CourseRatingPage() {
                   .map((s) => s.courseId as number)}
                 attributes={attributesResponse?.data ?? []}
                 onCourseChange={(courseId) => handleCourseChange(section.key, courseId)}
+                onSatisfactionChange={(score) => handleSatisfactionChange(section.key, score)}
                 onScoreChange={(attributeId, score) =>
                   handleScoreChange(section.key, attributeId, score)
                 }

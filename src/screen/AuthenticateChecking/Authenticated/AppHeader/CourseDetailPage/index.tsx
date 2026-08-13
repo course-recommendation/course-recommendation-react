@@ -1,4 +1,5 @@
 import CourseStatusButton from '@/common/components/CourseStatusButton';
+import SatisfactionRating from '@/common/components/SatisfactionRating';
 import { StatsigEvent } from '@/common/constants/StatsigEvent.ts';
 import { useAlgorithmContext } from '@/common/context/AlgorithmContext';
 import useGet from '@/common/hooks/network/useGet';
@@ -9,6 +10,7 @@ import {
   CourseDetail,
   GetCourseDetailsRequest,
   RateCourseRequest,
+  RateCourseSatisfactionRequest,
   UserCourseStatus,
 } from '@/common/types/Course.types';
 import { ArrowRightOutlined } from '@ant-design/icons';
@@ -41,6 +43,8 @@ export default function CourseDetailPage() {
   });
 
   const { request: rateCourse } = useRequest<void, RateCourseRequest>();
+  const { request: rateSatisfaction } = useRequest<void, RateCourseSatisfactionRequest>();
+  const [satisfactionOverride, setSatisfactionOverride] = useState<number | undefined>(undefined);
 
   if (courseDetailPending || attributeValuesPending) {
     return <Skeleton active paragraph={{ rows: 10 }} />;
@@ -52,6 +56,7 @@ export default function CourseDetailPage() {
   const userCourseStatus = isUserCourseStatusOverridden
     ? userCourseStatusOverride
     : courseDetail.userCourseStatus;
+  const satisfaction = satisfactionOverride ?? courseDetail.userSatisfactionScore;
 
   return (
     <div className='max-w-4xl mx-auto'>
@@ -146,7 +151,27 @@ export default function CourseDetailPage() {
             viên khác.
           </p>
 
-          <div className='mt-6'>
+          <div className='mt-6 rounded-xl border border-stone-100 bg-[#FAF9F7] px-5 py-4'>
+            <div className='text-[15px] font-semibold text-[#1C1917]'>Mức độ hài lòng tổng thể</div>
+            <p className='mt-1 mb-2.5 text-[13px] leading-[1.6] text-gray-500'>
+              Bạn hài lòng đến đâu với môn học này? Đây là điểm duy nhất thể hiện thích hay không
+              thích, khác với các thuộc tính bên dưới chỉ mô tả đặc điểm môn học.
+            </p>
+            <SatisfactionRating
+              value={satisfaction}
+              onChange={(score) => {
+                setSatisfactionOverride(score);
+                rateSatisfaction({
+                  method: 'PUT',
+                  url: `/courses/${courseDetail.course.id}/satisfaction`,
+                  data: { score },
+                });
+              }}
+            />
+          </div>
+
+          <div className='mt-4'>
+            <div className='mb-2 text-[15px] font-semibold text-[#1C1917]'>Đánh giá thuộc tính</div>
             <AttributeRating
               attributes={attributes}
               attributeIdToRatingScore={courseDetail.userAttributeIdToRatingScore}

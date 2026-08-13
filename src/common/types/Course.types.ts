@@ -29,6 +29,8 @@ export type CourseDetail = {
   course: Course;
   userCourseStatus?: UserCourseStatus;
   userAttributeIdToRatingScore: Record<number, number>;
+  /** Điểm hài lòng tổng thể (1-5 sao) người dùng đã cho môn này; null nếu chưa đánh giá */
+  userSatisfactionScore?: number;
 };
 
 export type GetCoursesOfUserRequest = {
@@ -56,6 +58,11 @@ export type GetCourseDetailRequest = {
 
 export type RateCourseRequest = {
   attributeId: number;
+  score: number;
+};
+
+export type RateCourseSatisfactionRequest = {
+  /** 1-5 sao; 0 để xoá điểm đã lưu */
   score: number;
 };
 
