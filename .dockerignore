@@ -3,6 +3,10 @@ dist
 dist-ssr
 *.local
 
+# Local-dev env only. Bun auto-loads .env into process.env, which would
+# override .env.staging during the in-image vite build (process.env wins).
+.env
+
 .git
 .vscode
 .idea
